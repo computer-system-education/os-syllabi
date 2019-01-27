@@ -1,10 +1,10 @@
-# Principles of Computer Operating Systems (2018)
+# Principles of Computer Operating Systems (Spring 2018)
 
 ## Course info
 
 - Instructors: **Geoffrey M. Voelker**
 - Textbook: __Operating Systems: Three Easy Pieces__
-- URL: https://pdos.csail.mit.edu/6.828/2018/general.html
+- URL: http://cseweb.ucsd.edu/classes/sp18/cse120-a/
 
 ## Outline
 
