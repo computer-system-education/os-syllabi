@@ -17,29 +17,27 @@ Several syllabis of operating system courses are collected and listed, including
 
 Here are some topics of each course:
 
-
 |                             | UCB | Colu | Corn | Harv | MIT | Stan | UCSD | UIUC | WU | Wisc |
 | --------------------------- | --- | ---- | ---- | ---- | --- | ---- | ---- | ---- | -- | ---- |
 | Architecture support for OS |     |      |   1  |   1  |  1  |      |   1  |      |  1 |      |
-| gdb                         |     |      |      |   1  |  1  |      |      |      |    |      |
 | OS structure                |     |      |      |   1  |  1  |      |      |   1  |    |      |
 | System call & intr & excep  |     |   1  |      |   1  |  1  |      |      |   1  |  3 |      |
 | Process & thread            |  2  |   3  |   2  |   1  |  1  |   1  |   2  |      |    |   1  |
 | Synchronization             |  4  |   4  |   6  |   4  |  3  |   3  |   3  |   4  |  1 |   4  |
 | Scheduling                  |  1  |   2  |   1  |   2  |  1  |   1  |   1  |   3  |  1 |   1  |
 | Memory management           |  6  |   5  |   5  |   2  |  3  |   3  |   3  |   4  |  3 |   3  |
-| Memory consistency model    |     |      |      |      |     |      |      |      |  1 |      |
 | File system                 |  2  |   3  |   3  |   8  |  3  |   2  |   2  |   2  |  3 |   4  |
-| Linking                     |     |      |      |      |     |   1  |      |      |    |      |
 | Storage                     |  1  |   2  |   1  |      |  3  |   1  |   2  |   3  |    |   1  |
 | Network                     |  3  |      |   3  |   1  |  1  |   1  |      |      |  1 |      |
 | Security                    |     |      |   2  |   1  |     |   1  |      |   3  |  1 |      |
-| Protection                  |     |   1  |      |      |     |   1  |   1  |   1  |    |      |
-| Isolation                   |     |      |      |      |  1  |      |      |      |    |      |
-| Multicore                   |     |      |      |      |  1  |      |   1  |      |  1 |      |
+| Protection                  |     |   1  |      |      |  1  |   1  |   1  |   1  |    |      |
 | Virtual machine             |     |      |      |   1  |  2  |   1  |   1  |   4  |  2 |      |
+| Multicore                   |     |      |      |      |  1  |      |   1  |      |  1 |      |
 | Distributed system          |  1  |      |   2  |      |  2  |      |   1  |      |    |      |
-| Verification                |     |      |      |      |     |      |      |      |  1 |      |
+| gdb                         |     |      |      |   1  |  1  |      |      |      |    |      |
 | Container                   |     |      |      |   1  |     |      |      |      |    |      |
 | Energy + Power              |     |      |      |      |     |      |      |   1  |    |      |
 | Audit                       |     |      |      |      |     |      |      |   1  |    |      |
+| Verification                |     |      |      |      |     |      |      |      |  1 |      |
+| Memory consistency model    |     |      |      |      |     |      |      |      |  1 |      |
+| Linking                     |     |      |      |      |     |   1  |      |      |    |      |
