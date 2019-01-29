@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CSE 120: Principles of Computer Operating Systems</title>
+  <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+
+<body class="main">
+
+<h1>Project 0: Jump Start</h1>
+<div class="h1sub">Spring 2018</div>
+
+<!-- make it Monday 11:59pm -->
+<p><strong>Due</strong>: <span class="due">Monday, April 9, at 11:59pm</span>
+
+<p><strong>Note</strong>: This is an individual assignment.  Each
+student must submit a copy of their session's output.</p>
+
+<!--
+<h2>Background</h2>
+-->
+
+<p>
+Nachos is a Java application written to perform the functions of a
+real operating system.  The details of how the operating system
+implements concepts such as threading, virtual memory, and processes
+are exposed to you.  All of the source code implementing the Nachos
+operating system is included with the distribution.  However, this
+baseline implementation does not implement some very useful features.
+During the quarter, your job will be to complete the missing portions
+of the operating system and use the functionality in your projects.
+
+<p>
+In this pre-project you will familiarize yourself with installing and
+compiling the Nachos distribution.
+<!-- You will also practice using the
+debugger on the nachos executable as it runs.  --> The tutorial below
+should not take that much time; if you seem to be having serious
+problems, check Piazza and post a note if necessary.
+
+<h2>Tasks</h2>
+
+<ol>
+
+<p>
+<li> Whether you are working on a desktop in the basement lab or your
+laptop, login to ieng6 using an ssh client.  Be sure to <tt>prep
+cs120s</tt> when you login.  (If you have a <tt>cs120s**</tt> account,
+it should automatically prep.)
+
+<blockquote><pre>
+    % ssh ieng6.ucsd.edu
+    % prep cs120s
+</pre></blockquote>
+  
+<p>
+<li>
+Download the <a href="http://cseweb.ucsd.edu/classes/sp18/cse120-a/projects/nachos-cse120-sp18.tar.gz">Nachos distribution</a> into your home directory on ieng6, and then unpack it:
+
+<blockquote><pre>
+    % tar xvfz nachos-cse120-sp18.tar.gz
+</pre></blockquote>
+
+Also take some time to read the instructions for all projects on
+the <a href="index.html">main projects page</a>.
+
+  <!--
+      In
+  particular, you will need to understand how to submit your projects.
+  -->
+
+<!--
+<li>
+Next, read through the README file in the base directory
+of the Nachos distribution.  This file explains how to alter your path
+to run Nachos from the command line (Note: more specifically,
+add <code>export PATH=$PATH:/path/to/nachos/bin</code> to
+your <code>~/.bash_profile</code>, replace the last part
+`/path/to/nachos/bin` with the actual path to your nachos/bin
+directory. Re-login for it to take effect.)  There will be other
+information in the README file for future projects.  Don't worry about
+that right now.
+-->
+
+<p>
+<li>
+  
+After unpacking the Nachos distribution, go into the <tt>proj0</tt>
+directory and compile Nachos for this project:
+
+<blockquote><pre>
+    % cd nachos/proj0
+    % make
+</pre></blockquote>
+
+You can safely ignore the compiler warnings.  Then run the nachos program:
+
+<blockquote><pre>
+    % nachos
+</pre></blockquote>
+
+The <tt>nachos</tt> command is a script that invokes the Java VM to
+run Nachos.  It should already be in your path, and you can also find
+the script in <tt>bin/nachos</tt>.  Running the program causes the
+methods of <tt>nachos.threads.ThreadedKernel</tt> to be called in the
+order listed in <tt>threads/ThreadedKernel.java</tt>:
+
+<p>
+<ol>
+  <li>The <tt>ThreadedKernel</tt> constructor is invoked to create the
+        Nachos kernel.</li>
+  <li>This kernel is initialized with <tt>initialize()</tt>.</li>
+  <li>This kernel is tested with <tt>selfTest()</tt>.</li>
+  <li>This kernel is finally "run" with <tt>run()</tt>. For
+    now, <tt>run()</tt> does nothing, since our kernel is not yet
+    able to run user programs.</li>
+</ol>
+
+<p> Your session should resemble the following:
+
+<blockquote>
+<pre>
+$ cd nachos/proj0
+$ make
+$ nachos (equivalent to ../bin/nachos)
+nachos 5.0j initializing... config interrupt timer user-check grader
+*** thread 0 looped 0 times
+*** thread 1 looped 0 times
+*** thread 0 looped 1 times
+*** thread 1 looped 1 times
+*** thread 0 looped 2 times
+*** thread 1 looped 2 times
+*** thread 0 looped 3 times
+*** thread 1 looped 3 times
+*** thread 0 looped 4 times
+*** thread 1 looped 4 times
+Machine halting!
+
+Ticks: total 2130, kernel 2130, user 0
+Disk I/O: reads 0, writes 0
+Console I/O: reads 0, writes 0
+Paging: page faults 0, TLB misses 0
+Network I/O: received 0, sent 0
+</pre>
+</blockquote>
+
+<li>
+  
+Trace the execution path by hand to find where the output is coming
+from (i.e., which classes are generating those output
+statements). Your job will be simple for this initial project, simply
+modifying a print statement.  Specifically, change the Nachos
+output print statement:
+
+<blockquote><pre>
+*** thread n looped m times
+</pre></blockquote>
+
+to<br>
+
+<blockquote><pre>
+<tt>*** <b>awesome</b> thread n looped m times</tt>
+</pre></blockquote>
+
+And that's it.  Be sure to test your changes before you submit them.
+
+</ol>
+
+
+<h2>Code Submission</h2>
+
+<!--
+<p>
+We just got the teaching accounts on ieng6, and we're setting up the
+submission scripts for this quarter.  We will update this section when
+they are ready.
+-->
+
+<p>
+For this project, each student must submit their project using a
+script we provide.  Go to your nachos directory (and not the proj0
+subdirectory) and run the <code>submit-proj0</code> script:
+
+<blockquote><pre>
+    % cd nachos
+    % submit-proj0
+</pre></blockquote>
+
+<p>
+You will have until the posted due date to submit this project. You
+can submit as many times as you like.  The last version submitted
+before the due date will be the one accepted.
+
+<!--
+<p> As with all projects, you will submit it using the project
+specific submission script.  For this project, you cannot work in a
+group. Each student must submit their own project 0.  To submit, log
+into your course account and run: <code>prep cs120f</code> (If you are
+in Prof. Voelker's class, run <code>prep cs120e</code> instead) Then
+move into your nachos directory and run: <code>submit-proj0</code> You
+will have until the posted due date to submit this project. You can
+submit as many times as you like. The last version submitted before
+the due date will be the one accepted.
+-->
+
+</body>
+
+<address>
+<div class="footer">
+  <hr>
+  <a href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>
+</div>
+</address>
+</html>

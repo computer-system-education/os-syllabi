@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="../style.css">
+  <title>CSE 120 (Spring 2018) -- Homework #4</title>
+</head>
+
+<style type="text/css">
+
+#iotable {
+text-align: center;
+border-collapse: collapse;
+}
+  
+.io {
+  border: dotted thin;
+  width: 75px;
+}
+
+</style>
+
+<body class="main">
+
+<h1>CSE 120: Homework #4</h1>
+<div class="h1sub">Spring 2018</div>
+
+<p><strong>Out</strong>: <span class="out">Thursday May 24</span>
+<br><strong>Due</strong>: <span class="due">Wednesday June 6 at 11:59pm</i><br>
+
+
+<ol>
+
+<!-- fragmentation questions...calculate % of disk lost to internal.
+also calculate when using fragments -->
+
+<p>
+<li> On a Unix-style file system, how many disk read operations are
+required to open and read the first block of the file
+"/usr/include/X11/Xlib.h"?  Assume (1) that the master block is in
+memory, but nothing else; (2) that all directories and inodes are one
+block in size; (3) that once a block is read, it is cached in memory
+(and does not need to be read again); (4) inode timestamps (like last
+access) do not need to be updated (the inode does not need to be
+written after access).
+
+<p>
+<li> Consider a UNIX-style inode with 10 direct pointers, one single-
+indirect pointer, and one double-indirect pointer only. Assume that
+the block size is 4K bytes, and that the size of a pointer is 4
+bytes. How large a file can be indexed using such an inode?
+
+<p>
+<li>
+Consider a file archival system, like the programs zip or tar. Such
+systems copy files into a backup file and restore files from the
+backup. For example, from the zip documentation:
+
+<blockquote>
+The zip program puts one or more compressed files into a single zip
+archive, along with information about the files (name, path, date,
+time of last modification, protection, and check information to verify
+file integrity).
+</blockquote>
+
+<p> When a file is restored, it is given the same name, time of last
+modification, protection, and so on.  If desired, it can even be put
+into the same directory in which it was originally located.
+
+<p> Can zip restore the file into the same inode as well?  Briefly
+explain your answer.
+
+<li> [Silberschatz] Consider a system that supports 5000
+users. Suppose that you want to allow 4990 of these users to be able
+to access one file.
+
+<ol type="a">
+<li> How would you specify this protection scheme in Unix?
+<li> Could you suggest another protection scheme that can be used more
+effectively for this purpose than the scheme provided by Unix?
+</ol>
+
+<p>
+<li> [Silberschatz] How does a file cache help improve performance?
+Why do systems not use much larger caches if they are so useful?
+
+<p>
+<li> Consider a program that executes a loop that issues a read I/O to a
+storage device and waits <tt>I</tt> milliseconds for the I/O to complete,
+and then computes on the data returned for <tt>X</tt> milliseconds, and then
+repeats. </p>
+
+<p> For various values of <tt>I</tt> and <tt>X</tt>, compute the
+  percentage of time that the program spends waiting for I/O and fill
+  in the following table.  If <tt>I</tt> and <tt>X</tt> are both 1 ms,
+  for example, then the program spends 50% of its time waiting for
+  I/O. </p>
+
+<center>
+<table id="iotable">
+  <tr>
+    <td> </td> <td> </td> <td> </td> <td><tt>X</tt></td> <td> </td> <td> </td>
+  </tr>
+  <tr>
+    <td> </td> <td> </td> <td>100 ms</td> <td>10 ms</td> <td>1 ms </td> <td>0.1 ms</td>
+  </tr>
+  <tr>
+    <td> </td> <td> 25 ms (Data Center) &nbsp;</td> <td class="io"> </td> <td class="io"> </td> <td class="io"> </td> <td class="io"> </td>
+  </tr>
+  <tr>
+    <td> </td> <td> 5 ms (HDD)</td> <td class="io"> </td> <td class="io"> </td> <td class="io"> </td> <td class="io"> </td>
+  </tr>
+  <tr>
+    <td><tt>I</tt></td> <td> 0.1 ms (SSD)</td> <td class="io"> </td> <td class="io"> </td> <td class="io"> </td> <td class="io"> </td>
+  </tr>
+  <tr>
+    <td> </td> <td> 0.005 ms (PCM)</td> <td class="io"> </td> <td class="io"> </td> <td class="io"> </td> <td class="io"> </td>
+  </tr>
+  <tr>
+    <td> </td> <td> 0.001 ms (RAM)</td> <td class="io"> </td> <td class="io"> </td> <td class="io"> </td> <td class="io"> </td>
+  </tr>
+
+</table>
+</center>
+
+</ol>
+
+<address>
+<div class="footer">
+  <hr>
+  <a href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>
+</div>
+</address>
+
+</body>
+</html>

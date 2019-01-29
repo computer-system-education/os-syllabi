@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="../style.css">
+  <title>CSE 120 (Spring 2018) -- Homework #2</title>
+</head>
+
+<body class="main">
+
+<h1>CSE 120: Homework #2</h1>
+<div class="h1sub">Spring 2018</div>
+
+<p><strong>Out</strong>: <span class="out">Tuesday April 17</span><br>
+   <strong>Due</strong>: <span class="due">Saturday April 28 at 11:59pm</span><br>
+
+<!-- remove banker's part at the very end -->
+<!-- use XADD atomic instruction -->
+
+<p> For the homework questions below, if you believe that you cannot
+answer a question without making some assumptions, state those
+assumptions in your answer.
+
+<ol>
+
+<!--
+<p>
+<li> Assume we are using multiple user-level threads in a program
+(multiplexed on just one kernel-level thread).  If one thread in the
+program calls the system call fork() to create a child process, does
+the child process duplicate all the threads that were in the parent,
+or is the child process single-threaded?  If instead a thread invokes
+exec(), will the program specified in the parameter to exec() replace
+the entire process, including all of the threads?
+-->
+
+<!--
+<p>
+<li> What are the differences between user-level threads and
+kernel-level threads?  Under what circumstances is one type better
+than the other?
+-->
+
+<!-- XADD -->
+
+<p>
+<li>The Intel x86 instruction set architecture provides an atomic
+instruction called XCHG for implementing synchronization primitives.
+(If you are
+curious, <a href="http://www.cs.miami.edu/home/burt/learning/Csc521.131/docs/iax-XCHG-vol2a.pdf">this
+reference page</a> shows the full syntax and semantics of the
+instruction.)  Semantically, XCHG works as follows (although keep in
+mind it is executed atomically):
+
+<blockquote><pre>
+void XCHG (bool *X, bool *Y) {
+  bool tmp = *X;
+  *X = *Y;
+  *Y = tmp;
+}
+</pre></blockquote>
+
+<p> Show how XCHG can be used instead of test-and-set to implement the
+acquire() and release() functions of the spinlock data structure described
+in the "Synchronization" lecture.
+
+<blockquote><pre>
+struct lock {
+  ...
+}
+
+void acquire (struct lock *) {
+  ...
+}
+
+void release (struct lock *) {
+  ...
+}
+</pre></blockquote>
+
+<p>
+<li> One of the goals of this question is to give you practice with
+  context switching and thread queue manipulation in Nachos.
+  Consider the following test program for an implementation
+  of <tt>KThread.join</tt> in Nachos.  It begins when
+  the <tt>main</tt> Nachos thread calls <tt>KThread.selfTest</tt>.
+  You do not need to know the details of how join is implemented.  All
+  you need to know is that when a parent thread calls <tt>join</tt> on
+  a child thread, the parent does one of two things: (1) if the child
+  is still running, the parent blocks until the child finishes (at
+  which point the parent is placed on the ready queue); (2) if the
+  child has finished, the parent continues to execute without
+  blocking.  Assume <tt>join</tt> uses a wait queue of some kind in
+  its implementation.
+
+<pre>
+private static class A implements Runnable {
+    A () {}
+    public void run () {
+        KThread t2 = new KThread (new B()).setName ("B");
+	System.out.println ("foo");
+	t2.fork ();
+	System.out.println ("far");
+	t2.join ();
+	System.out.println ("fum");
+    }
+}
+    
+private static class B implements Runnable {
+    B () {}
+    public void run () {
+        System.out.println ("fie");
+    }
+}
+
+public static void selfTest() {
+    KThread t1 = new KThread (new A()).setName ("A");
+    System.out.println ("fee");
+    t1.fork ();
+    System.out.println ("foe");
+    t1.join ();
+    System.out.println ("fun");
+}
+</pre>
+
+<p> Assume that the scheduler runs threads in FIFO order with
+  non-preemptive scheduling (no preemptive time-slicing), and threads
+  are placed on wait queues in FIFO order.  Trace the execution of
+  this program until it returns from selfTest and (a) write the
+  sequence of context switches that occurred up this point, (b) write
+  the output of the program, and (c) list the queues that the threads
+  are on, and their relative order if more than one thread is on a
+  queue.
+
+<p>
+&nbsp; &nbsp; a. Context switches: main &rarr; <br>
+&nbsp; &nbsp; b. Output: <br>
+&nbsp; &nbsp; c. Thread queues when selfTest returns: <br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentThread: <br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; readyQueue: <br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; join wait queue: <br>
+
+<p> [Hint: First try the problem by following the code manually,
+  keeping track of which queues threads are on using paper.  Then,
+  once you have implemented <tt>join</tt>, try adding the code as a
+  test in KThread.java and running it to check your answer.]
+
+
+<p>
+<li> A common pattern in parallel scientific programs is to
+have a set of threads do a computation in a sequence of phases.
+In each phase <i>i</i>, all threads must finish phase <i>i</i>
+before any thread starts computing phase <i>i+1</i>.  One way
+to accomplish this is with barrier synchronization.  At the end
+of each phase, each thread executes <i>Barrier::Done(n)</i>, where
+<i>n</i> is the number of threads in the computation.  A call to
+<i>Barrier::Done</i> blocks until all of the <i>n</i> threads have
+called <i>Barrier::Done</i>.  Then, all threads proceed.  You may
+assume that the process allocates a new Barrier for each iteration,
+and that all threads of the program will call Done with the same
+value.
+
+<p> a. Write a monitor that implements Barrier using Mesa semantics.
+
+<blockquote><pre>
+monitor Barrier {
+  <i>...</i>
+}
+</pre></blockquote>
+
+<p> b. Implement Barrier using an explicit lock and condition
+variable.  The lock and condition variable have the semantics
+described at the end of the "Semaphore and Monitor" lecture in the
+ping_pong example, and as implemented by you in Project 1.
+
+<blockquote><pre>
+class Barrier {
+  <i>...private variables...</i>
+  void Done (int n) {
+    ...
+  }
+  ...
+}
+</pre></blockquote>
+
+<p>
+<li>
+
+Microsoft .NET provides a synchronization primitive called a
+CountdownEvent.  Programs use CountdownEvent to synchronize on the
+completion of many threads (similar to CountDownLatch in Java).  A
+CountdownEvent is initialized with a <i>count</i>, and a
+CountdownEvent can be in two states, <i>nonsignalled</i> and
+<i>signalled</i>.  Threads use a CountdownEvent in the nonsignalled
+state to <i>Wait</i> (block) until the internal count reaches zero.
+When the internal count of a CountdownEvent reaches zero, the
+CountdownEvent transitions to the signalled state and wakes up
+(unblocks) all waiting threads.  Once a CountdownEvent has
+transitioned from nonsignalled to signalled, the CountdownEvent
+remains in the signalled state.  In the nonsignalled state, at any
+time a thread may call the <i>Decrement</i> operation to decrease the
+count and <i>Increment</i> to increase the count.  In the signalled
+state, <i>Wait</i>, <i>Decrement</i>, and <i>Increment</i> have no
+effect and return immediately.
+
+<p>
+Use pseudo-code to implement a thread-safe CountdownEvent using locks
+and condition variables by implementing the following methods:
+
+<blockquote><pre>
+class CountdownEvent {
+  ...private variables...
+  CountdownEvent (int count) { ... }
+  void Increment () { ... }
+  void Decrement () { ... }
+  void Wait () { ... }
+}
+</pre></blockquote>
+
+<p>
+Notes:
+
+<ul>
+
+<li> The <i>CountdownEvent</i> constructor takes an integer
+  <i>count</i> as input and initializes the CountdownEvent counter
+  with <i>count</i>.  Positive values of <i>count</i> cause the
+  CountdownEvent to be constructed in the nonsignalled state.  Other
+  values of <i>count</i> will construct it in the signalled state.
+
+<li> <i>Increment</i> increments the internal counter.
+
+<li> <i>Decrement</i> decrements the internal counter.  If the counter
+  reaches zero, the CountdownEvent transitions to the signalled state
+  and unblocks any waiting threads.
+
+<li> <i>Wait</i> blocks the calling thread if the CountdownEvent is
+in the nonsignalled state, and otherwise returns.
+
+<li> Each of these methods is relatively short.
+
+</ul>
+
+
+<p> 
+<li> [Silberschatz] &nbsp; Consider a system running ten I/O-bound
+tasks and one CPU-bound task. Assume that the I/O-bound tasks issue an
+I/O operation once for every millisecond of CPU computing and that
+each I/O operation takes 10 milliseconds to complete. Also assume that
+the context-switching overhead is 0.1 millisecond and that all
+processes are long-running tasks. What is the CPU utilization for a
+round-robin scheduler when:
+
+<p>
+&nbsp; &nbsp; a. The time quantum is 1 millisecond <br>
+&nbsp; &nbsp; b. The time quantum is 10 milliseconds <br>
+
+<!--
+<p>
+<li> [Silberschatz] &nbsp; Explain the differences in the degree to
+which the following scheduling algorithms discriminate in favor of
+short processes:
+
+<p>
+&nbsp; &nbsp; a. FCFS <br>
+&nbsp; &nbsp; b. RR <br>
+&nbsp; &nbsp; c. Multilevel feedback queues
+-->
+
+<p>
+<li>Annabelle, Bertrand, Chloe and Dag are working on their term
+papers in CSE 120, which is a 10,000 word essay on <i>My All-Time
+Favorite Race Conditions</i>. To help them work on their papers, they
+have one dictionary, two copies of Roget's Thesaurus, and two coffee
+cups.
+
+<ul>
+
+<p>
+<li>
+Annabelle needs to use the dictionary and a thesaurus
+to write her paper;</li>
+
+<li>
+Bertrand needs a thesaurus and a coffee cup to write
+his paper;</li>
+
+<li>
+Chloe needs a dictionary and a thesaurus to write
+her paper;</li>
+
+<li>
+Dag needs two coffee cups to write his paper (he
+likes to have a cup of regular and a cup of decaf at the same time to keep
+himself in balance).</li>
+</ul>
+
+<p>Consider the following state:
+<ul>
+<li>
+Annabelle has a thesaurus and needs the dictionary.</li>
+
+<li>
+Bertrand has a thesaurus and a coffee cup.</li>
+
+<li>
+Chloe has the dictionary and needs a thesaurus.</li>
+
+<li>
+Dag has a coffee cup and needs another coffee cup.</li>
+</ul>
+
+<p>
+&nbsp; &nbsp; a. Is the system deadlocked in this state? Explain using
+a resource allocation graph as a reference.<br>
+
+<!--
+remove banker's part
+-->
+
+<p>
+&nbsp; &nbsp; b. Is this state reachable if the four people allocated
+and released their resources using the Banker's algorithm? Explain.
+
+
+
+<!--
+<p>
+<li> Suppose you have an operating system that has only binary
+semaphores.  You wish to use counting semaphores. Show how you can
+implement counting semaphores using binary semaphores.
+
+<p> Hints: You will need two binary semaphores to implement one
+counting semaphore. There is no need to use a queue &mdash;  the queueing on
+the binary semaphores is all you'll need. You should not use busy
+waiting. The wait() operation for the counting semaphore will first
+wait on one of the two binary semaphores, and then on the other. The
+wait on the first semaphore implements the queueing on the counting
+semaphore and the wait on the second semaphore is for mutual
+exclusion.
+-->
+
+<!--
+
+<p>
+<li> Imagine you've implemented Peterson's algorithm on a
+uniprocessor.  The program has two threads, both repeatedly trying to
+enter the critical section. The critical section only increments a
+counter shared by both threads. The value of this counter is displayed
+every second.
+
+<p> If you did this, you would notice the following behavior: for
+awhile - some seconds - the number of critical section entries per
+second will be very high. At some point, though, the number of
+critical section entries per second would suddenly drop to a much
+lower rate - indeed, many thousands of times slower.
+
+<p> (If you wish, give it a try!)
+
+<p> Explain why this happens.
+
+-->
+
+</ol>
+
+<address>
+<div class="footer">
+  <hr>
+  <a href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>
+</div>
+</address>
+
+</body>
+</html>

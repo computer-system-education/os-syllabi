@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)https://cseweb.ucsd.edu/classes/sp18/cse120-a/ -->
+<html class="gr__cseweb_ucsd_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>CSE 120 -- Principles of Computer Operating Systems</title>
+  <link rel="stylesheet" type="text/css" href="./CSE-120_files/style.css">
+<style type="text/css">
+
+table.hours td { text-align: center; padding-top: 2px; padding-bottom: 2px;}
+
+</style></head>
+
+
+
+<body class="main" data-gr-c-s-loaded="true">
+
+<!--
+<center>
+<a style="text-decoration:none;color:black" href="img/final.jpg"><img border=2 src="img/final-thumb.jpg"></a>
+</center>
+-->
+
+<h1>CSE 120: Principles of Computer Operating Systems</h1>
+<h2 class="h1sub">Spring 2018</h2>
+
+<p>
+
+</p><dl>
+<dt><b>Instructor</b>
+</dt><dd>
+<a class="bluelink" href="https://cse.ucsd.edu/users/voelker">Geoffrey M. Voelker</a>
+(<a class="bluelink" href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>)<br>
+CSE 3108<br>
+
+
+
+</dd><dt><b>Lectures</b>
+</dt><dd>
+Tu/Th 8–9:20am<br>
+<a href="https://www.google.com/maps/place/Warren+Lecture+Hall,+San+Diego,+CA+92161/@32.8801597,-117.2368064,17z/data=!4m5!3m4!1s0x80dc06c3637516e9:0x4dc9ec87c8ce68e7!8m2!3d32.8805291!4d-117.2343119">Warren 2005</a><br>
+
+</dd><dt><b>TAs and Tutors</b>
+</dt><dd>
+Ruohan Hu (<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/r8hu@ucsd.edu">r8hu@ucsd.edu</a>) <br>
+Kyle Leung (<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/kwleung@ucsd.edu">kwleung@ucsd.edu</a>) <br>
+Erin McGinnis (<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/emmcginn@ucsd.edu">emmcginn@ucsd.edu</a>) <br>
+Sean Powers  (<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/s1powers@ucsd.edu">s1powers@ucsd.edu</a>) <br>
+Ashrith Sheshan (<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/asheshan@ucsd.edu">asheshan@ucsd.edu</a>) <br>
+Edward Wong (<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/e4wong@ucsd.edu">e4wong@ucsd.edu</a>)
+    <!--
+
+<a class=bluelink href="https://www.linkedin.com/pub/daniel-knapp/72/871/3b9">Daniel Knapp</a>
+(<a href="mailto:dknapp@cs.ucsd.edu">dknapp@cs.ucsd.edu</a>)<br>
+
+<a href="">Zach Meyer</a>
+(<a href="mailto:ztmeyer@cs.ucsd.edu">ztmeyer@cs.ucsd.edu</a>)<br>
+
+<a class=bluelink href="http://www.mkmoharana.com/">Manindra Moharana</a>
+(<a href="mailto:mmoharana@cs.ucsd.edu">mmoharana@cs.ucsd.edu</a>)<br>
+
+<a href="https://www.linkedin.com/pub/derrick-smith/63/14/915">Derrick Smith</a>
+(<a href="des003@cs.ucsd.edu">des003@cs.ucsd.edu</a>)<br>
+
+Kacy
+(<a href="mailto:kacyrayespinoza@gmail.com">kacyrayespinoza@gmail.com</a>)<br>
+
+-->
+
+<!--
+<a class=bluelink href="https://www.linkedin.com/pub/zhaomo-yang/66/542/179">Zhaomo Yang</a>
+(<a href="mailto:zhy001@cs.ucsd.edu">zhy001@cs.ucsd.edu</a>)<br>
+-->
+
+<!--
+<a class=bluelink href="http://cse.ucsd.edu/~h8liu">He "Lonnie" Liu</a>
+(<a href="mailto:h8liu@cs.ucsd.edu">h8liu@cs.ucsd.edu</a>)<br>
+<a class=bluelink href="http://cseweb.ucsd.edu/~peh003/">Peng "Ryan" Huang</a>
+(<a href="mailto:peh003@cs.ucsd.edu">peh003@cs.ucsd.edu</a>)<br>
+<a class=bluelink href="http://cseweb.ucsd.edu/~mkothari/">Mohit Kothari</a>
+(<a href="mailto:mkothari@cs.ucsd.edu">mkothari@cs.ucsd.edu</a>)<br>
+<a class=bluelink href="">Rizhen Zhang</a>
+(<a href="mailto:riz002@csucsd.edu">riz002@csucsd.edu</a>)<br>
+-->
+
+
+</dd><dt><b>Discussion Sections</b>
+</dt><dd>
+Wed 8–8:50am in
+Warren 2005<br>
+
+</dd><dt><b>Office and Lab Hours</b>
+</dt><dd>Voelker (All Topics): Mon 3–4pm, Wed 4–5pm (CSE 3108)<br>
+<!--
+  <a href="http://cseweb.ucsd.edu/classes/fa16/cse120-b/ta_hour.html">Full TA and Tutor Schedule</a>
+-->
+
+  <!--
+Meyer (Homework): Wed 11am&ndash;1pm, 4pm&ndash;6pm (B240A) <br>
+Moharana (Projects): Tue 4pm&ndash;6pm, Thu 1:30pm&ndash;3:30pm (B240)<br>
+Knapp (Projects): Fri 10am&ndash;12pm, 1pm&ndash;3pm (B240)<br>
+Kacy (Projects): Mon 11:20am&ndash;1:20pm (B220), Wed
+11:20am&ndash;1:20pm (B220), Fri 10am&ndash;12pm (B240), Sat
+10am&ndash;12pm (B240)<p>
+-->
+
+<!--
+<table class="hours">
+<tr>
+<td>Mon</td>
+<td>Tue</td>
+<td>Wed</td>
+<td>Thu</td>
+<td>Fri</td>
+<td>Sat</td>
+</tr>
+
+<tr>
+<td><b>11:20am-1:20pm</b><br>Kacy (B220)</td>
+<td></td>
+<td><b>11am-1pm</b><br>Meyer (B240A)</td>
+<td></td>
+<td><b>10am-12pm</b><br>Knapp (B240)</td>
+<td><b>10am-12pm</b><br>Kacy (B240)</td>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td><b>11:20am-1:20pm</b><br>Kacy (B220)</td>
+<td><b>1:30pm-3:30pm</b><br>Moharana (B240)</td>
+<td><b>10am-12pm</b><br>Kacy (B240)</td>
+<td></td>
+<td></td>
+</tr>
+
+<tr>
+<td><b>3-4pm</b><br>Voelker (3108)</td>
+<td><b>4-6pm</b><br>Moharana (B240)</td>
+<td><b>4-5pm</b><br>Voelker (3108)</td>
+<td></td>
+<td><b>1-3pm</b><br>Knapp (B240)</td>
+<td></td>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td><b>4-6pm</b><br>Meyer (B240)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+
+</table>
+
+-->
+
+</dd><dt><b>Labs</b>
+</dt><dd> CSE basement
+
+</dd><dt><b>Textbook</b>
+</dt><dd>
+<table>
+<tbody><tr><td style="padding-right: 10px">
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/"><img border="0" src="./CSE-120_files/three-easy-thm.jpg" align="top"></a>
+</td>
+<td>Remzi H. Arpaci-Dusseau and Andrea C. Arpaci-Dusseau<br>
+<a href="http://www.ostep.org/"><i>Operating Systems: Three Easy Pieces</i></a><br>
+Version 0.91 &nbsp; <span style="color: red;">(Available <i>free</i> online!)</span>
+</td></tr>
+</tbody></table>
+
+<!--
+
+C++ book:
+
+"Thinking in C++" by Bruce Eckel and Chuck Allison
+
+Then there are the standard dry reference texts by Stroustrup and others.
+One by Stan Lipmann is supposed to be good also.  I can give you more
+
+I plan on using "C++ for Java Programmers" by Mark Allen Weiss (who has
+several good C++ and Java Data Structures and Algorithms undergraduate
+texts) for my CSE 86 - C++ for Java Weenies this Spring. As the name
+
+-->
+
+</dd><dt><b>Discussion Board</b>
+</dt><dd><a href="https://www.piazza.com/ucsd/spring2018/cse120">Piazza</a>
+<!--
+<dd>Piazza
+-->
+</dd></dl>
+
+
+<h2>Course Objectives</h2>
+
+<p> This course covers the principles of operating systems.  It
+emphasizes the basic concepts of OS kernel organization and structure,
+processes and threads, concurrency and synchronization, memory
+management, file systems, and communication.  It is also a project
+course, providing essential experience in programming with
+concurrency, implementing and unmasking abstractions, working within
+an existing complex system, and collaborating with other students in a
+group effort.
+
+<!-- and very demanding on your time and effort. -->
+
+</p><h2>Course Schedule</h2>
+
+<p> The following table outlines the schedule for the course.  We will
+update it as the quarter progresses.
+
+</p><p>
+</p><center>
+<table id="sched">
+
+<tbody><tr>
+<th>Date</th>
+<th>Lecture</th>
+<th>Readings</th>
+<th>Homework</th>
+<th>Project</th>
+</tr>
+
+<tr>
+<td align="center">4/3</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/intro.pdf">Course Intro</a>
+</td><td><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/dialogue-threeeasy.pdf">Chap 1</a>, <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/intro.pdf">Chap 2</a></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">4/5</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/arch.pdf">OS Architectural Support</a></td>
+<td><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-mechanisms.pdf">Chap 6</a></td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/hw/hw1.html">Homework 1: Out</a> &nbsp;</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/projects/project0.html">Project 0: Out</a> &nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">4/9</td>
+<td>(Monday)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 0: Due</font> &nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">4/10</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/proc.pdf">Processes</a></td>
+<td><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-intro.pdf">Chap 4</a>, <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-api.pdf">Chap 5</a></td>
+<td>&nbsp;</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/projects/project1.html">Project 1: Out</a> &nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">4/12</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/threads.pdf">Threads</a></td>
+<td><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-intro.pdf">Chap 26</a>, <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf">Chap 27</a></td>
+<td><!-- <font color="red">Homework 1: Due</font> --> &nbsp; </td>
+<td>&nbsp;<br>
+<!--
+<a href="projects/project1.html">Project 1: Out</a>
+ -->
+</td>
+</tr>
+
+<tr>
+<td align="center">4/17</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/synch.pdf">Synchronization</a></td>
+<td><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks.pdf">Chap 28</a>, <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks-usage.pdf">Chap 29</a></td>
+<td>
+  <font color="red">Homework 1: Due</font>
+<br> <a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/hw/hw2.html">Homework 2: Out</a>
+&nbsp;
+</td>
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">4/19</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/sema.pdf">Semaphores and Monitors</a></td>
+<td><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf">Chap 30</a>, <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-sema.pdf">Chap 31</a></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">4/24</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/sema.pdf">Semaphores and Monitors</a>
+</td><td><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf">Chap 30</a>, <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-sema.pdf">Chap 31</a></td>
+<!--<td><a href="hw/hw2.html">Homework 2: Out</a></td>-->
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+<!-- original deadline
+<tr>
+<td align=center>4/25</td>
+<td>(Wednesday)</a></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 1: Due</font></td>
+</tr>
+-->
+
+<tr>
+<td align="center">4/26</td>
+<!-- <td><noa href="lectures/sema.pdf">Semaphores and Monitors</a>-->
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/sched.pdf">Scheduling and Deadlock</a>
+</td><td><a href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched.pdf">Chap 7</a>, <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched-mlfq.pdf">Chap 8</a>, <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-bugs.pdf">Chap 32</a></td>
+<td><!-- <a href="hw/hw3.html">Homework 3: Out</a> --> &nbsp;</td>
+<td>
+<!-- 
+<font color="red">Project 1: Due</a>
+ -->
+&nbsp;
+</td>
+</tr>
+
+<tr>
+<td align="center">4/27</td>
+<td>(Friday)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 1: Due</font></td>
+</tr>
+
+<tr>
+<td align="center">4/28</td>
+<td>(Saturday)</td>
+<td>&nbsp;</td>
+<td><font color="red">Homework 2: Due</font> &nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+
+<!--
+<tr>
+<td align=center>10/30</td>
+<td>(Sunday)</td>
+<td>&nbsp;</td>
+<td><a href="hw/hw3.html">Homework 3: Out</a></td>
+<td>&nbsp;</td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center>10/19</td>
+<td>(Wednesday)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 1: Due</a></td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center>5/1</td>
+<td><noa href="lectures/midreview.pdf">Midterm Review</a></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center>10/21</td>
+<td><i>(Friday)</i></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 1: Due</a></td>
+</tr>
+-->
+
+<tr>
+<td align="center">5/1</td>
+<td bgcolor="yellow">Midterm Exam</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/midreview.pdf">Midterm Review</a></td>
+<td>&nbsp;</td>
+<td><!-- <a href="projects/project2.html">Project 2: Out</a> --> &nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">5/2</td>
+<td>(Wednesday)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/projects/project2.html">Project 2: Out</a></td>
+</tr>
+
+<tr>
+<td align="center">5/3</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/mem.pdf">Memory Management</a></td>
+<td>
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-mechanism.pdf">Chap 15</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-segmentation.pdf">Chap 16</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-paging.pdf">Chap 18</a></td>
+<td><!-- <a href="hw/hw3.html">Homework 3: Out</a> --> &nbsp;</td>
+<td><!-- <a href="projects/multi.html">Project 2: Out</a> --> &nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">5/16</td>
+<td>(Friday)</td>
+<td>&nbsp;</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/hw/hw3.html">Homework 3: Out</a></td>
+<td>&nbsp;</td>
+</tr>
+
+<!--
+<tr>
+<td align=center>11/3</td>
+<td bgcolor="#00AA00"><font color="white">Veteran's Day Holiday</font></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center>11/13</td>
+<td>(Sunday)</td>
+<td>&nbsp;</td>
+<td><font color="red">Homework 3: Due</font></td>
+<td>&nbsp;</td>
+</tr>
+-->
+
+<tr>
+<td align="center">5/8</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/paging.pdf">Paging</a></td>
+<td>
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-tlbs.pdf">Chap 19</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-smalltables.pdf">Chap 20</a>
+</td>
+<td>&nbsp; <!-- <a href="hw/hw3.html">Homework 3: Out</a> --></td>
+<td>&nbsp;</td>
+</tr>
+
+<!--
+<tr>
+<td align=center>5/13</td>
+<td><i>(No lecture, work on project)</i></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+-->
+
+<tr>
+<td align="center">5/10</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/paging.pdf">Paging</a> (cont'd)</td>
+<td>
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-tlbs.pdf">Chap 19</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-smalltables.pdf">Chap 20</a>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">5/15</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/replace.pdf">Page Replacement</a></td>
+<td>
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-beyondphys.pdf">Chap 21</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-beyondphys-policy.pdf">Chap 22</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-vax.pdf">Chap 23</a>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+<!--
+<tr>
+<td align=center>2/22</td>
+<td bgcolor="#00AA00"><font color="white">Veteran's Day Holiday</font></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+-->
+
+<!-- I/O, device drivers -->
+
+<!-- initial published deadline
+<tr>
+<td align=center>5/16</td>
+<td>(Wednesday)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 2: Due</a></td>
+</tr>
+-->
+
+<tr>
+<td align="center">5/17</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/fs.pdf">File Systems</a></td>
+<td>
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-disks.pdf">Chap 37</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-intro.pdf">Chap 39</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-implementation.pdf">Chap 40</a>
+</td>
+<td><!-- <font color="red">Homework 3: Due</font> --> &nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">5/19</td>
+<td>(Saturday)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 2: Due</font></td>
+</tr>
+
+<tr>
+<td align="center">5/21</td>
+<td>(Monday)</td>
+<td>&nbsp;</td>
+<td><font color="red">Homework 3: Due</font></td>
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">5/22</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/fsimpl.pdf">File System Implementation</a></td>
+<td>
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-disks.pdf">Chap 37</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-intro.pdf">Chap 39</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-implementation.pdf">Chap 40</a>
+</td>
+<td><!-- <font color="red">Homework 3: Due</font><br> -->
+&nbsp;</td>
+<td>
+<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/projects/project3.html">Project 3: Out</a> 
+<!--
+<font color="red">Project 2: Due</a>
+-->
+&nbsp;</td>
+</tr>
+
+<!--
+<tr>
+<td align=center>11/19</td>
+<td><i>(Saturday)</i></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 2: Due</font></td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center>11/19</td>
+<td>FFS, LFS, and RAID</td>
+<td>
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-raid.pdf">Chapter 38</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-ffs.pdf">Chapter 41</a>,
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-lfs.pdf">Chapter 42</a>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center>11/19</td>
+<td>(Monday)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color=red>Project 2: Due</font></td>
+</tr>
+-->
+
+<tr>
+<td align="center">5/24</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/prot.pdf">Protection</a></td>
+<td>&nbsp;</td>
+<td>
+  <font color="blue"><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/hw/hw4.html">Homework 4: Out</a></font>
+  <!--
+  &nbsp;
+    -->
+</td>
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">5/29</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/multi.pdf">Multicore</a></td>
+<td>
+<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched-multi.pdf">Chap 10</a>
+</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">5/31</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/vm.pdf">Virtual Machine Monitors</a>
+</td><td>
+  <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/vmm-intro.pdf">Appendix B</a>
+</td>
+<td>&nbsp; <!-- <font color="red">Homework 3: Due</font><br>
+-->
+</td>
+<td>&nbsp;</td>
+</tr>
+
+<!--
+<tr>
+<td align=center>11/24</td>
+<td bgcolor="#00AA00"><font color="white">Thanksgiving Holiday</font></td>
+<td><a href="http://en.wikipedia.org/wiki/Thanksgiving">Thanksgiving</a></td>
+<td>Food.  Lots of it.</td>
+<td>Sleep.  Lots of it.</td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center>12/4</td>
+<td><i>(No lecture, work on project)</i></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center>12/9</td>
+<td><a href="lectures/rpc.pdf">RPC, NFS</a></td>
+<td>Chapter 11.9</td>
+<td><a href="hw/hw4.html">Homework 4: Out</a></td>
+<td><a href="projects/vm.html">Project 3: Out</a></td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center>3/5</td>
+<td>(Monday)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 2: Due</font></td>
+</tr>
+-->
+
+<!-- virtual machines -->
+<!-- OS structure -->
+
+<!--
+<tr>
+<td align=center>11/25</td>
+<td><noa href="lectures/org.pdf">OS Structure</a></td>
+<td>Browse Chapters 3, 15, 20, 21, 22,<br>Appendices <a href="http://cs-www.cs.yale.edu/homes/avi/os-book/osc/FreeBSD.pdf">A (FreeBSD)</a>, <a href="http://cs-www.cs.yale.edu/homes/avi/os-book/osc/mach.pdf">B (Mach)</a></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center></td>
+<td bgcolor="#00AA00"><font color="white">Thanksgiving Holiday</font></td>
+<td><a href="http://www.butterball.com">Butterball</a></td>
+<td>&nbsp</td>
+<td>&nbsp</td>
+</tr>
+-->
+
+<!--
+<tr>
+<td align=center>5/28</td>
+<td><noa href="lectures/metadata.pdf">Rio, Journaling, and Soft Updates</a></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><a href="projects/vm.html">Project 3: Out</a></td>
+</tr>
+-->
+
+<tr>
+<td align="center">6/5</td>
+<td><!-- Internet Scams --> Research Talk </td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+<!--
+<tr>
+<td align=center>6/2</td>
+<td><noa href="lectures/ccied.pdf"><i>TBD</i></a></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+-->
+
+<tr>
+<td align="center">6/6</td>
+<td>(Wednesday)</td>
+<td>&nbsp;</td>
+<td><font color="red">Homework 4: Due</font></td>
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">6/7</td>
+<td><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/lectures/finreview.pdf">Summary &amp; Final Review</a></td>
+<td>&nbsp;</td>
+<td><!-- <font color="red">Homework 4: Due</font> --> &nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td align="center">6/8</td>
+<td>(Friday)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 3: Due</font></td>
+</tr>
+
+<tr>
+<td align="center">6/14</td>
+<td bgcolor="yellow"> Final Exam </td>
+<td><!-- 8:00am &ndash; 10:59am --> &nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+
+<!--
+<tr>
+<td align=center>12/10</td>
+<td><i>(Saturday)</i></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><font color="red">Project 3: Due</font></td>
+</tr>
+-->
+
+</tbody></table>
+</center>
+
+<h2>Course Organization</h2>
+
+<p> The course is organized as a series of lectures by the instructor,
+discussion sections by the TAs, reading, homework, and project
+assignments, and exams:
+
+</p><ul>
+<li><b>Lectures:</b> The lectures present the core of the material.
+</li><li><b>Sections:</b> The discussion sections are
+given by the TAs to answer questions about the lecture, textbook
+readings, homework assignments, and project assignments.
+</li><li><b>Readings:</b> The readings in the textbook provide preparation
+and a reference for the lectures.  Note, however, that they are
+not a substitute for the lectures.
+</li><li><b>Homeworks:</b> There are approximately four homework assignments with
+questions taken from the textbook and other materials.  The homework assignments reinforce the readings and lectures.
+</li><li><b>Projects:</b> There are three programming projects, all using
+the Nachos instructional operating system.
+</li><li><b>Exams:</b> There are two exams, a midterm exam in the middle of
+the quarter and a final exam at the end of the quarter.  The exams
+will cover the material presented in lecture, the homeworks, and the
+projects.  You can use both sides of one 8.5x11" page of notes to
+assist you during the exams.
+
+</li></ul>
+
+<h2>Homework</h2>
+
+<p> The course will have four homeworks.  I will post them as the
+  quarter progresses.  Due to extensive copying on homeworks in the
+  past, I have changed how homeworks are graded.  As long as you
+  submit a technical answer related to the question, you will get full
+  credit for the question.  The goal of the homeworks is to give you
+  practice learning the material.  The homework questions both
+  supplement and complement the material from lecture and in the
+  project, and you will also find the homework questions to be useful
+  for practicing for the exams.  We will post solutions to all
+  homeworks after they are submitted, and you can use them for
+  studying as well.  But, even with the solutions, the amount you
+  learn from the homeworks will be directly correlated with your
+  effort working on them.
+
+</p><p>
+  <!--
+Homeworks are due at the beginning of class on the day specified.
+    -->
+  <!--
+We will reduce homework grades by 20% for each day that they are late.
+    -->
+  
+</p><ul>
+<li><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/hw/hw1.html">Homework 1</a> (Out 4/5, In 4/17)
+<!--
+-->
+<!--
+-->
+<!--
+&nbsp; <a href="hw/hw1-sol.html">[Solution]</a>
+-->
+</li><li><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/hw/hw2.html">Homework 2</a> (Out 4/17, In 4/28)
+<!--
+&nbsp; <a href="hw/hw2-sol.html">[Solution]</a>
+-->
+</li><li><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/hw/hw3.html">Homework 3</a> (Out 5/4, In 5/21)
+<!--
+-->
+<!--
+&nbsp; <a href="hw/hw3-sol.html">[Solution]</a>
+-->
+</li><li><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/hw/hw4.html">Homework 4</a> (Out 5/24, In 6/6) 
+<!--
+-->
+<!--
+&nbsp; <a href="hw/hw4-sol.html">[Solution]</a>
+-->
+<!--
+<li><a href="hw/hw5.html">Homework 5</a> (Out 5/26, In 6/4) 
+-->
+<!-- <a href="hw/hw5-sol.html">[Solution]</a> -->
+</li></ul>
+<!--
+-->
+
+<!--
+However, there can be a fine line
+between collaboration and cheating.  
+  -->
+
+<!--
+<p> I encourage you to collaborate on the homeworks: You can learn a
+lot from your fellow students.  Collaboration consists of discussing
+problems with other students and independently writing your own
+answers to the problems based upon those discussions.  As a rule of
+thumb, you should be able to discuss a homework problem in the hall
+with others, go home, and then write up your answer to the problem on
+your own.  Do not copy from the answers by other students, copy from
+past homeworks and/or solutions from previous versions of the class,
+copy from solutions on the Web, etc.
+-->
+
+<!--
+
+The consequences of cheating will correspond to the severity (e.g.,
+failure of the assignment, failure of the course).  Cheating causes
+many problems for all of us &mdash; don't do it, and save us all the
+grief.
+
+-->
+
+<h2>Projects</h2>
+
+<p> The course has one tutorial project and three programming projects
+using the <!-- a href="http://http.cs.berkeley.edu/~tea/nachos/"
+-->Nachos instructional operating system.<!-- /a -->
+
+</p><ul>
+<li> <a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/projects/index.html">Project page</a>
+<!--  
+<li> <a href="http://inst.eecs.berkeley.edu/~cs162/sp08/Nachos/doc/index.html">Nachos API</a>
+<li> <a href="http://inst.eecs.berkeley.edu/~cs162/sp08/Nachos/walk/">Nachos Walkthrough</a>
+-->
+</li></ul>
+
+<h2>Exams</h2>
+
+The course has two exams, a midterm and a final.  The midterm will
+cover the first half of the class, and the final will cover the
+material for the entire quarter.  Below are sample exams to help you
+study.
+
+<ul>
+<li><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/exams/midterm-sample.pdf">Sample Midterm</a> <a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/exams/midterm-sample-sol.pdf">[Solutions]</a>
+</li><li><a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/exams/final-sample.pdf">Sample Final</a> <a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/exams/final-sample-sol.pdf">[Solutions]</a>
+</li></ul>
+
+<h2>Discussion Sections</h2>
+
+<p> Discussion sections answer questions about the lectures,
+homeworks, projects, and programming environment.  They may also
+supplement the lectures with additional material.  
+
+<!--
+
+Notes,
+handouts, and slides from discussion section are at:
+
+<ul>
+<li><a href="http://www.cs.ucsd.edu/~mvrable/cse120-wi07/">Section A01 (Michael)</a>
+<li><a href="http://www.cs.ucsd.edu/~j2lau/cs120/">Section B01 (Jeremy)</a>
+</ul>
+
+<p> Although the supplemental material will not be tested on the exam,
+we believe you will find it another interesting part of the course.
+-->
+
+</p><h2>Grading</h2>
+
+<p> Your grade for the course will be based on your performance on the
+homeworks, midterm and final exams, and the three projects using the
+following weights:
+
+</p><ul>
+<li> Homeworks: 6%
+</li><li> Midterm: 28%
+</li><li> Final: 33%
+</li><li> Projects: 33%
+</li></ul>
+
+<p>
+The <a href="http://www-cse.ucsd.edu/users/elkan/honesty.html">academic
+honesty guidelines</a> outlined by Charles Elkan apply to this course.
+I urge you to resist any temptation to cheat, no matter how desperate
+the situation may seem. If you are in circumstances that you feel
+compel you to cheat, come to me first before you do so.
+
+</p><h2>Supplemental Reading</h2>
+
+The supplemental readings include primary sources and in-depth
+supplements for concepts in the class.  Supplemental reading is for
+your own interest — the readings are not required, nor will you be
+tested on the material.  Note that some of the links to the documents
+point to the ACM Digital Library.  UCSD has a subscription to the ACM
+Digital Library, so you will need to use a web browser on campus to
+access them.
+
+<ul>
+
+<li> The seminal paper on semaphores:
+
+<p> E. W. Dijkstra, <a class="paperlink" href="http://portal.acm.org/ft_gateway.cfm?id=363143&amp;type=pdf&amp;dl=GUIDE&amp;dl=ACM&amp;CFID=12480957&amp;CFTOKEN=95562556">The Structure of the 'THE'-Multiprogramming System</a>,
+Communications of the ACM, Vol. 11, No.  5, May 1968, pp. 341-346.
+
+</p><p>(Additional historical background on <a class="paperlink" href="http://en.wikipedia.org/wiki/Semaphore_%28programming%29">semaphores in Wikipedia</a>)
+
+</p><p>
+</p></li><li> The seminal paper on Unix:
+
+<p> D. M. Ritchie and K. Thompson, <a class="paperlink" href="http://portal.acm.org/ft_gateway.cfm?id=361061&amp;type=pdf&amp;dl=GUIDE&amp;dl=ACM&amp;CFID=12481107&amp;CFTOKEN=18896699">The UNIX Time-Sharing System,</a>
+Communications of the ACM, Vol. 17, No. 7, July 1974, pp. 365-375.
+
+</p><p>
+</p></li><li> The seminal paper on monitors:
+
+<p> C. A. R. Hoare, <a class="paperlink" href="http://portal.acm.org/ft_gateway.cfm?id=361161&amp;type=pdf&amp;coll=portal&amp;dl=ACM&amp;CFID=402248&amp;CFTOKEN=20978246">Monitors: An Operating System Structuring
+Concept</a>, Communications of the ACM, Vol. 17, No. 10, October, 1974,
+pp. 549-557.
+
+</p><p>
+</p></li><li> Practical guides to programming with threads on Unix:
+
+<p> Blaise Barney, <a href="https://computing.llnl.gov/tutorials/pthreads/">POSIX Threads
+Programming</a>, Lawrence Livermore National Laboratory.
+
+</p><p> Andrew D. Birrell, <a href="http://www.hpl.hp.com/techreports/Compaq-DEC/SRC-RR-35.pdf">An
+Introduction to Programming with Threads</a>, DEC SRC Research Report
+35, January 6, 1989.
+
+</p></li></ul>
+
+<div class="footer">
+<hr>
+  <a href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>
+</div>
+
+
+
+
+
+
+<div id="sq_batch_dialog_import" class="sqext-modal-dialog" style="display: none;">			<h1 class="dialog-title">将<strong class="transact-source-name"></strong>中的收藏导入<strong>收趣</strong></h1>			<div class="dialog-body">				<div class="transact">					<div class="transact-imgwrap"><img src="https://cseweb.ucsd.edu/classes/sp18/cse120-a/" class="transact-source-img transact-logo"><span class="transact-source-name"></span></div>					<div class="transact-imgwrap"><img src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/transact-arrow@3x.png" class="transact-img-arrow"></div>					<div class="transact-imgwrap"><img src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/128.png" class="transact-target-img transact-logo"><span class="transact-target-name">收趣</span></div>				</div>				<div class="sq-percent-bar-wrap">					<div class="sq-percent-text"><span class="sq-percent-status">准备导入</span><span class="sq-percent-result" style="display: none;">总共导入<span class="sq-percent-count"></span>个书签</span></div>					<div class="sq-percent-bar"><div class="sq-percent-bar-blue" style="width: 25px; left: -25px;"></div></div>				</div>				<ul>					<li>注意：</li>					<li>1.导入时请不要关闭页面，如果您的要导入的书签较多，请耐心等待</li>					<li>2.一旦看到导入完成，您的书签就已保存在收趣，但仍需要一段时间解析后才能在App中看到。</li>				</ul>				<div class="sq-dialog-button-group">					<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/#" id="start_btn" class="sq-btn-primary sq-btn">开始</a>					<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/#" id="complete_btn" class="sq-btn-primary sq-btn hidden">完成</a>					<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/#" id="cancel_btn_pre" class="cancel-btn sq-btn-nobg sq-btn">取消</a>				</div>				<div class="sq-dialog-mask hidden sq-dialog-mask-interrupt">					<div class="sq-already-count"><h3>已经导入<i class="sq-import-count"></i>条，确定要取消？</h3></div>					<div class="sq-dialog-button-group">						<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/#" id="resume_btn" class="sq-btn-primary sq-btn">继续导入</a>						<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/#" id="cancel_btn_sure" class="cancel-btn sq-btn-nobg sq-btn">取消导入</a>					</div>				</div>			</div>		</div><div class="sqext-mask" style="display: none; width: 1440px; height: 3356px;"></div><div class="sq-import-btn-wrap hidden"><img class="sq-import-btn-logo" src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/import-bar-logo.png"><span class="sq-import-btn">导入到收趣</span></div></body><div id="SHOUQU_SIGNIN" class="animated hidden fadeIn">				<div class="logo-wrap">					<img src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/logo@2x.png" class="login-logo">				</div>				<form id="sq_login_form">					<input type="text" id="sq_login_user_phone" placeholder="手机" style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAmJJREFUWAntV7uKIkEUvbYGM4KID3wEIgjKRLLpKGLgFwiCfslGhkb7IbLgAzE1GhMxWxRRBEEwmEgDERWfW6fXuttq60a2wU6B1qlzb9U5fatsKROJVigUArvd7oeAyePx6Af3qGYymT7F2h8Wi+V7Pp+fmE7iv4Sw81GieusKIzNh4puCJzdaHIagCW1F4KSeQ4O4pPLoPb/3INBGBZ7avgz8fxWIxWIUCoX43Blegbe3NwoGg88zwMoncFUB8Yokj8dDdrv9MpfHVquV/H4/iVcpc1qgKAp5vV6y2WxaWhefreB0OimXy6kGkD0YDKhSqdB2u+XJqVSK4vE4QWS5XKrx0WjEcZ/PR9lslhwOh8p1Oh2q1Wp0OBw4RwvOKpBOp1kcSdivZPLvmxrjRCKhiiOOSmQyGXp5ecFQbRhLcRDRaJTe39//BHW+2cDr6ysFAoGrlEgkwpwWS1I7z+VykdvtliHuw+Ew40vABvb7Pf6hLuMk/rGY02ImBZC8dqv04lpOYjaw2WzUPZcB2WMPZet2u1cmZ7MZTSYTNWU+n9N4PJbp3GvXYPIE2ADG9Xqder2e+kTr9ZqazSa1222eA6FqtUoQwqHCuFgscgWQWC6XaTgcEiqKQ9poNOiegbNfwWq1olKppB6yW6cWVcDHbDarIuzuBBaLhWrqVvwy/6wCMnhLXMbR4wnvtX/F5VxdAzJoRH+2BUYItlotmk6nLGW4gX6/z+IAT9+CLwPPr8DprnZ2MIwaQBsV+DBKUEfnQ8EtFRdFneBDKWhCW8EVGbdUQfxESR6qKhaHBrSgCe3fbLTpPlS70M0AAAAASUVORK5CYII=&quot;); background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%;">					<input type="password" id="sq_login_password" placeholder="密码" style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAmJJREFUWAntV7uKIkEUvbYGM4KID3wEIgjKRLLpKGLgFwiCfslGhkb7IbLgAzE1GhMxWxRRBEEwmEgDERWfW6fXuttq60a2wU6B1qlzb9U5fatsKROJVigUArvd7oeAyePx6Af3qGYymT7F2h8Wi+V7Pp+fmE7iv4Sw81GieusKIzNh4puCJzdaHIagCW1F4KSeQ4O4pPLoPb/3INBGBZ7avgz8fxWIxWIUCoX43Blegbe3NwoGg88zwMoncFUB8Yokj8dDdrv9MpfHVquV/H4/iVcpc1qgKAp5vV6y2WxaWhefreB0OimXy6kGkD0YDKhSqdB2u+XJqVSK4vE4QWS5XKrx0WjEcZ/PR9lslhwOh8p1Oh2q1Wp0OBw4RwvOKpBOp1kcSdivZPLvmxrjRCKhiiOOSmQyGXp5ecFQbRhLcRDRaJTe39//BHW+2cDr6ysFAoGrlEgkwpwWS1I7z+VykdvtliHuw+Ew40vABvb7Pf6hLuMk/rGY02ImBZC8dqv04lpOYjaw2WzUPZcB2WMPZet2u1cmZ7MZTSYTNWU+n9N4PJbp3GvXYPIE2ADG9Xqder2e+kTr9ZqazSa1222eA6FqtUoQwqHCuFgscgWQWC6XaTgcEiqKQ9poNOiegbNfwWq1olKppB6yW6cWVcDHbDarIuzuBBaLhWrqVvwy/6wCMnhLXMbR4wnvtX/F5VxdAzJoRH+2BUYItlotmk6nLGW4gX6/z+IAT9+CLwPPr8DprnZ2MIwaQBsV+DBKUEfnQ8EtFRdFneBDKWhCW8EVGbdUQfxESR6qKhaHBrSgCe3fbLTpPlS70M0AAAAASUVORK5CYII=&quot;); background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%;">					<div id="login_tip"><span class="warn"></span></div>					<div class="login-button-wrap">						<button class="login-button" id="login_confirm">登录</button>						<span class="login-loading-wrap"><img class="login-loading-image" src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/loading.gif"></span>					</div>				</form>				<div id="third_part_login">					<div class="third-part-login-title-bar">						<i class="half-line"></i>						<span class="third-part-login-title">社交帐号登录</span>						<i class="half-line"></i>					</div>					<div class="sns-logo-wrap">						<img id="wechat_login" src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/wechat@2x.png" title="微信">						<img id="qq_login" src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/qq@2x.png" title="QQ">						<img id="weibo_login" src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/sina@2x.png" title="微博">					</div>				</div>			</div>			<div id="SHOUQU_DASHBOARD" class="animated hidden fadeIn">				<div class="collect-head">					<div id="user_info">						<img class="user-avatar" src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/avatar@3x.png">						<span class="user-name"></span>					</div>					<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/#" class="close"><img class="close-img" src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/close.png" width="12" height="12"></a>				</div>				<div class="collect-body" id="screen">					<div id="progress_info" class="visible">						<div id="progress_status">							<div class="sq-spinner">								<div class="sq-spinner-wrap">									<img id="spin_img_ok" src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/check-1.png" class="sq-spinner-img-ok hidden">									<img id="spin_img_fail" src="chrome-extension://ofmcnfnfchmhlchdifeobmjjhmkijpnf/images/exclaim.png" class="sq-spinner-img-fail hidden">									<svg id="sq_spinner_shape" class="animate-rotate">										<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">											<circle id="sq_spinner_circle" class="" stroke="#dddddd" stroke-width="2" sketch:type="MSShapeGroup" cx="18" cy="18" r="17"></circle>										</g>									</svg>								</div>							</div>						</div>						<div id="progress_text"></div>					</div>					<div id="logout_info">						<div class="logout-links">							<a href="https://shouqu.me/" id="open_shouqu" target="_blank">打开收趣</a>							<span>|</span>							<a href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/#" id="logout_confirm">注销</a>						</div>					</div>				</div>				<div class="collect-foot">					<div id="operation_btn_group">						<a class="link-website" target="_blank" href="https://shouqu.me/">打开</a>						<a id="delete_mark" class="delete-mark" href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/#">删除</a>						<a id="select_category" class="select-category" href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/#">分类</a>						<a id="set_private" class="set-private" href="https://cseweb.ucsd.edu/classes/sp18/cse120-a/#" data-private-status="0">私密</a>					</div>					<div id="category_info" class="animated">						<ul id="category_list"></ul>						<div id="create_category_layer">							<input type="text" id="category_name" placeholder="命名收藏夹">							<span id="cancel_create_category">取消</span>&nbsp;							<span id="confirm_create_category">创建</span>						</div>						<div id="change_category_foot">							<span id="confirm_change_category">确认</span>						</div>					</div>				</div>			</div></html>

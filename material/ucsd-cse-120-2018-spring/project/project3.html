@@ -1,0 +1,573 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CSE 120: Principles of Computer Operating Systems</title>
+  <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+
+<body class="main">
+
+<h1>Project 3: Demand Paging</h1>
+<div class="h1sub">Spring 2018</div>
+
+<p><strong>Due</strong>: <span class="due">Friday, June 8 at 11:59pm</span> (No extensions) (Really)</p>
+
+<p> In project 2, each process had a page table that was initialized
+  with physical pages and their contents when the process was created.
+  In project 3, you will be implementing a more sophisticated memory
+  management system where physical pages are allocated on demand and
+  pages that cannot fit in physical memory will be stored on
+  disk. </p>
+
+<!--
+
+<p> The operating system kernel works together with the machine's
+  memory management unit (MMU) to support virtual memory.
+  Coordination between the hardware and software centers on the page
+  table structure for each process.  You used page tables in project 2
+  to allow your kernel to assign any free page frame to any process
+  page, while preserving the illusion of a contiguous virtual memory
+  for the process.  The indirect memory addressing through page tables
+  also isolates each process from bugs in other processes that are
+  running concurrently.
+
+-->  
+
+<h2>Background</h2>
+
+<p> You will implement and debug virtual memory in two steps.  First,
+  you will implement demand paging using page faults to dynamically
+  initialize process virtual pages on demand, rather than initializing
+  page frames for each process in advance at <tt>exec</tt> time as you
+  did in project 2.  Next, you will implement page replacement,
+  enabling your kernel to evict a virtual page from memory to free up
+  a physical page frame to satisfy a page fault.  Demand paging and
+  page replacement together allow your kernel to "overbook" memory by
+  executing more processes than would fit in machine memory at any one
+  time, using page faults to multiplex the available physical page
+  frames among the larger number of process virtual pages.  When
+  implemented correctly, virtual memory is undetectable to user
+  programs unless they monitor their own performance. </p>
+
+<p> You project will implement the following functionality: </p>
+
+<ol>
+  <li><b>Demand Paging</b>. Pages will be in physical memory only as
+    needed.  When no physical pages are free, it is necessary to free
+    pages, possibly evicting pages to swap. </li>
+
+  <li><b>Lazy Loading</b>. To fulfill the spirit of demand paging,
+    processes should load no pages when started, and depend on demand
+    paging to provide even the first instruction they execute.  When
+    you are done, <tt>loadSections</tt> will not allocate even a
+    single page. </li>
+
+  <li><b>Page Pinning</b>. At times it will be necessary to "pin" a
+    page in memory, making it temporarily impossible to evict. </li>
+</ol>
+
+<p> The changes you make to Nachos will be in these two files in
+the <tt>vm</tt> directory:
+
+<ul>
+<li><tt>VMKernel.java</tt> &mdash; an extension of UserKernel
+<li><tt>VMProcess.java</tt> &mdash; an extension of UserProcess
+</ul>
+
+<p> You will notice that these classes inherit
+  from <tt>UserKernel</tt> and <tt>UserProcess</tt>.  Try to depend on
+  the implementation of your base classes as much as possible.  Note
+  that, with <tt>readVirtualMemory</tt>
+  and <tt>writeVirtualMemory</tt>, very little code needs to know the
+  details of virtual addressing.  For example, you should not have to
+  change any of the primary code which serviced the <tt>read</tt>
+  syscall.  That said, you should not change the base classes in any
+  way that makes them dependent on project 3.  It should still be
+  possible to run <tt>nachos</tt> from the <tt>proj2</tt> subdirectory
+  to run user-level programs. </p>
+
+<p> You will compile and run the project in the <tt>proj3</tt>
+  directory.  Unlike the first two projects, you will not need to
+  learn any new Nachos modules and will continue to use functionality
+  that you became familiar with in project 2.  Before starting your
+  implementation, also see the <a href="#tips">Tips</a> section
+  below. </p>
+
+<h2>Design Aspects</h2>
+
+<p> Central to this project are the following design aspects:
+
+<p>
+<ol> 
+
+<li><b>TranslationEntry bits.</b>  You will extend your kernel's
+  handling of the page tables to use three special bits in each
+  TranslationEntry (TE): </p>
+
+<ul>
+
+  <li> Valid bit: Nachos will set or clear the valid bit in each TE to
+    tell the CPU which virtual pages are resident in memory (a valid
+    translation) and which are not resident (an invalid translation).
+    If a user process references an address for which the TE is marked
+    invalid, then the CPU raises a page fault exception and transfers
+    control to the Nachos exception handler. </li>
+
+  <li> Used bit: The CPU sets the used bit (aka reference bit) in the
+    TE to pass information to Nachos about page access patterns.  If a
+    virtual page is referenced by a process, the machine sets the
+    corresponding TE reference bit to inform the kernel that the page
+    is active.  Once set, the reference bit remains set until the
+    kernel clears it. </li>
+
+  <li> Dirty bit: The CPU sets the dirty bit in the TE whenever a
+    process executes a store (write) to the corresponding virtual
+    page.  This step informs the kernel that the page is dirty; if the
+    kernel evicts the page from memory, then it must first "clean" the
+    page by writing its contents to disk.  Once set, the dirty bit
+    remains set until the kernel clears it. </li>
+</ul>
+
+</li>
+
+<p></p>
+<li><b>Swap File.</b>  To manage swapped out pages on disk, use
+  the <tt>StubFileSystem</tt> (via <tt>ThreadedKernel.fileSystem</tt>)
+  as in project 2.  There are many design choices, but we suggest
+  using a single, global swap file across all processes.  This file
+  should last the lifetime of your kernel, and be properly deleted
+  upon Nachos termination.  Be sure to choose a reasonably unique file
+  name.
+
+  <p> When designing the swap file, keep in mind that the units of
+    swap are pages.  Thus you should try to conserve disk space using
+    the same techniques applied in virtual memory: if you end up
+    having gaps in your swap space (which will necessarily occur with
+    a global swap file upon program termination), try to fill them.
+    As with physical memory in project 2, a global free list works
+    well.  You can assume that the swap file can grow arbitrarily, and
+    that there should not be any read/write errors.  Assert if there
+    are. </p>
+
+</li>
+
+<p></p>
+<li><b>Global Memory Accounting.</b> 
+
+  In addition to tracking free pages (which may be managed as in
+  project 2), there are now two additional pieces of memory
+  information of relevance to all processes: which pages are pinned,
+  and which process owns which pages.  The former is necessary to
+  prevent the eviction of certain "sensitive" pages.  The latter is
+  necessary to managing eviction of pages.
+
+  There are many approaches to solving this problem, but we
+  suggest using a global inverted page table (see
+  the <a href="#tips">tips</a> below).</p>
+
+</li>
+
+<p></p>
+<li><b>Page Pinning.</b>  When your code is using a physical page for
+  system calls (e.g., in <tt>readVirtualMemory</tt>
+  or <tt>writeVirtualMemory</tt>) or I/O (e.g., reading from
+  the <tt>COFF</tt> file or the swap file), you will need to "pin" the
+  physical page while you are using it.  Consider the following
+  actions:
+
+<p>
+<ol>
+
+<li>Process A is executing the program at user-level and invokes
+the <tt>read</tt> system call. </li>
+
+<li> Process A enters the kernel, and is part way through writing to
+user memory. </li>
+
+<li> A timer interrupt triggers a context switch, entering process B. </li>
+
+<li> Process B immediately generates numerous page faults, which in
+turn cause pages to be evicted from other processes, including some
+used by process A. </li>
+
+<li> Eventually, process A is scheduled to run again, and continues
+handling the <tt>read</tt> syscall as before.</li>
+
+</ol>
+</p>
+
+<p> In this example, the page to which A is writing should be pinned
+  in memory so that it is not chosen for page eviction.  Otherwise, if
+  process B evicted the page, then when process A was rescheduled it
+  would accidentally write over the page B loaded.  Just use another
+  data structure to keep track of which pages are pinned. </p>
+
+</ol>
+</p>
+
+<h2>Tasks</h2>
+
+<p> 1. (30%) Implement demand paging.  In this first part, you will
+  continue to preallocate a physical page frame for each virtual page
+  of each newly created process at <tt>exec</tt> time, just as in
+  project 2.  And as before, for now continue to return an error from
+  the <tt>exec</tt> system call if there are not enough free page
+  frames to hold the process' new address space.  You will not yet
+  need to implement the swap file, page replacement, page pinning, an
+  inverted page table, etc.  Instead, you just need to make the
+  following changes: </p>
+
+<ol>
+
+  <li> In <tt>VMProcess.loadSections</tt>, initialize all of the
+    TranslationEntries as <b>invalid</b>.  This will cause the machine
+    to trigger a page fault exception when the process accesses a
+    page.  Also do not initialize the page by, e.g., loading from
+    the <tt>COFF</tt> file.  Instead, you will do this on demand when
+    the process causes a page fault.  As a
+    result, <tt>loadSections</tt> will continue to allocate physical
+    page frames in the page table for each virtual page, but delay
+    loading the frames with content until they are actually referenced
+    by the process.
+
+    <p></p>
+  <li> Handle page fault exceptions
+    in <tt>VMProcess.handleException</tt>.  When the process
+    references an invalid page, the machine will raise a page fault
+    exception (if a page is marked valid, no fault is
+    generated).  Modify your exception handler to catch this exception
+    and handle it by preparing the requested page on demand.
+
+    <p></p>
+  <li> Add a method to prepare the requested page on demand.  Note
+    that faults on different pages are handled in different ways.  A
+    fault on a code page should read the corresponding code page from
+    the <tt>COFF</tt> file, a fault on a data page should read the
+    corresponding data page from the
+    <tt>COFF</tt> file, and a fault on a stack page or arguments page
+    should zero-fill the frame.
+
+    <p> For this step, for reference look at the <tt>COFF</tt> file
+      loading code from <tt>UserProcess.loadSections</tt> from project
+      2.  If the process faults on page 0, for example, then load the
+      first page of code from the executable file into it.  More
+      generally, when you handle a page fault you will use the value
+      of the faulting address to determine how to initialize that
+      page: if the faulting address is in the code segment, then you
+      will be loading a code page; if the address is in the data
+      segment, then load the appropriate data page; if it is any other
+      page, zero-fill it.  It is fine to loop through the sections of
+      the <tt>COFF</tt> file until you find the approprate section and
+      page to use (assuming it is in the <tt>COFF</tt> file).  </p>
+
+      <!--
+If you did the process argument extra credit in project 2, the process will fault on these pages when the child writes the arguments to its address space (using WriteMem) when the child thread first starts running in the Nachos kernel and before the program starts running. Handling these argument pages is optional for this project.
+-->
+
+    <p> Once you have paged in the faulted page, mark the
+    TranslationEntry as <b>valid</b>.  Then let the machine restart
+    execution of the user program at the faulting instruction: return
+    from the exception, but do not increment the PC (as is done when
+    handling a system call) so that the machine will re-execute the
+    faulting instruction.  If you set up the page (by initializing it)
+    and page table (by setting the valid bit) correctly, then the
+    instruction will execute correctly and the process will continue
+    on its way, none the wiser. </p>
+
+  <li> Update <tt>readVirtualMemory</tt>
+    and <tt>writeVirtualMemory</tt> to handle invalid pages and page
+    faults.  Both methods directly access physical memory to
+    read/write data between user-level virtual address spaces and the
+    Nachos kernel.  These methods will now need to check to see if the
+    virtual page is valid.  If it is valid, it can use the physical
+    page as before.  If the page is not valid, then it will need to
+    fault the page in as with any other page fault.
+
+  </li>
+
+</ol>
+
+<p><b>Testing:</b> As long as there is enough physical memory to fully
+  load a program, then you should be able to use test programs from
+  project 2 to test this part of project 3.  See the tips in
+  the <a href="#testing">Testing</a> section below for how you can
+  control (increase or decrease) the number of physical pages
+  (e.g., <tt>write10</tt> is going to need more than the default of 16
+  pages).  If you give Nachos enough physical pages, you can even run
+  the <tt>swap4</tt> and <tt>swap5</tt> tests (and these tests do not
+  use any system calls other than <tt>exit</tt>).
+
+<p> 2. (70%) Now implement demand paged virtual memory with page
+  replacement.  In this second part, not only do you delay
+  initializing pages, but now you delay the allocation of physical
+  page frames until a process actually references a virtual page that
+  is not already loaded in memory. </p>
+
+    <p></p>
+    <ol>
+      <li> In part one for <tt>VMProcess.loadSections</tt>, you
+	allocated physical pages for each virtual page, but you marked
+	them as invalid so that they would be initialized on a page
+	fault.  Now change <tt>VMProcess.loadSections</tt> so that it
+	does not even allocate a physical page.  Instead, merely mark
+	all the TranslationEntries as invalid. </li>
+
+      <p></p>
+      <li> Extend your page fault exception handler to allocate a page
+	frame on-the-fly when a page fault occurs. In part one, you
+	just initialized the contents of the virtual page when a page
+	fault occurred.  In this part, now allocate a physical page
+	for the virtual page and use your code from part 1 above to
+	initialize it, mark the TranslationEntry as valid, and return
+	from the exception.
+
+    </ol>
+
+    <p> You can get the above two changes working without having page
+      replacement implemented for the case where you run a single
+      program that does not consume all of physical memory.  Before
+      moving on, be sure that the two changes above work for a single
+      program that fits into memory. </p>
+
+    <p> Now implement page replacement to free up a physical page
+    frame to handle page faults: </p>
+
+    <ol>
+      <li> Extend your page fault exception handler to evict pages
+	once physical memory becomes full. First, you will need to
+	select a victim page to evict from memory.
+
+	Your page eviction strategy should be the clock algorithm.
+<!--
+
+	(bears the name "second-chance algorithm" in the text). Note that
+  you also have enough information to implement the text's "enhanced
+  second-chance algorithm" if you so desire.  <br />
+
+-->
+	
+	Then mark the TranslationEntry
+	for that page as invalid.
+
+	<p></p>
+      <li> Evict the victim page. If the page is clean (i.e., not
+	dirty), then the page can be used immediately; you can always
+	recover the contents of the page from disk. If the page is
+	dirty, though, the kernel must save the page contents in
+	the swap file on disk.
+
+	<p></p>
+      <li> Read in the contents of the faulted page either from the
+	executable file or from swap (see below).
+
+	<p></p>
+      <li> Implement the swap file for storing pages evicted from
+	physical memory.  You will want to implement methods to create
+	a swap file, write pages from memory to swap (for page out),
+	read from swap to memory (for page in), etc.
+
+    </ol>
+
+    <p> As you implement the above operations, keep the following
+    points in mind: </p>
+
+    <ul>
+      <li> As in the first part of the project, the first time a page
+	is touched it needs to be initialized (e.g., from the
+	executable file for code and data).  If this page is
+	subsequently evicted to swap, it will be read from there on
+	further page faults. To be concrete, consider a page used for
+	data. On the first access (fault) on that page, you will read
+	that page in from the executable file.  Assume the process
+	dirties the page.  When this page gets evicted, you should
+	write it to the swap.  If the process faults on the page
+	again, you should read the page in from the swap, not from the
+	executable file (the executable file contains the initial
+	version of the page, the swap contains the most recent version
+	of the page). </li>
+
+      <!--
+You are not limited to one file for backing store for the entire system, and you can have a separate backing store file for each process. Doing so makes locating evicted pages convenient (virtual page n in the address space will be stored at offset n * PageSize in the file), and you can allocate a backing store object for each AddrSpace and store it in a field in AddrSpace. However, do not create backing store files at finer granularities; e.g., do not use one file per page.
+
+      Be sure to set the dirty bit to FALSE when you mark a PTE for the victim page as invalid.
+	-->
+
+      <p></p>
+      <li> When running multiple processes, the page replacement
+	algorithm may select a victim page to evict from another
+	process.  As a result, you will need to update the
+	TranslationEntry in the page table for <i>that</i> process,
+	not the faulting one. </li>
+
+      <p></p>
+      <li> <tt>readVirtualMemory</tt> and <tt>writeVirtualMemory</tt>
+	will need to pin memory.  It is possible that a process needs
+	a page, but not only are all pages in use (meaning an eviction
+	must occur), but all pages are pinned (meaning an eviction
+	must not occur <i>now</i> ).  Handle this situation using
+	synchronization.  If process A needs to evict a page, but all
+	pages are pinned, block A.  When another process unpins a
+	page, it can unblock A.  In terms of prioritizing, implement
+	this functionality towards the end after you have general page
+	replacement working.  </li>
+      
+    </ul>
+
+  <p> Finally, you should only do as many page reads and writes as
+    necessary to execute the program, and as dictated by the page
+    replacement algorithm.  You will soon discover that the first page
+    fault is different than subsequent ones on a particular page.  As
+    described above, on the first fault on a page you need to read
+    from the executable file, and on the second you may need to read
+    from swap.  Your implementation needs to be able to
+    handle this situation.  In short:  </p>
+
+  <ul>
+
+    <li> Read-only <tt>COFF</tt> sections originate in
+    the <tt>COFF</tt> file, and should never appear in swap. </li>
+
+    <li>Read/write <tt>COFF</tt> sections originate in
+    the <tt>COFF</tt> file, but may need to enter swap if
+    modified. </li>
+
+    <li>Other pages should be zero-initialized, and are never read
+    from the <tt>COFF</tt> file. </li>
+
+  </ul>
+    
+    <!-- It might be tempting to just copy the pages from the
+    executable file to the backing store when the process is first
+    created, or on a page-by-page basis when the first fault occurs,
+    but both of these cases introduce extra unecessary disk I/Os and
+    should not be used. -->
+
+<a name="tips"></a>
+<h2>Tips</h2>
+
+<ul>
+  <li> Read Ryan Huang's <a href="project3_guide.txt">tips</a> for project 3.
+
+    <p></p>
+  <li> There are many potential race conditions in this project
+    because multiple processes are accessing shared data structures.
+    We suggest using a coarse-grained lock to protect the data
+    structures.  This will only be necessary once you start working
+    with multiple processes, and do not worry about it until after you
+    have page replacement working with a single process whose virtual
+    address space exceeds physical memory.  </li>
+
+    <p></p>
+  <li> Occasionally check to make sure that you can still run project
+    2 from the <tt>proj2</tt> subdirectory. </li>
+
+</ol>
+
+</ul>
+
+<a name="testing"></a>
+<h2>Testing</h2>
+
+<ul>
+  <li> Here are a couple of example test programs you can use to get
+    started on testing your implementation:
+
+    <p></p>
+    <ul>
+      <li> <a href="swap4.c">swap4.c</a>: Initialize and read a large array </li>
+      <li> <a href="swap5.c">swap5.c</a>: Initialize, read, and modify a large array </li>
+    </ul>
+  
+    <p></p>
+  <li> Begin testing with a running program that does not
+    use <tt>exec</tt>.  When you start implementing swapping, you can
+    control the number of pages (and thus, indirectly, the necessity
+    to swap) with the <tt>-m</tt> paramater to <tt>nachos</tt>:
+
+    <pre> % nachos -m 8 -x swap4.coff </pre>
+    
+
+    or by modifying <tt>nachos.conf</tt> in
+    the <tt>proj3</tt> subdirectory.  Your implementation should not
+    depend upon any particular number of physical pages, but we will
+    always test with at least four physical pages. </li>
+
+    <p></p>
+  <li> Implement a method to print memory state, and use it liberally
+    when hunting for errors.  <tt>Lib.debug()</tt>
+    and <tt>Lib.assertTrue()</tt> will also continue to be helpful. </li>
+  
+</ul>
+
+<!--
+    
+<h2>Autograder Submission:</h2>
+
+<p>You can test your implementation before you submit a final version
+  by using the autograder.  The autograder works similar to the submit
+  script. There is a project specific autograder submission script. To
+  submit, log into your course account and run:
+
+  <code>prep cs120f</code>( If you are in Prof. Voelker's class,
+  run <code>prep cs120e</code> instead) Then move into your nachos
+  directory and run<code>autograder-proj3</code> After completing the
+  autograder submission, your submitted implementation will be put in
+  a queue to be autograded. Results will be emailed to you (The email
+  system often gets clogged. So you may need to wait a few hours to
+  receive the email). The autograder runs every hour. You can submit
+  your code to the autograder as many times as you like. The
+  autograder will run up until the project submission deadline.
+
+  <div class="alert alert-error" style="margin-left:15px">
+    <span class="label label-warning">Important</span>
+    <p><font color="black">
+        <b>Please note: project solutions submitted to the autograder
+        do not constitute a project submission. If you fail to submit
+        your project as per the instructions below, you will not
+        receive a grade for the project.</b></font>
+    </p>
+  </div>
+
+-->
+
+<h2>Code Submission</h2>
+
+<p> As with the earlier projects, you do not have to do anything
+  special to submit your project.  We will use a snapshot of your
+  Nachos implementation in your github repository as it exists at the
+  deadline, and grade that version.  (Even if you have made changes to
+  your repo after the deadline, that's ok, we will use a snapshot of
+  your code at the deadline.) </p>
+
+<p> As a final step, create a file named README in the proj3
+  directory.  The README file should list the members of your group
+  and provide a short description of what code you wrote, how well it
+  worked, how you tested your code, and how each group member
+  contributed to the project.  The goal is to make it easier for us to
+  understand what you did as we grade your project in case there is a
+  problem with your code, not to burden you with a lot more work.  Do
+  not agonize over wording.  It does not have to be poetic, but it
+  should be informative. </p>
+
+
+<h2>Cheating</h2>
+
+<p> You can discuss concepts with students in other groups, but do not
+  cheat when implementing your project.  Cheating includes copying
+  code from someone else's implementation, or copying code from an
+  implementation found on the Internet.  See the
+  <a href="./index.html#cheating">main project page</a> for more
+  information.
+
+<p> We will manually check and also run code plagiarism tools on
+  submissions and multiple Internet distributions (if you can find it,
+  so can we).
+
+<address>
+<div class="footer">
+  <hr>
+  <a href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>
+</div>
+</address>
+</html>

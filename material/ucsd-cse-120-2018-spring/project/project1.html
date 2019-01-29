@@ -1,0 +1,478 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CSE 120: Principles of Computer Operating Systems</title>
+  <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+
+<body class="main">
+
+<h1>Project 1: Threads</h1>
+<div class="h1sub">Spring 2018</div>
+
+<!--
+<p><strong>Due</strong>: <span class="due">Friday, October 21, at
+11:59pm</span>
+-->
+
+<p><strike><strong>Due</strong>: <span class="due">Wednesday, April 25, at
+11:59pm</span></strike>
+<br><strong>Due</strong>: <span class="due">Friday, April 27, at
+11:59pm</span>
+
+  
+
+<p> The baseline Nachos implementation has an incomplete thread
+system.  In this project, your job is to complete it, and then use it
+to solve synchronization problems.
+
+<h2>Background</h2>
+
+<p> Properly synchronized code should work no matter what order the
+scheduler chooses to run the threads on the ready list. In other
+words, we should be able to put a call to <tt>KThread.yield</tt>
+(causing the scheduler to choose another thread to run) anywhere in
+your code where interrupts are enabled, and your code should still be
+correct.  You will be asked to write properly synchronized code as
+part of the later assignments, so understanding how to do this is
+crucial to being able to do the project.
+
+<p> To aid you in this, code linked in with Nachos will cause
+<tt>KThread.yield</tt> to be called on your behalf in a repeatable
+(but sometimes unpredictable) way.  Nachos code is repeatable in that
+if you call it repeatedly with the same arguments, it will do exactly
+the same thing each time.  However, if you invoke <tt>nachos
+-s <i>&lt;number&gt;</i></tt> with a different <tt>number</tt> each
+time, calls to <tt>KThread.yield</tt> will be inserted at different
+places in the code.
+
+<p> You will be modifying source code files in the <tt>threads</tt>
+  subdirectory, and compiling in the <tt>proj1</tt> subdirectory.  You
+  can add new classes to your project as you see fit; the code we
+  provide you is a skeleton for the project.  As described on
+  the <a href="./index.html#project-source">main project page</a>,
+  though, be careful to only add any additional classes to the
+  packages (directories) permitted.
+
+<p> There should be no busy-waiting in any of your solutions to this
+  assignment.  (The initial implementation of <tt>Alarm.waitUntil</tt>
+  is an example of busy-waiting.)
+  
+<h2>Tasks</h2>
+
+<ol start=0>
+
+<p>
+  <li> (0%) Be sure to have your group registered on the Google form
+  so that we can create a course repo on github for you (see the
+  pinned Piazza note).  This step applies even if you are working on
+  your own.  We can only grade repos that were created for the course.
+
+    <p> Browse through the initial thread system implementation,
+    starting with <tt>KThread.java</tt>.  This thread system
+    implements thread fork, thread completion, and semaphores for
+    synchronization.  It also provides locks and condition variables
+    built on top of semaphores.
+
+  <p> Trace the execution path (by hand) for the startup test case
+  provided.  When you trace the execution path, it is helpful to keep
+  track of the state of each thread and which procedures are on each
+  thread's execution stack.  You will notice that when one thread
+  calls <tt>TCB.contextSwitch</tt>, that thread stops executing, and
+  another thread starts running.  The first thing the new thread does
+  is to return from <tt>TCB.contextSwitch</tt>.  We realize this will
+  seem cryptic to you at first, but you will understand threads once
+  you understand why the <tt>TCB.contextSwitch</tt> that gets called
+  is different from the <tt>TCB.contextSwitch</tt> that returns.
+
+  <p> Compile and run the baseline implementation of Nachos in
+    the <tt>proj1</tt> directory:
+
+<blockquote><pre>
+    % cd nachos/proj1
+    % make
+    % nachos
+</pre></blockquote>
+
+  <p> The output should be the same as in project 0 before your changes.
+
+<p>
+<li>(20%) Complete the implementation of the <tt>Alarm</tt> class.  A
+  thread calls <tt>waitUntil(long x)</tt> to suspend its execution
+  until wall-clock time has advanced to at least <i>now</i>
+  + <i>x</i>.  This method is useful for threads that operate in real
+  time, such as blinking the cursor once per second.  There is no
+  requirement that threads start running immediately after waking up;
+  just put them on the ready queue in the timer interrupt handler
+  after they have waited for at least the right amount of time.  Do
+  not fork any additional threads to implement <tt>waitUntil</tt>; you
+  need only modify <tt>waitUntil</tt> and the timer interrupt handler
+  methods. <tt>waitUntil</tt> itself, though, is not limited to being
+  called by one thread; any number of threads may call it and be
+  suspended at any one time.
+
+  If the wait parameter <tt>x</tt> is 0 or negative, return without
+  waiting (do not assert).
+
+  <p> Note that only one instance of <tt>Alarm</tt> may exist at a time
+  (due to a limitation of Nachos), and Nachos already creates one
+  global alarm that is referenced via <tt>ThreadedKernel.alarm</tt>.
+
+  <!--
+  <p>
+  <div class="task-error">Error handling</div>
+  <p>
+-->
+
+  <p><b>Testing:</b> Implement tests that verify that a thread waits
+  (approximately) for its requested duration; if the wait parameter is
+  0 or negative, the thread does not wait; multiple threads waiting on
+  the alarm are woken up at the proper times, and in the proper order.
+
+  For examples and strategies for implementing tests, see the
+  <a href="#testing">Testing</a> section below.
+  
+<p>
+<li>(20%) Implement <tt>KThread.join</tt>, which synchronizes the
+  <i>calling</i> thread with the completion of the <i>called</i>
+  thread.  As an example, if thread <tt>B</tt> executes the following:
+
+<blockquote><pre>
+    KThread A = new KThread (...);
+    ...
+    A.join ();
+</pre></blockquote>
+
+  we say that thread <tt>B</tt> (the "parent") joins with
+  thread <tt>A</tt> (the "child").
+
+<!--
+  <p>
+  <div class="task-spec">Specification</div>
+-->
+
+  When <tt>B</tt> calls join on <tt>A</tt>, there are two
+  possibilities.  If <tt>A</tt>has already finished, then <tt>B</tt>
+  returns immediately from join without waiting.  If <tt>A</tt> has
+  not finished, then <tt>B</tt> waits inside of join until <tt>A</tt>
+  finishes; when <tt>A</tt> finishes, it resumes <tt>B</tt>.
+
+  <p> Note that join does not have to be called on a thread.  A thread
+  should be able to finish successfully even if no other thread calls
+  join on it.
+
+    <!--
+  <div class="task-error">Error handling</div>
+  -->
+    
+  <p> A thread cannot join to itself.  (The initial implementation
+    already checks for this case and invokes Lib.assert when it
+    happens.  Keep this Lib.assert call in your code.)
+
+  <p> Join can be called on a thread at most once.  If
+  thread <tt>B</tt> calls join on <tt>A</tt>, then it is an error
+  for <tt>B</tt> or any other thread <tt>C</tt> to call join
+  on <tt>A</tt> again.  Assert on this error.
+
+  <p><b>Testing:</b> Implement tests that verify if a parent
+  calls join on a child and the child is still executing, the parent
+  waits; if a parent calls join on a child and the child has finished
+  executing, the parent does not block; if a thread calls join on
+  itself, Nachos asserts; if join is called more than once on a
+  thread, Nachos asserts; one parent thread can join with multiple
+  child threads in succession; independent pairs of parent/child
+  threads can join with each other without interference.
+  
+<!--  
+ Note that another thread
+  does not have to call <tt>join</tt>, but if it is called, it must
+  be called only once. The result of calling
+ <tt>join</tt> a second time on the same thread is undefined, even
+ if the second caller is a different thread than the first
+ caller. Said another way: there is no requirement to support multiple
+ join calls on the same thread. For example, say threads A, B & C
+ exist and all have references to each other. If A calls <tt>B.join()</tt> then
+ you do not need to support the case where C also calls <tt>B.join()</tt>.  A
+ thread must finish executing normally whether or not it is joined.
+-->
+
+<p>
+<li>(30%) Implement condition variables using interrupt enable and
+  disable to provide atomicity.  The class <tt>Condition</tt> is a
+  sample implementation that uses semaphores, and your job is to
+  provide an equivalent implementation in class <tt>Condition2</tt> by
+  manipulating interrupts instead of using semaphores.  Once you are
+  done, you will have two alternative implementations that provide the
+  exact same functionality.  Examine the existing implementation of
+  class <tt>Semaphore</tt> to guide you on how to manipulate
+  interrupts for when you implement the methods
+  of <tt>Condition2</tt>.
+
+  <!--
+  <p>
+  <div class="task-error">Error handling</div>
+  -->
+  
+  <p> A thread must have acquired the lock associated with the
+  condition variable when it invokes methods on the CV.  The
+  underlying implementation of the <tt>Lock</tt> class already has
+  code to assert in these cases, but we recommend writing a test
+  program that causes such an error so that you can see what happens.
+
+  <p><b>Testing:</b> Implement tests that verify that <tt>sleep</tt>
+  blocks the calling thread; <tt>wake</tt> wakes up at most one
+  thread, even if multiple threads are waiting; <tt>wakeAll</tt> wakes
+  up all waiting threads; if a thread calls any of the synchronization
+  methods without holding the lock, Nachos asserts; <tt>wake</tt> and
+  <tt>wakeAll</tt> with no waiting threads have no effect, yet future
+  threads that <tt>sleep</tt> will still block (i.e.,
+  the <tt>wake/wakeAll</tt> is "lost", which is in contrast to the
+  semantics of semaphores).
+
+    <!--
+    deleting a lock or condition
+    variable should have no threads on the wait queue.
+      -->
+<p>
+<li>(30%) An online MOBA game company would like your assistance.
+  They would like you to implement a game matching class that groups
+  together players of the same ability into fixed-sized groups to play
+  matches with each other.  Your task is to implement the
+  class <tt>GameMatch</tt> using <tt>Lock</tt> and <tt>Condition</tt>
+  to synchronize player threads into groups.  A <tt>GameMatch</tt> is
+  created specifying the number of players <tt>N</tt> required for a
+  game match.  You may assume that <tt>N</tt> will always be greater
+  than <tt>0</tt>.
+
+<p> Each player is a separate thread that invokes the <tt>play</tt>
+  method to join a match with a parameter indicating their ability
+  level.  The parameter <tt>ability</tt> can have one of three
+  values: <tt>abilityBeginner</tt>, <tt>abilityIntermediate</tt>,
+  and <tt>abilityExpert</tt>.  <tt>play</tt> blocks a calling thread
+  until <tt>N</tt> player threads of the <i>same</i> <tt>ability</tt>
+  have called <tt>play</tt>.  At that point, all threads of that
+  ability waiting for a match should continue and return
+  from <tt>play</tt> (but not threads of other abilities).  Subsequent
+  threads of that ability calling <tt>play</tt> will then wait to form
+  a group for the next match.  <tt>play</tt> returns <tt>-1</tt> if it
+  is invoked with an unknown ability.
+
+<p> The return value of <tt>play</tt> is the match number.  The first
+  match returned by <tt>play</tt> has match number <tt>1</tt>, and
+  every subsequent match returned by <tt>play</tt> increments the
+  match number by one, independent of ability.  No two matches should
+  have the same match number, match numbers should be strictly
+  monotonically increasing, and there should be no gaps between match
+  numbers.  Different instances of a <tt>GameMatch</tt> have their own
+  independent match number history.
+
+<p> Tip: Implement <tt>GameMatch</tt> in stages.  First implement
+  correct synchronization behavior for one ability, ignoring tracking
+  match numbers.  Then extend your implementation to handle all
+  abilities.  Then track match numbers.
+
+<p><b>Testing:</b> Implement tests that verify that <tt>play</tt> only
+  returns when <tt>N</tt> threads of the same ability have called
+  it; <tt>play</tt> can create matches of threads with different
+  abilities; threads do not return from <tt>play</tt> unless they are
+  matched; multiple <tt>GameMatch</tt> instances do not interfere with
+  each other; <tt>play</tt> returns match numbers as specified;
+  <tt>play</tt> returns an error if invoked with an unknown ability.
+  
+<!--    
+<p>
+<li>(30%) Implement the <tt>Communicator</tt> class to perform
+synchronous send and receive of one word messages (also known as
+Ada-style rendezvous).  Synchronize threads calling
+the methods
+<tt>void speak(int word)</tt> and <tt>int listen()</tt> using
+condition variables.  
+
+A thread calling <tt>speak</tt> atomically waits until a different
+thread calls <tt>listen</tt> on the same <tt>Communicator</tt> object,
+facilitating the word parameter to be transfered between threads.
+Once the transfer is made&mdash;and only once it is made&mdash;both
+threads can return.  Similarly, a thread calling <tt>listen</tt> waits
+until a different thread calls <tt>speak</tt>, at which point the
+transfer is made, and both can return.  In both cases, <tt>listen</tt>
+returns the word passed to <tt>speak</tt>.  After the transfer is
+made, it does not matter the order in which either thread returns.
+
+<p> Your implementation should work correctly even if there are
+multiple <tt>speak</tt>ers and
+<tt>listen</tt>ers for the same <tt>Communicator</tt> object.  In this
+case, a message is still passed between one speaker and one
+listener&mdash;the other threads are queued.  Listener and speaker
+threads pair up in first-come-first-served order.  (Your
+implementation cannot use a queue or list data structure to keep track
+of the multiple threads or the multiple words passed in; condition variables have all the queues
+needed.)
+
+<p> To summarize:
+<ul>
+  <li>
+  If a thread calls <tt>speak</tt>, and it is the only thread in the
+  Communicator, it will block inside of <tt>speak</tt> until a
+  different thread calls <tt>listen</tt>.
+
+  <li>
+  Similarly if a thread calls <tt>listen</tt>, and it is the only
+  thread in the Communicator, it will block inside of <tt>listen</tt>
+  until a different thread calls <tt>speak</tt>.
+
+  <li>
+  A thread that calls <tt>speak</tt> cannot return from <tt>speak</tt>
+  until it knows that a thread has called <tt>listen</tt> and has
+  received the word message.  (The analagous situation holds for
+  threads that call <tt>listen</tt>.)
+
+  <li>
+  If multiple threads call <tt>speak</tt>, these threads will also
+  block inside of <tt>speak</tt> until the first thread has finished.
+  (The analagous situation holds for multiple <tt>listeners</tt>.)
+</ul>
+
+<p><b>Testing:</b> Implement tests that verify the semantics above: a
+  speaker blocks until a listener has received the value (and
+  vice-versa); if there are multiple speakers and listeners, they
+  exchange values in FIFO order; if there are more speakers than
+  listeners, the "extra" speakers block (and vice-versa); when there
+  are multiple Communicator objects, the speakers and listeners for
+  one object do not interact with the speakers and listeners for other
+  objects.
+-->
+
+</ol>
+
+<a name="testing"></a>
+<h2>Testing</h2>
+
+<p> It is your responsibility to implement your own tests to
+  thoroughly exercise your code to ensure that it meets the
+  requirements specified for each part of the project.  Testing is an
+  important skill to develop, and the Nachos projects will help you to
+  continue to develop that skill.  You can add calls to testing code
+  in <tt>ThreadedKernel.selfTest</tt>, and add class-specific code in
+  <tt>selfTest</tt> methods of each class.
+
+<p> As a testing strategy, first start with simple tests and then
+  implement more complicated tests.  When something goes wrong with a
+  simple test, it is easier to pinpoint what aspect of your
+  implementation has a bug.  When something goes wrong with a more
+  complicated test, it is more difficult to determine where the bug
+  may be unless you can rule out all the causes that your simple tests
+  have shown to already be correct.  We also strongly recommend
+  implementing tests as separate methods, rather than making changes
+  to just one or a few methods.  Rather than making a change to an
+  existing test to evaluate new functionality, copy the test into a
+  new method and make the change.  That way, your earlier tests are
+  always there in case you need to use them again.  You can comment
+  out calls to previous tests so that you can concentrate on one test
+  at a time.
+
+<p> To help you get jumpstarted on testing, here are a handful of
+  example test programs across the various problems:
+  
+  <ul>
+    <li>A <a href="alarmTest1.java">simple test for Alarm</a>
+    <li>A <a href="joinTest1.java">simple test for Join</a>
+    <li>A <a href="intlockTest.java">simple test for Condition2</a>,
+      and a <a href="cvTest5.java">more complicated test for Condition2</a>
+    <li>A <a href="matchTest.java">simple test for GameMatch</a>
+<!--      
+    <li>A <a href="commTest6.java">more complicated test for Communicator</a>
+-->
+  </ul>
+
+  
+  <!--
+<p> If you are not sure what you should be testing, go back to the
+  problem specification.  For example, for <tt>KThread.join</tt>, you
+  will want to test that if a parent calls join on a child and the
+  child is still executing, the parent waits; if a parent calls join
+  on a child and the child has finished executing, the parent does not
+  block; if a thread calls join on itself, Nachos asserts; if join is
+  called more than once on a thread, Nachos asserts; etc.
+  -->
+  
+<!--  
+<p> To also aid you in this effort, you can test your implementation
+  before the deadline using the Nachos autograder (note that this
+  autograder is different than the system for requesting help from TAs
+  and tutors in the lab).  There is a project-specific autograder
+  submission script.  In your nachos directory,
+  run<code>autograder-proj1</code>:
+
+  <blockquote><pre>
+    % cd nachos
+    % autograder-proj1
+</pre></blockquote>
+
+<p> After completing the autograder submission, your submitted
+  implementation will be put in a queue to be autograded.  Results
+  will be emailed to you.  The autograder runs every hour, so it may
+  take some time before you receive a response.  You can submit your
+  code to the autograder as many times as you like, and the autograder
+  will run up until the project submission deadline.
+
+<p> <b>Note:</b> The tests used in the autograder are <i>not</i> an
+  exhaustive set of tests, they are just a sample set of tests.  You
+  should first write your own tests to convince yourself that your
+  implementation works correctly.  Then submit your code to the
+  autograder.
+-->
+  
+  <!--
+       <div class="alert alert-error" style="margin-left:15px">
+            <span class="label label-warning">Important</span>
+            <p><font color="black">
+            <b>Please note: project solutions submitted to the autograder do not constitute 
+            a project submission. If you fail to submit your project as per the instructions 
+            below, you will not receive a grade for the project.</b></font>
+            </p>
+        </div>
+      </div>
+-->
+  
+<h2>Code Submission</h2>
+
+<p> You do not have to do anything special to submit your project.  We
+  will use a snapshot of your Nachos implementation in your github
+  repository as it exists at the deadline, and grade that version.
+  (Even if you have made changes to your repo after the deadline,
+  that's ok, we will use a snapshot of your code at the deadline.)
+
+<!--
+  As with all projects you will submit it using the project specific
+submission script. Only one submission per group is expected. To
+submit, log into your course account and run: <code>prep cs120f</code>
+( If you are in Prof. Voelker's class, run <code>prep cs120e</code>
+instead ) Then move into your nachos directory and
+run: <code>submit-proj1</code> You will have until the posted due date
+to submit this project. You can submit as many times as you like. The
+last version submitted before the due date will be the one accepted.
+  -->
+
+<h2>Cheating</h2>
+
+<p> You can discuss concepts with students in other groups, but do not
+  cheat when implementing your project.  Cheating includes copying
+  code from someone else's implementation, or copying code from an
+  implementation found on the Internet.  See the
+  <a href="./index.html#cheating">main project page</a> for more
+  information.
+
+<p> We will manually check and also run code plagiarism tools on
+  submissions and multiple Internet distributions (if you can find it,
+  so can we).
+
+</body>
+
+<address>
+<div class="footer">
+  <hr>
+  <a href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>
+</div>
+</address>
+</html>

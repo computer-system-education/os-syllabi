@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="../style.css">
+  <title>CSE 120 (Spring 2018) -- Homework #3</title>
+</head>
+
+<body class="main">
+
+<h1>CSE 120: Homework #3</h1>
+<div class="h1sub">Spring 2018</div>
+
+<p><strong>Out</strong>: <span class="out">Friday May 4</span>
+<br><strong>Due</strong>: <span class="due">Monday May 21 at 11:59pm</span><br>
+
+<ol>
+
+<p>
+<li> <a href="vm-worksheet.html">Nachos VM Worksheet</a> &nbsp; (We strongly recommend doing this worksheet early as you start to work on project #2)
+
+<p>
+
+<li> 
+
+<p> When using physical addresses directly, there is no virtual to
+physical translation overhead.  Assume it takes 100 nanoseconds to
+make a memory reference.  If we used physical addresses directly, then
+all memory references will take 100 nanoseconds each.
+
+<ol type="a">
+
+<li> If we use virtual addresses with page tables to do the translation,
+then without a TLB we must first access the page table to get the
+approprate page table entry (PTE) for translating an address, do the
+translation, and then make a memory reference.  Assume it also takes
+100 nanoseconds to access the page table and do the translation.  In
+this scheme, what is the effective memory reference time (time to
+access the page table + time to make the memory reference)?
+
+<li> If we use a TLB, PTEs will be cached so that translation can
+happen as part of referencing memory.  But, TLBs are very limited in
+size and cannot hold all PTEs, so not all memory references will hit
+in the TLB.  Assume translation using the TLB adds no extra time and
+the TBL hit rate is 75%.  What is the effective average memory
+reference time with this TLB?
+
+<li> If we use a TLB that has a 99.5% hit rate, what is the effective
+average memory reference time now?  (This hit rate is close to what
+TLBs typically achieve in practice.)
+
+
+</ol>
+
+
+<!--
+<p>
+<li> (8.12)&nbsp; Consider the following segment table:
+
+<center>
+<table>
+<tr><td>Segment</td><td>Base</td><td>Length</td></tr>
+<tr><td align=center>0</td><td align=right>219</td><td align=right>600</td></tr>
+<tr><td align=center>1</td><td align=right>2300</td><td align=right>14</td></tr>
+<tr><td align=center>2</td><td align=right>90</td><td align=right>100</td></tr>
+<tr><td align=center>3</td><td align=right>1327</td><td align=right>580</td></tr>
+<tr><td align=center>4</td><td align=right>1952</td><td align=right>96</td></tr>
+</table>
+</center>
+
+<p> What are the physical addresses for the following logical addresses?
+
+<p>
+&nbsp; &nbsp; a. 0,430 <br>
+&nbsp; &nbsp; b. 1,10 <br>
+&nbsp; &nbsp; c. 2,500 <br>
+&nbsp; &nbsp; d. 3,400 <br>
+&nbsp; &nbsp; e. 4,112
+
+-->
+
+<p>
+<li> Consider a 32-bit system with 1K pages and simple single-level paging.
+
+<ol type="a">
+
+<li> With 1K pages, the offset is 10 bits.  How many bits are in the
+virtual page number (VPN)?
+
+<li> For a virtual address of 0xFFFF, what is the virtual page number?
+
+<li> For a virtual address of 0xFFFF, what is the value of the offset?
+
+<li> What is the physical address of the base of physical page number 0x4?
+
+<li> If the virtual page for 0xFFFF is mapped to physical page number 0x4,
+what is the physical address corresponding to the virtual address 0xFFFF?
+
+</ol>
+
+
+<p>
+<li> [Crowley] Suppose we have a computer system with a 44-bit
+virtual address, page size of 64K, and 4 bytes per page table
+entry.
+
+<ol type="a">
+<li> How many pages are in the virtual address space?
+(Express using exponentiation.)
+<li> Suppose we use two-level paging and arrange for all page table
+pages (both master and secondary) to fit into a single page frame.
+How will the bits of the address be divided up?
+<li> Suppose we have a 4 GB program such that the entire program
+and all necessary page tables (using two-level pages from above)
+are in memory. (Note: It will be a <i>lot</i> of memory.)
+How much memory, in <b>page frames</b>, is used by the program,
+including its page tables?
+</ol>
+
+<p>
+<li> [Crowley] Suppose we have an average of one page fault every
+20,000,000 instructions, a normal instruction takes 2 nanoseconds, and
+a page fault causes the instruction to take an additional 10
+milliseconds.  What is the average instruction time, taking page
+faults into account?  Redo the calculation assuming that a normal
+instruction takes 1 nanosecond instead of 2 nanoseconds.
+
+<p>
+<li> [Tanenbaum] If FIFO page replacement is used with four page
+frames and eight pages (numbered 0&ndash;7), how many page faults will
+occur with the reference pattern 427253323126 if the four frames are
+initially empty?  Which pages are in memory at the end of the
+references?  Repeat this problem for LRU.
+
+<p>
+<li>If many programs are kept in main memory, then there is almost
+always another program ready to run on the CPU when a page fault
+occurs. Thus, CPU utilization is kept high. If, however, we allocate a
+large amount of physical memory to just a few of the programs, then
+each program produces a smaller number of page faults. Thus, CPU
+utilization is kept high among the programs in memory.
+
+<p> What would the working set algorithm try to accomplish, and why?
+(Hint: These two cases represent extremes that could lead to
+problematic behavior.)
+
+<!--
+Are these two arguments correct? Which policy, if either, should be
+preferred? Why?
+-->
+
+<p>
+<li> [Silberschatz] Consider a demand-paging system with the following
+time-measured utilizations:
+
+<p>
+&nbsp; &nbsp; CPU utilization: 20% <br>
+&nbsp; &nbsp; Paging disk: 97.7% (demand, not storage)<br>
+&nbsp; &nbsp; Other I/O devices: 5% <br>
+
+<p>
+For each of the following, say whether it will (or is likely to)
+improve CPU utilization.  Briefly explain your answers.
+
+<p>
+&nbsp;&nbsp; a. Install a faster CPU <br>
+&nbsp;&nbsp; b. Install a bigger paging disk <br>
+&nbsp;&nbsp; c. Increase the degree of multiprogramming <br>
+&nbsp;&nbsp; d. Decrease the degree of multiprogramming <br>
+&nbsp;&nbsp; e. Install more main memory <br>
+&nbsp;&nbsp; f. Install a faster hard disk, or multiple controllers with multiple hard disks <br>
+&nbsp;&nbsp; g. Add prepaging to the page-fetch algorithms <br>
+&nbsp;&nbsp; h. Increase the page size <br>
+
+</ol>
+</ol>
+
+<address>
+<div class="footer">
+  <hr>
+  <a href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>
+</div>
+</address>
+
+</body>
+</html>

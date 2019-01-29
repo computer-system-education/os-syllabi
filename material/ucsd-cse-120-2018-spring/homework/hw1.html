@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="../style.css">
+  <title>CSE 120 (Spring 2018) -- Homework #1</title>
+</head>
+
+<body class="main">
+
+<h1>CSE 120: Homework #1</h1>
+<div class="h1sub">Spring 2018</div>
+
+<p><strong>Out</strong>: <span class="out">Thursday April 5</span><br>
+  <strong>Due</strong>: <span class="due">Tuesday April 17</span>
+(start of class)
+  <br>
+
+<!-- 5pts/problem, except for multi-sub-part problems -->
+
+<p> Each question is worth 5 points.  When a question asks you to
+describe or explain, your answers can be relatively brief.  The [name]
+tags give scholarly attribution to authors of other OS textbooks who
+wrote the question (you do not need the textbook to be able to answer
+the question, though).
+
+  You will submit your homework electronically via gradescope.
+  Everyone should have received a gradescope invitation for this
+  course.  Once you have logged in, follow
+  these <a href="https://www.youtube.com/watch?v=KMPoby5g_nE">general
+  instructions</a> for uploading your homework.
+  
+  
+
+<ol>
+
+<p> <!-- 2.1 -->
+<li> [Anderson 2.1] For each of the three mechanisms that supports
+dual-mode operation &mdash; privileged instructions, memory
+protection, and timer interrupts &mdash; explain what might go wrong
+without that mechanism, assuming the system only had the other two.  (In
+other words, if we just had memory protection and timer interrupts but
+not privileged instructions, what could go wrong; if we just had
+privileged instructions and timer interrupts, what could go wrong,
+etc.)
+
+<p>
+<li> [Silberschatz] Some computer systems do not provide a privileged
+mode of operation in hardware. Is it possible to construct a secure
+operating system for these computers? Give arguments both that it is
+and that it is not possible.  (By a secure operating system, we mean
+that a user program is not able to corrupt the kernel, prevent it from
+running, crash the system, violate memory protection, etc.)
+
+
+
+<p><!-- 2.3 -->
+<!--
+<li> [Silberschatz] What are the differences between a trap and an
+interrupt? What is the use of each function?
+-->
+
+<p><!-- 2.5 -->
+<li> [Silberschatz] Which of the following instructions should be
+privileged?  Give a one-sentence explanation for why.<p>
+a) Set value of timer<br>
+b) Read the clock<br>
+c) Clear memory<br>
+d) Turn off interrupts<br>
+e) Switch from user to monitor (kernel) mode<br>
+
+<p><!-- 2.8 -->
+<!--
+<li> [Silberschatz] Protecting the operating system is crucial
+to ensuring that the computer system operates correctly. Provision of
+this protection is the reason for dual mode opeartion, memory
+protection, and the timer. To allow maximum flexibility, however, you
+should also place minimal constraints on the use.<p>
+The following is a list of instructions that are normally
+protected. What is the minimal set of instructions from this list that must
+be protected?
+<p>a) Change to user mode
+<br>b) Change to monitor mode
+<br>c) Read from monitor memory
+<br>d) Write into monitor memory
+<br>e) Fetch an instruction from monitor memory
+<br>f) Turn on timer interrupt
+<br>g) Turn off timer interrupt
+-->
+
+<li> [Tanenbaum] For each of the following Unix system calls, give a
+condition that causes it to
+fail: <tt>open</tt>, <tt>read</tt>, <tt>fork</tt>,
+<tt>exec</tt>, <tt>unlink</tt> (delete a file).  (Hint: We discussed
+some in lecture, and you can also explore the error semantics of these
+system calls using <tt>man</tt> on ieng6, e.g., <tt>man 2 fork</tt>.)
+
+<p>
+<li> List two challenges an operating system faces when passing
+parameters between user and kernel mode.  Describe how an operating
+system can overcome them.
+
+<!--
+<p>
+<li> Chapter 2
+<p>
+2.11&nbsp; It is sometimes difficult to achieve a layered approach if
+two components of the operating system are dependent on each other.
+Identify a scenario in which it is unclear how to layer two system
+components that require tight coupling of their functionalities.
+-->
+
+
+<!--
+<p>
+<li>Chapter 3: 9
+
+<p>
+3.9&nbsp; Why does Java provide the ability to call from a Java
+program native methods that are written in, say, C or C++?
+Provide an example where a native method is useful.
+-->
+
+<!--
+<p>
+<li>The Java runtime provides a set of standard system libraries for
+use by programs.  To what extent are these libraries similar to the
+system calls of an operating system, and to what extent are they
+different?
+-->
+
+<p>
+<li>[Crowley] Suppose the hardware interval timer only counts
+down to zero before signalling an interupt.  How could an OS
+use the interval timer to keep track of the time of day?
+
+<p> <!-- 2.13 -->
+<li>[Anderson 2.13] Suppose you have to implement an operating system
+on hardware that supports interrupts and exceptions but does not have
+an explicit trap (syscall) instruction.  Can you devise a satisfactory
+substitute for traps using interrupts and/or exceptions?  If so,
+explain how.  If not, explain why.  (In this context, the trap
+instruction is the instruction used by a user-level process to invoke
+a system call in the operating system, i.e., the trap instruction is
+the system call instruction.)
+
+<!--
+<p>
+<li>[Anderson 2.14] Suppose you have to implement an operating system
+on hardware that supports exceptions and traps but does not have
+interrupts.  Can you devise a satisfactory substitute for interrupts
+using exceptions and/or traps?  If so, explain how.  If not, explain
+why.
+-->
+
+<!--
+<p>
+<li>[Tanenbaum] One reason GUIs were initially slow to be adopted was
+the cost of the hardware needed to support them.  How much video RAM,
+in bytes, is needed to support a 25 line X 80 row character monochrome
+text screen?  How much for a 1024 X 768 24-bit color bitmap?  What was
+the cost of this RAM at 1980 prices ($5/KB)?  How much is it now (say,
+$0.25/MB)?
+-->
+
+<!--
+<p>
+<li>[Deitel] Using your Unix machine logged in with a normal user
+account instead of root is an example of the principle of least
+privilege.  Relate this principle to the concepts of user mode, kernel
+mode, and privileged instructions.
+-->
+
+<p>
+<li> Consider the following C program:
+
+<blockquote><pre>
+#include &lt;stdlib.h&gt;
+
+int main (int argc, char *arg[])
+{
+    fork ();
+    if (fork ()) {
+	fork ();
+    } else {
+	char *argv[2] = {"/bin/ls", NULL};
+	execv (argv[0], argv);
+        fork ();
+    }
+}
+</pre></blockquote>
+
+<p> a. How many total processes are created (including the first process
+running the program)?  (Note that <tt>execv</tt> is just one of
+multiple ways of invoking <tt>exec</tt>.)
+
+<p> b. How many times does the <tt>/bin/ls</tt> program execute?
+
+<p> [Hint: You can always add debugging code, compile it, and run the
+program to experiment with what happens.]
+
+</ol>
+
+<address>
+<div class="footer">
+  <hr>
+  <a href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>
+</div>
+</address>
+
+</body>
+</html>

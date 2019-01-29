@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CSE 120: Nachos Project Guide</title>
+  <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+
+<body class="main">
+<h1>CSE 120 Nachos Project Guide</h1>
+<div class="h1sub">Spring 2018</div>
+
+<h2>Nachos</h2>
+
+<p> Nachos is an instructional operating system for undergraduate OS
+classes. It is a challenging system to learn, but is also as rewarding
+as it is challenging.
+
+<p> Nachos may seem complex (it is) and confusing at first, but after
+using the system for a while you will become familiar and comfortable
+with it. There are also some advantages with using such a
+well-established project. First, it has been thoroughly debugged and
+is therefore relatively stable. Second, there is extensive
+documentation describing the Nachos system. Both of these aspects
+should make it easier for you to learn and use Nachos.
+
+<p> During the quarter we will be starting with a pre-project and then
+doing three substantial projects:
+  
+<ol start=0>
+<li><a href="project0.html">Introduction</a> (1%)</li>
+<li><a href="project1.html">Threads</a> (33%)</li>
+<li><a href="project2.html">Processes and Multiprogramming</a> (33%)</li>
+<li><a href="project3.html">Virtual Memory</a> (33%)</li>
+</ol>
+
+<p> The project grade is evenly split among the projects (each is 33%
+  of the project grade), and project 0 is the remaining 1%.
+
+<!--
+<p>It is this outline that we will be following for our projects this quarter.</p>
+-->
+
+<!--
+<p>There are two versions of Nachos in current use, Nachos 3.4 and Nachos 4.0. They both have the same functionality. Nachos 4.0 is an updated version of 3.4, has been more widely ported, and is perhaps better architected from a software engineering point of view. However, most of the detailed guides describing the Nachos system refer to Nachos 3.4. Because of this reason, we will be using Nachos 3.4.</p>
+-->
+
+<h2>Groups</h2>
+
+<!--
+<p><strong>Due</strong>: <span class="due">Friday, October 10, at noon</span>
+  -->
+
+<p> You will work on projects 1&ndash;3 in groups of 1&ndash;3
+  students.  Project 0 is a short, individual project, and we will
+  overlap forming groups with project 0.  You can form groups with
+  students across both lecture sections.
+
+<!--
+<p> When you have formed a group, please send mail
+to <a href="mailto:h8liu@cs.ucsd.edu">Lonnie</a>
+(<tt>h8liu@cs.ucsd.edu</tt>) with your names and your account logins
+(i.e., the account name you use to login to ieng6).  We will use your
+logins for creating Unix groups.  If you are seeking other group
+members, you can post to Piazza or send mail to the list.  If you
+would like to be placed into a group, send mail to Lonnie and he will
+create groups out of students also asking to be placed into a group.
+-->
+
+<!--
+<h2>Projects</h2>
+
+<p> 
+-->
+
+<h2>Documentation</h2>
+
+<p> There are a number of sources for using and learning the Nachos
+system, starting with the source code itself.
+
+<ul>
+<li> <a href="http://cseweb.ucsd.edu/classes/sp18/cse120-a/projects/nachos-cse120-sp18.tar.gz">Nachos source</a>
+<li> <a href="http://inst.eecs.berkeley.edu/~cs162/sp08/Nachos/walk/">Nachos Walkthrough</a>
+<li> <a href="http://inst.eecs.berkeley.edu/~cs162/sp08/Nachos/doc/index.html">Nachos API</a>
+<li> The original <a href="nachos.pdf">Nachos paper</a> (note that it
+  describes the original Nachos project developed in C++)
+</ul>
+
+<p> The platform we will officially support is Linux/x86 on the
+  machines in the CSE B230&ndash;B270 labs and the ieng6 ACMS server
+  cluster.  We have customized the generic Nachos distribution for the
+  CSE 120 class, so you should use the version of Nachos that we make
+  available (i.e., do not download from other sites on the Web).  If
+  you would like to work with Nachos on another system, see the
+  discussion of <a href="crosscompile.html">cross-compilation</a> for
+  projects 2 and 3.
+
+<!--
+The Nachos distribution file can be found on <a href="https://github.com/h8liu/nachos">github</a>. </p>
+-->
+
+<!--
+<p>To compile the code and have a test run, do the following:</p>
+
+<pre><code>$ git clone https://github.com/h8liu/nachos.git
+$ cd nachos/code
+$ make
+$ cd threads
+$ ./nachos
+</code></pre>
+
+<p>It will create and populate the directory <code>nachos</code>.</p>
+-->
+
+<h2>
+<a name="user-content-git" class="anchor" href="#git" aria-hidden="true"><span class="octicon octicon-link"></span></a>Git</h2>
+
+<p>Starting with project 1, we will be using Git for version control in CSE 120.
+The Git site has <a href="http://git-scm.com/doc">an excellent
+reference manual online</a>.  We will provide more details when we start project 1.
+
+<a name="project-source">
+</a>
+<h2>Adding Source Code</h2>
+
+<p> Your project code will be automatically graded.  There are two
+reasons for this:
+
+  <ol>
+    <li>A grader program can test your code a lot more thoroughly and
+        consistently than a TA can, yielding more consistent results.
+    <li>A grader program can test your code a lot faster than a TA can.
+  </ol>
+
+<p> Of course, there is a tradeoff.  Everything that will be tested
+needs to have a standard interface that the grader can use, leaving
+slightly less room for you to be creative.  Your code must strictly
+follow these interfaces (the documented <tt><i>*</i>Interface</tt>
+classes).
+
+<p> Since your submissions will be processed by a program, there are
+some very important things you must do, as well as things you must not
+do. For <i>all</i> of the projects in this course:
+
+  <ol>
+    <li><i>Do not</i> modify <tt>Makefile</tt>, <b>except</b> in the
+      test directory for projects 2 and 3.  When grading, we will be
+      using our own Makefile (<tt>javac</tt> automatically finds
+      source files to compile, so we do not need you to submit
+      a <tt>Makefile</tt>).</li>
+
+    <li>Only modify <tt>nachos.conf</tt> according to the project
+      specifications.  When grading, we will also being using our
+      own <tt>nachos.conf</tt> file.  Do not rely on any additional
+      keys being in this file.</li>
+
+    <li><i>Do not</i> modify any classes in
+      the <tt>nachos.machine</tt> package, the <tt>nachos.ag</tt>
+      package, or the <tt>nachos.security</tt> package. Also do not
+      add any classes to these packages, as they would not be used
+      during grading.</li>
+
+    <li><i>Do not</i> add any new packages to your project.
+      All the classes you submit must reside in the packages we provide.</li>
+
+    <li><i>Do not</i> modify the API for methods that the grader
+      uses. This constraint is enforced every time you run Nachos
+      by <tt>Machine.checkUserClasses</tt>.  If an assertion fails
+      there, you will know you have modified an interface that needs
+      to stay the way it was given to you.</li>
+
+    <li><i>Do not</i> directly use Java native threads
+      (the <tt>java.lang.Thread</tt> class).  The Nachos security
+      manager will not permit it.  All the threads you use should be
+      managed by TCB objects (see the documentation for
+      <tt>nachos.machine.TCB</tt>).</li>
+
+    <li><i>Do not</i> use the <tt>synchronized</tt> keyword in any of
+      your code. We will <tt>grep</tt> for it and reject any submission
+      that contains it.</li>
+
+    <li><i>Do not</i> directly use Java <tt>File</tt> objects (in the
+      <tt>java.io</tt> package). In later projects, when we start
+      dealing with files, you will use a Nachos file system
+      layer.</li>
+
+    <li>Sprinkled throughout the Nachos classes there are some calls
+      to the Nachos autograder.  Leave them as they are.
+
+  </ol>
+
+  <!--
+<p> When you want to add non-java source files to your project, simply
+add entries to your <tt>Makefile</tt>.
+-->
+
+<p>
+During each project, we will provide a program that you can use to
+submit your code to the autograding system.  As a result, you will be
+able to make sure that your code compiles and runs with the autograder
+well before you submit it.
+
+<h2>Assistance</h2>
+
+<p> The Nachos projects are aggressive, complex, and time-consuming.
+Nachos may seem overwhelming at first, but the projects are not
+impossible.  If your group is spending many hours stuck on a single
+problem, then you should seek assistance.  Be sure and read the
+various support documents.  Come to office hours.  Talk to the TAs and
+tutors in the lab.  And use Piazza the class discussion board to share
+problems and tips.
+
+<h2>
+<a name="cheating" class="anchor" href="#cheating" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cheating</h2>
+
+<p>Cheating is not an acceptable method for completing your projects. The consequences of cheating will correspond to the severity, but most often lead to failure of the course. The <a href="http://cseweb.ucsd.edu/%7Eelkan/honesty.html">academic honesty guidelines</a> outlined by Charles Elkan for CSE 130 apply to this course.</p>
+
+<p>
+I urge you to resist any temptation to cheat, no matter how desperate
+the situation may seem.  If you are in circumstances that you feel
+compel you to cheat, come to me first before you do so.
+
+
+
+<div class="footer">
+  <hr>
+  <a href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>
+</div>
+
+</body>

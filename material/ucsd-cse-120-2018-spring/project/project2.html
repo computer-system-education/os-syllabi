@@ -1,0 +1,547 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CSE 120: Principles of Computer Operating Systems</title>
+  <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+
+<body class="main">
+
+<h1>Project 2: Multiprogramming</h1>
+<div class="h1sub">Spring 2018</div>
+
+<p> The second Nachos project is to implement system calls and support
+ multiprogramming.  As in the first project, we give you some of the
+ code you need and your task is to complete the system and enhance it.
+ Up to now, all the code you have written for Nachos has been part of
+ the operating system kernel.  In a real operating system, the kernel
+ not only uses its procedures internally, but allows user-level
+ programs to access some of its routines via <i>system calls</i>.  The
+ goal of this project is to enable user-level programs to invoke
+ Nachos routines that you implement in the Nachos kernel.
+
+<p><strike><strong>Due</strong>: <span class="due">Wednesday, May 16 at 11:59pm</span></strike>
+<br><strong>Due</strong>: <span class="due">Saturday, May 19 at 11:59pm</span>
+
+<h2>Background</h2>
+
+<p> The changes you make to Nachos will be in these two files in
+the <tt>userprog</tt> directory:
+
+<ul>
+<li><tt>UserKernel.java</tt> - a multiprogramming kernel.
+<li><tt>UserProcess.java</tt> - a user process; manages the address
+  space, and loads a program into virtual memory.
+</ul>
+
+You will also want to familiarize yourself with the other classes
+in <tt>userprog</tt>:
+
+<ul>
+<li><tt>UThread.java</tt> - a thread capable of executing user MIPS code.
+<li><tt>SynchConsole.java</tt> - a synchronized console; makes it
+        possible to share the machine's serial console among multiple
+        threads.
+</ul>
+
+<p> as well as a couple of classes in the <tt>machine</tt> directory:
+
+<ul>
+<li><tt>Processor</tt> simulates a MIPS processor.
+<!--
+<li><tt>SerialConsole</tt> simulates a serial console (for keyboard
+        input and text output).
+-->
+<li><tt>FileSystem</tt> is a file system interface. To access files,
+        use the <tt>FileSystem</tt> returned
+        by <tt>Machine.stubFileSystem()</tt>. This file system
+        accesses files in the <tt>test</tt> directory.
+</ul>
+
+<p> Nachos emulates user programs executing on a real CPU (a MIPS
+R3000 chip).  By emulating execution, Nachos has complete control over
+how many instructions are executed at a time, how the address
+translation works, and how interrupts and exceptions (including system
+calls) are handled.  The emulator can run normal programs compiled
+from C to the MIPS instruction set.  The only caveat is that floating
+point operations are not supported.
+
+<p> Nachos initially is only able to run a single user-level MIPS
+  program at a time, and supports one system call
+  fully: <tt>halt</tt>.  All <tt>halt</tt> does is ask the operating
+  system to shut the machine down.  This test program is found
+  in <tt>test/halt.c</tt> and represents the simplest supported MIPS
+  program.
+
+<p> Nachos provides several other example MIPS programs in
+the <tt>test</tt> directory.  You can use these programs to test your
+implementation, and you will be writing new test programs of your own.
+Of course, you will not be able to run the programs which make use of
+features such as I/O until you implement the appropriate kernel
+support.  That will be your task in this project.
+
+<p> To compile the test programs, you need a MIPS cross-compiler.
+This cross-compiler is already installed on the instructional machines
+as <tt>mips-gcc</tt> (see the <tt>Makefile</tt> in the
+<tt>test</tt> directory for details).  When logged into an
+instructional machine, <tt>prep</tt> will initialize two environment
+variables (ARCHDIR and PATH) to enable you to use the cross-compiler.
+
+If you would like to use the cross-compiler on your own Linux machine
+(or Linux virtual machine), you can download
+the <a href="crosscompile.html">distribution</a> to your system.
+Alternatively, you can compile your test programs on <tt>ieng6</tt>
+and copy them over to your own machine.
+
+<p> The <tt>test</tt> directory includes C source files (<tt>.c</tt>
+files) and Nachos user program binaries (<tt>.coff</tt> files).  The
+binaries can be created while in the <tt>test</tt> directory by
+running <tt>make</tt>, or from the <tt>proj2</tt> directory by
+running <tt>make test</tt>.
+
+<p> You can run test programs by running <code>nachos -x
+PROGNAME.coff</code> where <tt>PROGNAME.coff</tt> is the name of the
+MIPS program binary in the <tt>test</tt> directory.  You will be
+creating many test programs both for this project and project 3, and
+you will place them all in the <tt>test</tt> directory.  To compile
+your own test programs, add them to the <tt>Makefile</tt> in
+the <tt>test</tt> directory in the line:
+
+<pre>TARGETS = halt sh matmalt sort echo cat cp mv rm</pre>
+
+and then run <tt>make</tt>.
+
+</div>
+
+<div class="section">
+
+<h2>Tasks</h2>
+
+<ol notype=I start=0>
+
+  <li> (0%) Run your first Nachos user-level program.  Make sure you
+    have run prep if necessary:
+
+<blockquote><pre>
+    % prep cs120s
+</pre></blockquote>
+
+<p> Go to the <tt>test</tt> directory and run <tt>make</tt>.
+
+<blockquote><pre>
+    % cd nachos/test
+    % make
+</pre></blockquote>
+
+<p> Then go to the <tt>proj2</tt> directory, run <tt>make</tt>, and
+run <tt>nachos -x halt.coff</tt>.
+
+<blockquote><pre>
+    % cd ../proj2
+    % make
+    % nachos -x halt.coff
+</pre></blockquote>
+
+<p> After typing 'q' at the prompt, Nachos will shutdown ("Machine
+halting!").  To give you more insight into what happens as the user
+program gets loaded, runs, and invokes a system call, next
+run <tt>nachos -d ma -x halt.coff</tt>.  The <tt>'m'</tt> debug flag
+enables MIPS disassembly, showing the instructions of the user-level
+program being emulated on the CPU, and the <tt>'a'</tt> debug flag
+prints process loading information.
+
+<blockquote><pre>
+    % nachos -d ma -x halt.coff
+</pre></blockquote>
+  
+<p> Note that the baseline Nachos implementation has code in
+UserKernel.selfTest() that tests the console device.  Nachos executes
+this code every time it runs.  When you start testing your
+implementation, you can comment out this code so that you do not have
+to type 'q' every time you run Nachos.
+
+<p>
+<li> (35%) Implement the file system calls <tt>creat</tt>,
+     <tt>open</tt>, <tt>read</tt>, <tt>write</tt>, <tt>close</tt>,
+     and <tt>unlink</tt>.  Their semantics and specifications are
+     documented in <tt>test/syscall.h</tt>.  You will see the code
+     for <tt>halt</tt> and skeleton code for <tt>exit</tt> in
+     <tt>UserProcess.java</tt>.  Implement the other system calls
+     following the same pattern.  Note that you are <i>not</i>
+     implementing a file system.  Rather, you are simply giving user
+     processes the ability to access a file system that Nachos already
+     implements. </p>
+
+     <p> For further suggestions and tips, see
+     the <a href="#tips">Tips</a> section below.  For examples and
+     strategies for testing, see the
+     <a href="#testing">Testing</a> section below. </p>
+
+
+<ul type=disc>
+
+<p>
+<li> Nachos already provides the assembly code necessary for
+     user-level programs to invoke system calls
+     (see <tt>test/start.s</tt>; the <tt>SYSCALLSTUB</tt> macro
+     generates assembly code for each syscall).
+
+<p>
+<li> When implementing the system calls, you will need
+     to "bullet-proof" the Nachos kernel from user program
+     errors.  There should be nothing a user program can do to crash
+     the operating system (with the exception of explicitly invoking
+     the <tt>halt</tt> syscall).  In other words, you must be sure
+     that user programs do not pass bad arguments to the kernel (e.g.,
+     a NULL pointer value of 0x0, or an invalid address) that cause
+     the kernel to crash or corrupt its internal state or that of
+     other processes.
+
+<p>
+<li> To handle large <tt>read</tt>/<tt>write</tt> calls, you should
+     use a page-sized buffer to pass data between the file and user
+     memory.
+
+<p>
+<li> Since the memory addresses passed as arguments to the system
+     calls are virtual addresses, you need to use
+     <tt>UserProcess.readVirtualMemory</tt> and
+     <tt>UserProcess.writeVirtualMemory</tt> to transfer data between
+     the user process and the kernel. 
+
+<p>
+<li> User processes store filenames and other string arguments as
+     null-terminated strings in their virtual address space. The
+     maximum length for strings passed as arguments to system calls is
+     256 bytes (not including the terminating null).
+
+<p>
+  <li> System calls should return the appropriate value as documented
+  in <tt>test/syscall.h</tt>.  When a system call needs to indicate an
+  error condition to the user, it should return -1.  In particular, it
+  should not assert or otherwise thrown an exception.
+
+<p>
+<li> When any process is started, its file descriptors 0 and 1 must
+     refer to standard input and standard output.
+     Use <tt>UserKernel.console.openForReading()</tt>
+     and <tt>UserKernel.console.openForWriting()</tt> to implement
+     these semantics. A user process <i>is</i> allowed to close these
+     descriptors, just like descriptors returned by <tt>open</tt>.
+
+<p>
+<li> A stub file system interface to the UNIX file system is already
+     provided for you, and the interface is implemented by the class
+     <tt>machine/FileSystem.java</tt>.  You can access the stub
+     filesystem through the static
+     field <tt>ThreadedKernel.fileSystem</tt>. (Note that
+     since <tt>UserKernel</tt> extends <tt>ThreadedKernel</tt>, you
+     can still access this field.)  This filesystem is capable of
+     accessing the <tt>test</tt> directory in Nachos, which is going
+     to be useful when you implement the <tt>exec</tt> system call
+     described below.  You do not need to implement any file system
+     functionality, but you should examine carefully the
+     specifications for <tt>FileSystem</tt> and
+     <tt>StubFileSystem</tt> to determine what functionality you need
+     to implement, and what is handled by the file system.
+
+<p>
+<li> Do not implement any kind of file locking, the file system is
+     responsible for it.  If <tt>ThreadedKernel.fileSystem.open()</tt>
+     returns a non-null <tt>OpenFile</tt>, then the user process is
+     allowed to access the given file; otherwise, you should return an
+     error.  Likewise, you do not need to worry about the details of
+     what happens if multiple processes attempt to access the same
+     file at once; the stub filesystem handles these details for you.
+
+<p>
+  <li> Each file that a process opens should have a unique <em>file
+    descriptor</em> associated with it (see <tt>syscall.h</tt> for
+    details).  The file descriptor should be a non-negative integer
+    that is simply used to index into a table of currently-open files
+    by that process.  Your implementation should have a file table
+    size of 16, supporting up to 16 concurrently open files per
+    process.  Note that a given file descriptor can be reused if the
+    file associated with it is closed, and that different processes
+    can use the same file descriptor value to refer to different files
+    (e.g., in every process file descriptor 0 refers to stdin).
+
+</ul>
+
+<p>
+<li> (30%) Implement support for multiprogramming.  The initial Nachos
+  code is restricted to running only one user process, and your task
+  is to make it work for multiple user processes.
+
+  For further suggestions, see the <a href="#tips">Tips</a> section
+  below.  For examples and strategies for testing, see the
+  <a href="#testing">Testing</a> section below. </p>
+
+<ul type=disc>
+
+<p>
+<li> 
+
+<p> You will need to manage the allocation of pages of physical memory
+so that different processes do not overlap in their memory usage.  You
+can use whatever data structure you like to manage physical pages, but
+we suggest maintaining a static linked list of free physical pages
+(perhaps as part of the <tt>UserKernel</tt> class).  Be sure to use
+synchronization where necessary when accessing this list to prevent
+race conditions.
+
+<p> Your solution must make <i>efficient</i> use of memory by
+allocating pages for a new process wherever possible.  This means that
+it is not acceptable to only allocate pages in a contiguous
+block; your implementation must be able to make use of "gaps" in the
+free memory pool.
+
+<p>
+<li>
+
+<p> You will create and initialize the <tt>pageTable</tt> data
+structure for each user process, which maps the process's virtual
+addresses to physical addresses.  The <tt>TranslationEntry</tt> class
+represents a single virtual-to-physical page translation.  The
+field <tt>TranslationEntry.readOnly</tt> should be set to
+<tt>true</tt> if the page is coming from a COFF section which is
+marked as read-only.  You can determine this status using the method
+<tt>CoffSection.isReadOnly()</tt>.
+
+<p> Modify <tt>UserProcess.loadSections()</tt> so that it allocates
+the number of physical pages that it needs (that is, based on the size
+of the address space required to load and run the user program).  This
+method is the one that should set up the <tt>pageTable</tt> structure
+for the process so that the program is loaded into the physical memory
+pages it has allocated for the address space.  
+Note that user programs do not make use of <tt>malloc</tt> or
+<tt>free</tt>, meaning that user programs effectively have no dynamic
+memory allocation (and therefore, no heap).  The stack is fixed
+size as well.  As a result, Nachos knows how many virtual pages a new
+process needs for its address space when it is created.  If the new
+user process cannot allocate sufficient physical pages for its address
+space, <tt>exec</tt> should return an error.
+
+<p> All of a process's memory should be freed on exit (whether it
+exits normally, via the syscall <tt>exit</tt>, or abnormally, due to
+an illegal operation).  As a result, its physical pages can be
+subsequently reused by future processes.
+
+<p>
+<li>
+
+<p> Modify <tt>UserProcess.readVirtualMemory</tt> and
+<tt>UserProcess.writeVirtualMemory</tt>, which copy data between the
+kernel and the user's virtual address space, so that they work with
+multiple user processes.  Note that these methods should not throw
+exceptions if they encounter an error when copying data; instead, they
+must always return the number of bytes transferred (even if that
+number is zero).
+
+<p> The physical memory of the MIPS machine is accessed through the
+method <tt>Machine.processor().getMemory()</tt>, and the total number
+of physical pages is <tt>Machine.processor().getNumPhysPages()</tt>.
+
+
+<li> The user threads (see the <tt>UThread</tt> class) already save
+     and restore user machine state, as well as process state, on
+     context switches.  So you are not responsible for these details.
+
+</ul>
+
+<p>
+<li> (35%) Implement the system calls <tt>exec</tt>, <tt>join</tt>,
+  and <tt>exit</tt>, also documented in <tt>syscall.h</tt>.
+
+  For further suggestions, see the <a href="#tips">Tips</a> section
+  below.  For examples and strategies for testing, see the
+  <a href="#testing">Testing</a> section below. </p>
+
+<p>
+<ul type=disc>
+
+<li> Note that, although Nachos chose the name <tt>exec</tt> for its
+  system call, it is not the same as the Unix exec system call.  As
+  described in <tt>syscall.h</tt>, the Nachos <tt>exec</tt> system
+  call both creates a new process and loads a new program into that
+  process.  (As a result, it essentially combines <tt>fork/exec</tt>
+  on Unix and is similar to <tt>CreateProcess</tt> on Windows.)
+
+  <p>  
+<li> As with the other system calls, the addresses passed in registers
+as arguments to <tt>exec</tt> and <tt>join</tt> are virtual addresses.
+Use the methods <tt>readVirtualMemory</tt>
+and <tt>readVirtualMemoryString</tt> to transfer data between kernel
+memory and the memory of the user process.
+
+<p>
+  <li> Also bullet-proof these syscalls (e.g., handle cases such as
+    the program passing a NULL pointer value of 0x0, or an invalid
+    address, as the file name to <tt>exec</tt>).
+
+<p>
+<li> Note that the memory of the child process is entirely private to
+this process.  This means that the parent and child do not directly
+share memory or file descriptors.  Note that two processes can of
+course open the same file; for example, all processes should have file
+descriptors 0 and 1 mapped to the system console, as described above.
+
+<p>
+<li>Unlike <tt>KThread.join()</tt>, only a process's parent can join
+to it.  For instance, if A executes B and B executes C, A is not
+allowed to join to C, but B <i>is</i> allowed to join to C.
+
+<p>
+<li><tt>join</tt> takes a <em>process ID</em> as an argument, which is
+used to uniquely identify the child process which the parent wishes to
+join with.  The process ID should be a <i>globally unique positive
+integer</i>, assigned to each process when it is created. (Although
+for this project the only use of the process ID is in <tt>join</tt>,
+for project 3 it is important that the process ID is unique across all
+running processes in the system.) The easiest way of accomplishing
+this is to maintain a static counter which indicates the next process
+ID to assign.  Since the process ID is an <tt>int</tt>, then it may be
+possible for this value to overflow if there are many processes in the
+system. For this project you are not expected to deal with this case;
+that is, assume that the process ID counter will not overflow.
+
+<p>
+<li> Extend the implementation of the <tt>halt</tt> system call so
+that it can only be invoked by the "root" process &mdash; that is, the
+first process in the system. If another process attempts to
+invoke <tt>halt</tt>, the system call should be ignored and return
+immediately.
+
+<p>
+<li>When a process calls <tt>exit</tt>, its thread should be
+terminated and the process should clean up any state associated with
+it (i.e., free up memory, close open files, etc.). Perform the same
+cleanup if a process exits abnormally (e.g., executes an illegal
+instruction).
+
+<p>
+<li> If a parent process has called <tt>join</tt> on a child process,
+and the child process exits normally, then <tt>join</tt> needs to
+transfer the child's exit status value to the parent.  A child process
+exits normally if it calls the <tt>exit</tt> system call and provides
+a status value as an argument.  If a child process terminates
+abnormally (e.g., due to an unhandled exception), it will not have an
+exit status.  In this case, <tt>join</tt> will return 0 to the parent
+and the value of the <tt>status</tt> parameter does not need to be set
+(see <tt>test/syscall.h</tt> for the complete specification).
+
+<p>
+<li> The last process to call <tt>exit</tt> should cause the machine
+to halt by calling <tt>Kernel.kernel.terminate()</tt>. (Note that only
+the root process should be allowed to invoke the <tt>halt</tt> system
+call, but the last exiting process should call
+<tt>Kernel.kernel.terminate()</tt> directly.)
+
+</ul>
+
+</ol>
+</div>
+
+<a name="tips"></a>
+<h2>Tips</h2>
+
+<p> Here are some guidelines and tips for project 2 from previous CSE
+  120 TAs: </p>
+
+<ul>
+  <li> Ryan Huang's <a href="project2_guide.txt">tips</a>
+  <li> Matus Telgarsky's <a href="p2.tips">tips</a>
+</ul>
+
+<a name="testing"></a>
+<h2>Testing</h2>
+
+<p> As with all of the projects, it is your responsibility to
+  implement your own tests to thoroughly exercise your code to ensure
+  that it meets the requirements specified for each part of the
+  project.  Testing is an important skill to develop, and the Nachos
+  projects will help you to continue to develop that skill.  In this
+  project, you will implement tests as user-level programs written in
+  C.  See the discussion at the top of this page on creating test
+  programs in the <tt>test</tt> directory, compiling them, and running
+  them with Nachos.
+
+<p> The following pages provide testing strategies and example test
+  programs for the project:
+
+<ul>
+  <li><a href="syscall-testing.html">File system calls</a>
+  <li><a href="multi-testing.html">Multiprogramming support</a>
+  <li><a href="exec-testing.html">Multiple processes</a>
+</ul>
+
+<!--
+
+<h2>Autograder</h2>
+
+<p>  You can test your implementation before you submit a final version by using the autograder. The autograder works similar to the submit script. There is a project specific autograder submission script. To submit, log into your course account and run: 
+        <code>prep cs120f</code> (If you are in Prof. Voelker's class, run <code>prep cs120e</code> instead).
+
+Then move into your <tt>nachos</tt> directory and
+run <code>autograder-proj2</code>.  After completing the autograder
+submission, your submitted implementation will be put in a queue to be
+autograded.  Results will be emailed to you; note that the email system often
+gets clogged, so you may need to wait to receive the email).
+The autograder runs every hour.  You can submit your code to
+the autograder as many times as you like. The autograder will run up
+until the project submission deadline.
+
+<div class="alert alert-error" style="margin-left:15px">
+<span class="label label-warning">Important</span>
+
+<p> <b>Please note: project solutions submitted to the autograder do
+not constitute a project submission. If you fail to submit your
+project as per the instructions below, you will not receive a grade
+for the project.</b>
+
+</div>
+</div>
+-->
+
+<h2>Code Submission</h2>
+
+<p> As with the first project, you do not have to do anything special
+  to submit your project.  We will use a snapshot of your Nachos
+  implementation in your github repository as it exists at the
+  deadline, and grade that version.  (Even if you have made changes to
+  your repo after the deadline, that's ok, we will use a snapshot of
+  your code at the deadline.) </p>
+
+<p> As a final step, create a file named README in the proj2
+  directory.  The README file should list the members of your group
+  and provide a short description of what code you wrote, how well it
+  worked, how you tested your code, and how each group member
+  contributed to the project.  The goal is to make it easier for us to
+  understand what you did as we grade your project in case there is a
+  problem with your code, not to burden you with a lot more work.  Do
+  not agonize over wording.  It does not have to be poetic, but it
+  should be informative. </p>
+
+<h2>Cheating</h2>
+
+<p> You can discuss concepts with students in other groups, but do not
+  cheat when implementing your project.  Cheating includes copying
+  code from someone else's implementation, or copying code from an
+  implementation found on the Internet.  See the
+  <a href="./index.html#cheating">main project page</a> for more
+  information.
+
+<p> We will manually check and also run code plagiarism tools on
+  submissions and multiple Internet distributions (if you can find it,
+  so can we).
+
+</body>
+
+<address>
+<div class="footer">
+  <hr>
+  <a href="mailto:voelker@cs.ucsd.edu">voelker@cs.ucsd.edu</a>
+</div>
+</address>
+</html>
