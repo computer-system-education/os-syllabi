@@ -1,0 +1,788 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!-- saved from url=(0048)https://pdos.csail.mit.edu/6.828/2018/labs/lab2/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Lab 2: Memory Management</title>
+<link rel="stylesheet" href="./Lec-03-Lab02-Memory-Management_files/labs.css" type="text/css">
+<script type="text/javascript" src="./Lec-03-Lab02-Memory-Management_files/labs.js"></script>
+</head>
+<body><div class="jump-hdr"><div class="jump-section">Sections &#9663;<div class="jump-drop"><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Introduction" style="padding-left: 1em; background: rgb(192, 192, 255);">Introduction</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Getting-started" style="padding-left: 2em;">Getting started</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Lab-Requirements" style="padding-left: 2em;">Lab Requirements</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Hand-In-Procedure" style="padding-left: 2em;">Hand-In Procedure</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Part-1--Physical-Page-Management" style="padding-left: 1em;">Part 1: Physical Page Management</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Part-2--Virtual-Memory" style="padding-left: 1em;">Part 2: Virtual Memory</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Virtual--Linear--and-Physical-Addresses" style="padding-left: 2em;">Virtual, Linear, and Physical Addresses</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Reference-counting" style="padding-left: 2em;">Reference counting</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Page-Table-Management" style="padding-left: 2em;">Page Table Management</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Part-3--Kernel-Address-Space" style="padding-left: 1em;">Part 3: Kernel Address Space</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Permissions-and-Fault-Isolation" style="padding-left: 2em;">Permissions and Fault Isolation</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Initializing-the-Kernel-Address-Space" style="padding-left: 2em;">Initializing the Kernel Address Space</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Address-Space-Layout-Alternatives" style="padding-left: 2em;">Address Space Layout Alternatives</a></div></div><div class="jump-section">Exercises &#9663;<div class="jump-drop"><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Exercise-1">Exercise 1</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Exercise-2">Exercise 2</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Exercise-3">Exercise 3</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Exercise-4">Exercise 4</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab2/#Exercise-5">Exercise 5</a></div></div><div class="jump-section">References &#9663;<div class="jump-drop"><a href="https://pdos.csail.mit.edu/6.828/2018/labguide.html">Lab tools guide</a><a href="https://pdos.csail.mit.edu/6.828/2018/readings/i386/toc.htm">80386 manual</a><div>IA32</div><a href="https://pdos.csail.mit.edu/6.828/2018/readings/ia32/IA32-1.pdf" style="padding-left: 1em;">Basic architecture</a><a href="https://pdos.csail.mit.edu/6.828/2018/readings/ia32/IA32-2A.pdf" style="padding-left: 1em;">Instruction set A-M</a><a href="https://pdos.csail.mit.edu/6.828/2018/readings/ia32/IA32-2B.pdf" style="padding-left: 1em;">Instruction set N-Z</a><a href="https://pdos.csail.mit.edu/6.828/2018/readings/ia32/IA32-3A.pdf" style="padding-left: 1em;">System programming 1</a><a href="https://pdos.csail.mit.edu/6.828/2018/readings/ia32/IA32-3B.pdf" style="padding-left: 1em;">System programming 2</a></div></div></div>
+
+
+<h1>Lab 2: Memory Management</h1>
+
+<p>
+<b>Due Thursday, September 27, 2018</b>
+</p>
+
+<h2 id="Introduction">Introduction</h2>
+
+
+<p>
+In this lab, you will write the memory management code for your
+operating system. Memory management has two components.
+</p>
+
+<p>
+The first component is a physical memory allocator for the kernel,
+so that the kernel can allocate memory and later free it.
+Your allocator will operate in units of 4096 bytes, called
+<i>pages</i>.
+Your task will be to maintain data structures that record
+which physical pages are free and which are
+allocated, and how many processes are sharing
+each allocated page.  You will also write the routines to allocate and
+free pages of memory.
+</p>
+
+<p>
+The second component of memory management is <i>virtual memory</i>,
+which maps the virtual addresses used by kernel and user software
+to addresses in physical memory.
+The x86 hardware's memory management unit (MMU) performs the
+mapping when instructions use memory, consulting a
+set of page tables.
+You will modify JOS to set up the MMU's page tables
+according to a specification we provide.
+</p>
+
+
+<h3 id="Getting-started">Getting started</h3>
+
+<p>
+In this and future labs you will progressively build up your kernel.
+We will also provide you with some additional source.
+To fetch that source, use Git to commit changes you've made since
+handing in lab 1 (if any),
+fetch the latest version of the course repository,
+and then
+create a local branch called <tt>lab2</tt> based on our lab2
+branch, <tt>origin/lab2</tt>:
+</p>
+<pre>athena% <kbd>cd ~/6.828/lab</kbd>
+athena% <kbd>add git</kbd>
+athena% <kbd>git pull</kbd>
+Already up-to-date.
+athena% <kbd>git checkout -b lab2 origin/lab2</kbd>
+Branch lab2 set up to track remote branch refs/remotes/origin/lab2.
+Switched to a new branch "lab2"
+athena% 
+</pre>
+
+<p>
+The <kbd>git checkout -b</kbd> command shown above actually does two
+things: it first creates a local branch <tt>lab2</tt> that is
+based on the <tt>origin/lab2</tt> branch provided by the course
+staff, and second, it changes the contents of your <tt>lab</tt>
+directory to reflect the files stored on the <tt>lab2</tt> branch.
+Git allows switching between existing branches using <kbd>git
+checkout <i>branch-name</i></kbd>, though you should commit any
+outstanding changes on one branch before switching to a different
+one.
+</p>
+
+<p>
+You will now need to merge the changes you made in your <tt>lab1</tt>
+branch into the <tt>lab2</tt> branch, as follows:
+</p>
+<pre>athena% <kbd>git merge lab1</kbd>
+Merge made by recursive.
+ kern/kdebug.c  |   11 +++++++++--
+ kern/monitor.c |   19 +++++++++++++++++++
+ lib/printfmt.c |    7 +++----
+ 3 files changed, 31 insertions(+), 6 deletions(-)
+athena% 
+</pre>
+<p>
+In some cases, Git may not be able to figure out how to merge your changes with
+the new lab assignment (e.g. if you modified some of the code that
+is changed in the second lab assignment).  In that case, the <kbd>git
+merge</kbd> command will tell you which files are <i>conflicted</i>,
+and you should first resolve the conflict (by editing the relevant files)
+and then commit the resulting files with <kbd>git commit -a</kbd>.
+</p>
+
+<p>
+Lab 2 contains the following new source files,
+which you should browse through:
+</p>
+<ul>
+<li>	<tt>inc/memlayout.h</tt></li>
+<li>	<tt>kern/pmap.c</tt></li>
+<li>	<tt>kern/pmap.h</tt></li>
+<li>	<tt>kern/kclock.h</tt></li>
+<li>	<tt>kern/kclock.c</tt></li>
+
+</ul>
+
+<p>
+<tt>memlayout.h</tt> describes the layout of the virtual
+address space that you must implement by modifying <tt>pmap.c</tt>.
+<tt>memlayout.h</tt> and <tt>pmap.h</tt> define the <code>PageInfo</code>
+structure that you'll use to keep track of which pages of
+physical memory are free.
+<tt>kclock.c</tt> and <tt>kclock.h</tt>
+manipulate
+the PC's battery-backed clock and CMOS RAM hardware,
+in which the BIOS records the amount of physical memory the PC contains,
+among other things.
+The code in <tt>pmap.c</tt> needs to read this device hardware
+in order to figure out how much physical memory there is,
+but that part of the code is done for you:
+you do not need to know the details of how the CMOS hardware works.
+</p>
+
+<p>
+Pay particular attention to <tt>memlayout.h</tt> and <tt>pmap.h</tt>,
+since this lab requires you to use and understand many of the
+definitions they contain.  You may want to review <tt>inc/mmu.h</tt>,
+too, as it also contains a number of definitions that will be useful
+for this lab.
+</p>
+
+<p>
+Before beginning the lab, don't forget to <kbd>add -f 6.828</kbd> to
+get the 6.828 version of QEMU.
+</p>
+
+
+<h3 id="Lab-Requirements">Lab Requirements</h3>
+
+<p>
+In this lab and subsequent labs,
+do all of the regular exercises described in the lab
+and <i>at least one</i> challenge problem.
+(Some challenge problems are more challenging than others, of course!)
+Additionally, write up brief answers
+to the questions posed in the lab
+and a short (e.g., one or two paragraph) description of what you did
+to solve your chosen challenge problem.
+If you implement more than one challenge problem,
+you only need to describe one of them in the write-up,
+though of course you are welcome to do more.
+Place the write-up in a file called <tt>answers-lab2.txt</tt>
+in the top level of your <tt>lab</tt> directory
+before handing in your work.
+</p>
+
+<h3 id="Hand-In-Procedure">Hand-In Procedure</h3>
+
+<p>
+When you are ready to hand in your lab code and write-up,
+add your <tt>answers-lab2.txt</tt> to the Git repository,
+commit your changes, and then run <kbd>make handin</kbd>.
+
+</p><pre>athena% <kbd>git add answers-lab2.txt</kbd>
+athena% <kbd>git commit -am "my answer to lab2"</kbd>
+[lab2 a823de9] my answer to lab2
+ 4 files changed, 87 insertions(+), 10 deletions(-)
+athena% <kbd>make handin</kbd>
+</pre>
+
+<p></p>
+
+<p>
+As before, we will be grading your solutions with a grading program.
+You can run <kbd>make grade</kbd> in the <tt>lab</tt> directory
+to test your kernel with the grading program.
+You may change any of the kernel source and header files you need to
+in order to complete the lab,
+but needless to say you must not change
+or otherwise subvert the grading code.
+</p>
+
+<h2 id="Part-1--Physical-Page-Management">Part 1: Physical Page Management</h2>
+
+<p>
+The operating system must keep track of
+which parts of physical RAM are free
+and which are currently in use.
+JOS manages the PC's physical memory
+with <i>page granularity</i>
+so that it can use the MMU to map and protect each
+piece of allocated memory.
+</p>
+
+<p>
+You'll now write the physical page allocator.  It keeps track of which
+pages are free with a linked list of <code>struct PageInfo</code> objects
+(which, unlike xv6, are <em>not</em> embedded in the free pages themselves),
+each corresponding to a physical page.  You need to write the physical
+page allocator before you can write the rest of the virtual memory
+implementation, because your page table management code will need to
+allocate physical memory in which to store page tables.
+</p>
+
+<div class="required"><div id="Exercise-1" style="position: relative; top: -5em;"></div>
+<p><span class="header">Exercise 1.</span>
+	In the file <tt>kern/pmap.c</tt>,
+	you must implement code for the following functions (probably
+	in the order given).</p>
+
+	<p>
+	<code>boot_alloc()</code><br>
+	<code>mem_init()</code> (only up to the call to <code>check_page_free_list(1)</code>)<br>
+	<code>page_init()</code><br>
+	<code>page_alloc()</code><br>
+	<code>page_free()</code>
+	</p>
+	<p>
+	<code>check_page_free_list()</code> and
+	<code>check_page_alloc()</code> test your physical page allocator.
+        You should boot JOS and see whether <code>check_page_alloc()</code>
+        reports success. Fix your code so that it passes. You may find it
+        helpful to add your own <code>assert()</code>s to verify that
+        your assumptions are correct.
+</p></div>
+
+<p>
+This lab, and all the 6.828 labs, will require you to do a bit of
+detective work to figure out exactly what you need to do. This
+assignment does not describe all the details of the code you'll have
+to add to JOS.  Look for comments in the parts of the JOS source that
+you have to modify; those comments often contain specifications and
+hints.  You will also need to look at related parts of JOS, at the
+Intel manuals, and perhaps at your 6.004 or 6.033 notes.
+</p>
+
+<h2 id="Part-2--Virtual-Memory">Part 2: Virtual Memory</h2>
+
+<!--
+<p><i> Aside: Contrast this to the VM layout for version 7 Unix on the
+PDP/11-40.  You will recall from lecture, that in v7, the kernel and
+each user process each have their own address spaces.
+</i>
+-->
+
+<p>
+Before doing anything else,
+familiarize yourself with the x86's
+protected-mode memory management architecture:
+namely <i>segmentation</i> and <i>page translation</i>.
+</p>
+
+<div class="required"><div id="Exercise-2" style="position: relative; top: -5em;"></div>
+<p><span class="header">Exercise 2.</span>
+	Look at chapters 5 and 6 of the
+	<a href="https://pdos.csail.mit.edu/6.828/2018/readings/i386/toc.htm">
+	Intel 80386 Reference Manual</a>,
+	if you haven't done so already.  Read the sections about page
+	translation and page-based protection closely (5.2 and 6.4).
+	We recommend that you also skim the sections about
+	segmentation; while JOS uses the paging hardware for virtual memory and
+	protection, segment translation and segment-based protection
+	cannot be disabled on the x86, so you will need a basic
+	understanding of it.
+</p></div>
+
+<h3 id="Virtual--Linear--and-Physical-Addresses">Virtual, Linear, and Physical Addresses</h3>
+
+<p>
+In x86 terminology,
+a <i>virtual address</i>
+consists of a segment selector and an offset within the segment.
+A <i>linear address</i>
+is what you get after segment translation but before page translation.
+A <i>physical address</i>
+is what you finally get after both segment and page translation and
+what ultimately goes out on the hardware bus to your RAM.
+</p>
+
+<center>
+<table><tbody><tr><td>
+<pre>           Selector  +--------------+         +-----------+
+          ----------&gt;|              |         |           |
+                     | Segmentation |         |  Paging   |
+Software             |              |--------&gt;|           |----------&gt;  RAM
+            Offset   |  Mechanism   |         | Mechanism |
+          ----------&gt;|              |         |           |
+                     +--------------+         +-----------+
+            Virtual                   Linear                Physical
+</pre>
+</td></tr></tbody></table>
+</center>
+
+<p>
+A C pointer is the "offset" component of the virtual address.
+In <tt>boot/boot.S</tt>, we installed a Global Descriptor Table (GDT)
+that effectively disabled segment translation by setting all segment
+base addresses to 0 and limits to <code>0xffffffff</code>.  Hence the
+"selector" has no effect and the linear address always equals the
+offset of the virtual address.  In lab 3,
+we'll have to interact a little more with segmentation to set up
+privilege levels, but as for memory translation, we can
+ignore segmentation throughout the JOS labs and focus solely on page
+translation.
+</p>
+
+<p>
+Recall that in part 3 of lab 1, we installed a simple page table 
+so that the kernel could run at its link address of 0xf0100000,
+even though it is actually loaded in physical memory
+just above the ROM BIOS at 0x00100000.  This page table mapped only
+4MB of memory.  In the virtual address space layout you are going to set up
+for JOS in this lab, we'll expand this to map the first 256MB of
+physical memory starting at virtual address 0xf0000000 and to map a
+number of other regions of the virtual address space.
+</p>
+
+<!-- XXX Go back to the boot loader and understand the transition to
+     the bootstrap page table.  Single-step through the code.  After
+     we enable paging, what EIP are we running at (approximately)?
+     (Hint: It's not a high number.)  At what point do we transition
+     to running above KERNBASE?  What makes it possible for us to
+     continue executing at a low EIP after we enable paging?  Draw
+     something.  Corresponds to current homework 4 -->
+
+<div class="required"><div id="Exercise-3" style="position: relative; top: -5em;"></div>
+<p><span class="header">Exercise 3.</span>
+	While GDB can only access QEMU's memory by virtual address,
+	it's often useful to be able to inspect physical memory while
+	setting up virtual memory.  Review the QEMU <a href="https://pdos.csail.mit.edu/6.828/2018/labguide.html#qemu">monitor
+	commands</a> from the lab tools guide, especially the
+	<tt>xp</tt> command, which lets
+	you inspect physical memory.  To access the QEMU monitor,
+	press <kbd>Ctrl-a c</kbd> in the terminal (the same binding
+	returns to the serial console).
+	</p>
+
+	<p>Use the <kbd>xp</kbd> command in the QEMU monitor and the
+	<kbd>x</kbd> command in GDB to inspect memory at corresponding
+	physical and virtual addresses and make sure you see the same
+	data.</p>
+
+	<p>Our patched version of QEMU provides an <kbd>info pg</kbd>
+	command that may also prove useful: it shows a compact but
+	detailed representation of the current page tables, including
+	all mapped memory ranges, permissions, and flags.  Stock QEMU
+	also provides an <kbd>info mem</kbd> command that shows an
+	overview of which ranges of virtual addresses are mapped
+	and with what permissions.
+</p></div>
+
+<p>From code executing on the CPU, once we're in protected mode (which
+we entered first thing in <tt>boot/boot.S</tt>), there's no way to
+directly use a linear or physical address.  <i>All</i> memory
+references are interpreted as virtual addresses and translated by the
+MMU, which means all pointers in C are virtual addresses.</p>
+
+<p>The JOS kernel often needs to manipulate addresses as opaque values
+or as integers, without dereferencing them, for example in the
+physical memory allocator.  Sometimes these are virtual addresses,
+and sometimes they are physical addresses.  To help document the code, the
+JOS source distinguishes the two cases: the
+type <code>uintptr_t</code> represents opaque virtual addresses,
+and <code>physaddr_t</code> represents physical addresses.  Both these
+types are really just synonyms for 32-bit integers
+(<code>uint32_t</code>), so the compiler won't stop you from assigning
+one type to another! Since they are integer types (not pointers), the
+compiler <i>will</i> complain if you try to dereference them.</p>
+
+<p>
+The JOS kernel can dereference a <code>uintptr_t</code> by first
+casting it to a pointer type. In contrast,
+the kernel can't sensibly dereference a physical
+address, since the MMU translates all memory references.
+If you cast a <code>physaddr_t</code> to a pointer and dereference it,
+you may be able to load and store to the resulting address (the hardware
+will interpret it as a virtual address), but you probably won't
+get the memory location you intended.</p>
+
+<p>
+To summarize:</p>
+
+<table align="center">
+<tbody><tr><th>C type</th><th>Address type</th></tr>
+<tr><td><code>T*</code>&nbsp;&nbsp;</td><td>Virtual</td></tr>
+<tr><td><code>uintptr_t</code>&nbsp;&nbsp;</td><td>Virtual</td></tr>
+<tr><td><code>physaddr_t</code>&nbsp;&nbsp;</td><td>Physical</td></tr>
+</tbody></table>
+
+<p></p>
+
+<div class="question">
+<p><span class="header">Question</span></p>
+  <ol><li>Assuming that the
+following JOS kernel code is correct, what type
+should variable <code>x</code> have, <code>uintptr_t</code> or
+<code>physaddr_t</code>?
+
+<pre>	<i>mystery_t</i> x;
+	char* value = return_a_pointer();
+	*value = 10;
+	x = (<i>mystery_t</i>) value;</pre></li>
+</ol></div>
+
+<p>
+The JOS kernel sometimes needs to read or modify memory for which it
+knows only the physical address. For example, adding a mapping to a
+page table may require allocating physical memory to store a page
+directory and then initializing that memory.  However, the kernel
+cannot bypass virtual address translation and thus
+cannot directly load and store to physical addresses. One reason JOS
+remaps all of physical memory starting from physical address 0 at
+virtual address
+0xf0000000 is to help the kernel read and write memory
+for which it knows just the physical address.  In order to translate a
+physical address into a virtual address that the kernel can actually
+read and write, the kernel must add 0xf0000000 to the
+physical address to find its corresponding virtual address in the
+remapped region. You should use <code>KADDR(pa)</code> to do that
+addition.
+</p>
+
+<p>
+The JOS kernel also sometimes needs to be able to find a physical
+address given the virtual address of the memory in which a kernel data
+structure is stored.  Kernel global variables and memory allocated by
+<code>boot_alloc()</code> are in the region where the kernel was
+loaded, starting at 0xf0000000, the
+very region where we mapped all of physical memory.
+Thus, to turn a virtual address in this region into a physical
+address, the kernel can simply
+subtract 0xf0000000. You should use <code>PADDR(va)</code>
+to do that subtraction.
+</p>
+
+<h3 id="Reference-counting">Reference counting</h3>
+
+<p>
+In future labs you will often have the same physical page mapped at
+multiple virtual addresses simultaneously (or in the address spaces of
+multiple environments).  You will keep a count of the number of
+references to each physical page in the <code>pp_ref</code> field of
+the <code>struct PageInfo</code> corresponding to the physical page.  When
+this count goes to zero for a physical page, that page can be freed
+because it is no longer used.  In general, this count should be equal to the
+number of times the physical page appears <em>below
+<code>UTOP</code></em> in all page tables (the mappings above
+<code>UTOP</code> are mostly set up at boot time by the kernel and
+should never be freed, so there's no need to reference count them).
+We'll also use it to keep track of the number of pointers we keep to
+the page directory pages and, in turn, of the number of references the
+page directories have to page table pages.
+</p>
+
+<p>
+Be careful when using <tt>page_alloc</tt>.  The page it returns will
+always have a reference count of 0, so <tt>pp_ref</tt> should be
+incremented as soon as you've done something with the returned page
+(like inserting it into a page table).  Sometimes this is handled by
+other functions (for example, <tt>page_insert</tt>) and sometimes the
+function calling <tt>page_alloc</tt> must do it directly.
+</p>
+
+<h3 id="Page-Table-Management">Page Table Management</h3>
+
+<p>
+Now you'll write a set of routines to manage page tables: to insert
+and remove linear-to-physical mappings, and to create page table pages
+when needed.
+</p>
+
+<div class="required"><div id="Exercise-4" style="position: relative; top: -5em;"></div>
+<p><span class="header">Exercise 4.</span>
+	In the file <tt>kern/pmap.c</tt>,
+	you must implement code for the following functions.</p>
+
+	<pre>        pgdir_walk()
+        boot_map_region()
+        page_lookup()
+        page_remove()
+        page_insert()
+	</pre>
+        <p>
+	<code>check_page()</code>, called from <code>mem_init()</code>,
+        tests your page table management routines.
+        You should make sure it reports success before proceeding.
+</p></div>
+
+<h2 id="Part-3--Kernel-Address-Space">Part 3: Kernel Address Space</h2>
+
+<p>
+JOS divides the processor's 32-bit linear address space
+into two parts.
+User environments (processes),
+which we will begin loading and running in lab 3,
+will have control over the layout and contents of the lower part,
+while the kernel always maintains complete control over the upper part.
+The dividing line is defined somewhat arbitrarily
+by the symbol <code>ULIM</code> in <tt>inc/memlayout.h</tt>,
+reserving approximately 256MB of virtual address space
+for the kernel.
+This explains why we needed to give the kernel
+such a high link address in lab 1:
+otherwise there would not be enough room in the kernel's virtual address space
+to map in a user environment below it at the same time.
+</p>
+
+<p>
+You'll find it helpful to refer to the JOS memory layout diagram in
+<tt>inc/memlayout.h</tt><!-- (or its <a href="../../lec/jos_layout.pdf"
+>more colorful version</a>)--> both for this part and for later labs.
+</p>
+
+
+<h3 id="Permissions-and-Fault-Isolation">Permissions and Fault Isolation</h3>
+
+<p>
+Since kernel and user memory
+are both present in each environment's address space,
+we will have to use permission bits in our x86 page tables to
+allow user code access only to the user part of the address space.
+Otherwise bugs in user code might overwrite kernel data,
+causing a crash or more subtle malfunction;
+user code might also be able to steal other environments' private data. Note
+that the writable permission bit (<tt>PTE_W</tt>) affects both user and
+kernel code!
+</p>
+
+<p>The user environment will have no permission to any of the
+memory above <code>ULIM</code>, while the kernel will be able to
+read and write this memory.  For the address range
+<code>[UTOP,ULIM)</code>, both the kernel and the user environment have
+the same permission: they can read but not write this address range.
+This range of address is used to expose certain kernel data structures
+read-only to the user environment.  Lastly, the address space below
+<code>UTOP</code> is for the user environment to use; the user environment
+will set permissions for accessing this memory.
+</p>
+
+<h3 id="Initializing-the-Kernel-Address-Space">Initializing the Kernel Address Space</h3>
+
+<p>
+Now you'll set up the address space above <code>UTOP</code>: the
+kernel part of the address space.  <tt>inc/memlayout.h</tt> shows
+the layout you should use.  You'll use the functions you just wrote to
+set up the appropriate linear to physical mappings.
+</p>
+
+<div class="required"><div id="Exercise-5" style="position: relative; top: -5em;"></div>
+<p><span class="header">Exercise 5.</span>
+	Fill in the missing code in <code>mem_init()</code> after the
+        call to <code>check_page()</code>.</p>
+	<p>
+        Your code should now pass the <code>check_kern_pgdir()</code>
+	and <code>check_page_installed_pgdir()</code> checks.
+</p></div>
+
+<p></p>
+
+<div class="question">
+<p><span class="header">Question</span></p>
+<ol start="2">
+<li> What entries (rows) in the page directory have been filled in
+     at this point? What addresses do they map and where do they
+     point? In other words, fill out this table as much as possible:
+     <table border="1">
+     <tbody><tr><td align="center">Entry</td>
+         <td align="center">Base Virtual Address</td>
+         <td align="center">Points to (logically):</td></tr>
+     <tr><td>1023</td><td>?</td><td>Page table for top 4MB of phys
+         memory</td></tr>
+     <tr><td>1022</td><td>?</td><td>?</td></tr>
+     <tr><td align="center">.</td><td>?</td><td>?</td></tr>
+     <tr><td align="center">.</td><td>?</td><td>?</td></tr>
+     <tr><td align="center">.</td><td>?</td><td>?</td></tr>
+     <tr><td>2</td><td>0x00800000</td><td>?</td></tr>
+     <tr><td>1</td><td>0x00400000</td><td>?</td></tr>
+     <tr><td>0</td><td>0x00000000</td><td>[see next question]</td></tr>
+     </tbody></table></li>
+
+<li> We have placed the kernel and user environment
+in the same address space.  Why will user programs not be able to
+read or write the kernel's memory? What specific mechanisms protect
+the kernel memory?</li>
+
+<li> What is the maximum amount of physical memory that this operating
+system can support? Why?</li>
+
+<li> How much space overhead is there for managing memory, if we
+actually had the maximum amount of physical memory? How is this
+overhead broken down?</li>
+
+<li> Revisit the page table setup in <tt>kern/entry.S</tt> and
+<tt>kern/entrypgdir.c</tt>.  Immediately after we turn on paging, EIP
+is still a low number (a little over 1MB).  At what point do we
+transition to running at an EIP above KERNBASE?  What makes it
+possible for us to continue executing at a low EIP between when we
+enable paging and when we begin running at an EIP above KERNBASE?  Why
+is this transition necessary?
+</li>
+
+
+<!--
+<li> What constraint does the placement of the kernel in the virtual
+     address space place on the link address of user space programs?
+     In particular, think about how kernel growth or different amounts
+     of physical memory might affect available virtual address space.
+-->
+</ol>
+</div>
+
+<div class="challenge">
+<p><span class="header">Challenge!</span>
+	We consumed many physical pages to hold the
+        page tables for the KERNBASE mapping.
+	Do a more space-efficient job using the PTE_PS ("Page Size") bit
+	in the page directory entries.
+	This bit was <i>not</i> supported in the original 80386,
+	but is supported on more recent x86 processors.
+	You will therefore have to refer to
+	<a href="https://pdos.csail.mit.edu/6.828/2018/readings/ia32/IA32-3A.pdf">Volume 3
+	of the current Intel manuals</a>.
+	Make sure you design the kernel to use this optimization
+	only on processors that support it!<br>
+</p></div>
+
+<div class="challenge">
+<p><span class="header">Challenge!</span>
+	Extend the JOS kernel monitor with commands to:</p>
+	<ul>
+	<li>	Display in a useful and easy-to-read format
+		all of the physical page mappings (or lack thereof)
+		that apply to a particular range of virtual/linear addresses
+		in the currently active address space.
+		For example,
+		you might enter <tt>'showmappings 0x3000 0x5000'</tt>
+		to display the physical page mappings
+		and corresponding permission bits
+		that apply to the pages
+		at virtual addresses 0x3000, 0x4000, and 0x5000.</li>
+	<li>	Explicitly set, clear, or change the permissions
+		of any mapping in the current address space.</li>
+	<li>	Dump the contents of a range of memory
+		given either a virtual or physical address range.
+		Be sure the dump code behaves correctly
+		when the range extends across page boundaries!</li>
+	<li>	Do anything else that you think
+		might be useful later for debugging the kernel.
+		(There's a good chance it will be!)</li>
+	</ul>
+</div>
+
+
+<h3 id="Address-Space-Layout-Alternatives">Address Space Layout Alternatives</h3>
+
+<p>
+The address space layout we use in JOS is not the only
+one possible.
+An operating system might
+map the kernel at low linear addresses
+while leaving the <i>upper</i> part of the linear address space
+for user processes.
+x86 kernels generally do not take this approach, however,
+because one of the x86's backward-compatibility modes,
+known as <i>virtual 8086 mode</i>,
+is "hard-wired" in the processor
+to use the bottom part of the linear address space,
+and thus cannot be used at all if the kernel is mapped there.
+</p>
+
+<p>
+It is even possible, though much more difficult,
+to design the kernel so as not to have to reserve <i>any</i> fixed portion
+of the processor's linear or virtual address space for itself,
+but instead effectively to allow user-level processes
+unrestricted use of the <i>entire</i> 4GB of virtual address space -
+while still fully protecting the kernel from these processes
+and protecting different processes from each other!
+</p>
+
+<div class="challenge">
+  <p><span class="header">Challenge!</span> Each user-level environment maps
+    the kernel. Change JOS so that the kernel has its own page table and so that
+    a user-level environment runs with a minimal number of kernel pages mapped.
+    That is, each user-level environment maps just enough pages mapped so that
+    the user-level environment can enter and leave the kernel correctly. You
+    also have to come up with a plan for the kernel to read/write arguments to
+    system calls.
+</p></div>
+<p></p>
+
+<div class="challenge">
+  <p><span class="header">Challenge!</span> Write up an outline of how a kernel
+    could be designed to allow user environments unrestricted use of the full
+    4GB virtual and linear address space.  Hint: do the previous challenge
+    exercise first, which reduces the kernel to a few mappings in a user
+    environment. Hint: the technique is sometimes known as "<i>follow the
+    bouncing kernel</i>."  In your design, be sure to address exactly what has
+    to happen when the processor transitions between kernel and user modes, and
+    how the kernel would accomplish such transitions.  Also describe how the
+    kernel would access physical memory and I/O devices in this scheme, and how
+    the kernel would access a user environment's virtual address space during
+    system calls and the like.  Finally, think about and describe the advantages
+    and disadvantages of such a scheme in terms of flexibility, performance,
+    kernel complexity, and other factors you can think of.
+</p></div>
+<p></p>
+
+<div class="challenge">
+<p><span class="header">Challenge!</span>
+	Since our JOS kernel's memory management system
+	only allocates and frees memory on page granularity,
+	we do not have anything comparable
+	to a general-purpose <code>malloc</code>/<code>free</code> facility
+	that we can use within the kernel.
+	This could be a problem if we want to support
+	certain types of I/O devices
+	that require <i>physically contiguous</i> buffers
+	larger than 4KB in size,
+	or if we want user-level environments,
+	and not just the kernel,
+	to be able to allocate and map 4MB <i>superpages</i>
+	for maximum processor efficiency.
+	(See the earlier challenge problem about PTE_PS.)<br>
+	</p>
+
+	<p>
+	Generalize the kernel's memory allocation system
+	to support pages of a variety of power-of-two allocation unit sizes
+	from 4KB up to some reasonable maximum of your choice.
+	Be sure you have some way to divide larger allocation units
+	into smaller ones on demand,
+	and to coalesce multiple small allocation units
+	back into larger units when possible.
+	Think about the issues that might arise in such a system.
+</p></div>
+
+<!--
+<div class="challenge">
+<p><span class="header">Challenge!</span>
+	Extend the JOS kernel monitor with commands to
+	allocate and free pages explicitly,
+	and display whether or not any given page of physical memory
+	is currently allocated.
+	For example:</p>
+	<pre>
+	K&gt; alloc_page
+		0x13000
+	K&gt; page_status 0x13000
+		allocated
+	K&gt; free_page 0x13000
+	K&gt; page_status 0x13000
+		free
+	</pre>
+        <p>
+	Think of other commands or extensions to these commands
+	that may be useful for debugging, and add them.
+</p></div>
+-->
+
+<p>
+<b>This completes the lab.</b>
+Make sure you pass all of the <kbd>make grade</kbd> tests and
+don't forget to write up your answers to the questions and a
+description of your challenge exercise solution in
+<tt>answers-lab2.txt</tt>.
+Commit your changes (including adding <tt>answers-lab2.txt</tt>) and
+type <kbd>make handin</kbd> in the <tt>lab</tt> directory to
+hand in your lab.
+</p>
+
+
+
+
+<!--  LocalWords:  MMU JOS untar diff cd czvf mkdir xzf MMU's athena
+ -->
+
+</body></html>

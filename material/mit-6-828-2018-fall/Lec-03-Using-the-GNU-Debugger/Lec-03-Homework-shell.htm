@@ -1,0 +1,155 @@
+
+<!-- saved from url=(0061)https://pdos.csail.mit.edu/6.828/2018/homework/xv6-shell.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Homework: shell</title>
+<link rel="stylesheet" href="./Lec-03-Homework-shell_files/homework.css" type="text/css">
+</head>
+<body>
+
+<h1>Homework: shell</h1>
+
+<p>This assignment will make you more familiar with the Unix system call
+interface and the shell by implementing several features in a small shell, which
+we will refer to as the 6.828 shell.  You can do this assignment on any
+operating system that supports the Unix API (a Linux Athena machine, your laptop
+with Linux or MacOS, etc.).  Submit your 6.828 shell to the <a href="https://6828.scripts.mit.edu/2018/handin.py/">submission web site</a>
+as a text file with the name "hwN.c", where N is the homework number as listed
+on the schedule.
+
+</p><p>Read Chapter 0 of the <a href="https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev10.pdf">xv6 book</a>.
+
+</p><p>If you are not familiar with what a shell does, do the <a href="http://web.mit.edu/6.033/www/assignments/handson-unix.html">Unix
+hands-on</a> from 6.033.
+
+</p><p>Download the <a href="https://pdos.csail.mit.edu/6.828/2018/homework/sh.c">6.828 shell</a>, and look it
+over. The 6.828 shell contains two main parts: parsing shell commands and
+implementing them. The parser recognizes only simple shell commands such as the
+following:
+
+</p><pre>ls &gt; y
+cat &lt; y | sort | uniq | wc &gt; y1
+cat y1
+rm y1
+ls |  sort | uniq | wc
+rm y
+</pre>
+Cut and paste these commands into a file <tt>t.sh</tt>
+
+<p>To compile <tt>sh.c</tt>, you need a C compiler, such as gcc.  On Athena, you
+can type:
+</p><pre>$ add gnu
+</pre>
+to make gcc available.
+If you are using your own computer, you may have to install gcc.
+
+<p>Once you have gcc, you can compile the skeleton shell as follows:
+</p><pre>$ gcc sh.c
+</pre>
+which produces an <tt>a.out</tt> file, which you can run:
+<pre>$ ./a.out &lt; t.sh
+</pre>
+This execution will print error messages because you have not implemented several features. In
+the rest of this assignment you will implement those features.
+
+<h2>Executing simple commands</h2>
+
+<p>Implement simple commands, such as:
+</p><pre>$ ls
+</pre>
+
+<p> The parser already builds an <tt>execcmd</tt> for you, so the only code you
+have to write is for the ' ' case in <tt>runcmd</tt>. You might find it useful
+to look at the manual page for exec; type "man 3 exec", and read about
+<tt>execv</tt>.  Print an error message when exec fails.
+
+</p><p>To test your program, compile and run the resulting a.out:
+</p><pre>6.828$./a.out
+</pre>
+
+This prints a prompt and waits for input.  <tt>sh.c</tt> prints as prompt
+<tt>6.828$</tt> so that you don't get confused with your computer's shell.
+
+Now type to your shell:
+<pre>6.828$ ls
+</pre>
+
+<p>Your shell may print an error message (unless there is a program named
+<tt>ls</tt> in your working directory or you are using a version
+of <tt>exec</tt> that searches <tt>PATH</tt>).  Now type to your shell:
+
+</p><pre>6.828$ /bin/ls
+</pre>
+
+<p>This should execute the program <tt>/bin/ls</tt>, which should print out the
+file names in your working directory.  You can stop the 6.828 shell by typing
+ctrl-d, which should put you back in your computer's shell.
+
+</p><p>You may want to change the 6.828 shell to always try <tt>/bin</tt>, if the program
+doesn't exist in the current working directory, so that below you don't have to
+type "/bin" for each program.  If you are ambitious you can implement support
+for a <tt>PATH</tt> variable.
+
+</p><h2>I/O redirection</h2>
+
+<p>Implement I/O redirection commands so that you can run:
+</p><pre>echo "6.828 is cool" &gt; x.txt
+cat &lt; x.txt
+</pre>
+
+<p>The parser already recognizes "&gt;" and "&lt;", and builds a <tt>redircmd</tt> for
+you, so your job is just filling out the missing code in <tt>runcmd</tt> for
+those symbols. You might find the man pages for open and close useful.
+
+</p><p>Note that the <tt>mode</tt> field in <tt>redircmd</tt> contains access modes
+  (e.g., <tt>O_RDONLY</tt>), which you should pass in the <tt>flags</tt>
+  argument to <tt>open</tt>; see <tt>parseredirs</tt> for the mode values that
+  the shell is using and the manual page for <tt>open</tt> for
+  the <tt>flags</tt> argument.
+
+</p><p>Make sure you print an error message if one of the system calls you are using fails.
+
+</p><p>Make sure your implementation runs correctly with the above test input.  A
+common error is to forget to specify the permission with which the file must be
+created (i.e., the 3rd argument to open).
+
+</p><h2>Implement pipes</h2>
+
+<p>Implement pipes so that you can run command pipelines such as:
+</p><pre>$ ls | sort | uniq | wc
+</pre>
+
+<p>The parser already recognizes "|", and builds a <tt>pipecmd</tt> for you, so
+the only code you must write is for the '|' case in <tt>runcmd</tt>.  You might
+find the man pages for pipe, fork, close, and dup useful.
+
+</p><p>Test that you can run the above pipeline. The <tt>sort</tt> program may be in
+the directory <tt>/usr/bin/</tt> and in that case you can type the absolute
+pathname <tt>/usr/bin/sort</tt> to run sort.  (In your computer's shell you can
+type <tt>which sort</tt> to find out which directory in the shell's search path
+has an executable named "sort".)
+
+</p><p>Now you should be able to run the following command correctly:
+</p><pre>6.828$ a.out &lt; t.sh
+</pre>
+
+<p>Make sure you use the right absolute pathnames for the programs.
+
+</p><p>Don't forget to submit your solution to the <a href="https://6828.scripts.mit.edu/2018/handin.py/">submission web site</a>
+ (using the "hwN.c" naming convention as outlined above), with or without
+challenge solutions.
+
+</p><h2>Optional challenge exercises</h2>
+
+<p>The following exercises are entirely optional and won't affect your grade.
+Add any feature of your choice to your shell, for example:
+</p><ul>
+<li> Implement lists of commands, separated by ";"
+</li><li> Implement sub shells by implementing "(" and ")"
+</li><li> Implement running commands in the background by supporting "&amp;" and "wait"
+</li></ul>
+All of these require making changes to the parser and the <tt>runcmd</tt>
+function.
+
+
+
+</body></html>

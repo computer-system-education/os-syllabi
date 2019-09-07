@@ -1,0 +1,187 @@
+6.828 2018 Lecture 11: Coordination (sleep&wakeup)
+
+# plan
+  user-level thread switch homework
+  sequence coordination
+    xv6: sleep & wakeup
+    lost wakeup problem
+    termination
+
+# homework: context switching for user-level threads
+  show uthread_switch.S
+  (gdb) symbol-file _uthread
+  (gdb) b thread_switch
+  (gdb) c
+  uthread
+  (gdb) p/x next_thread->sp
+  (gdb) x/9x next_thread->sp
+  Q: what's the 9th value on the stack?
+     (gdb) p/x &mythread
+  Q: why does the code copy next_thread to current_thread?
+  Q: why OK for uthread yield to call scheduler, but not kernel's scheduler?
+  Q: what happens when a uthread blocks in a system call?
+  Q: do our uthreads take advantage of multi-core for parallel execution?
+
+# sequence coordination:
+  threads need to wait for specific events or conditions:
+    wait for disk read to complete
+    wait for pipe reader(s) to make space in pipe
+    wait for any child to exit
+
+# why not just have a while-loop that spins until event happens?
+
+# better solution: coordination primitives that yield the CPU
+  sleep & wakeup (xv6)
+  condition variables (homework)
+  barriers (homework)
+  etc.
+
+# sleep & wakeup:
+  sleep(chan, lock)
+    sleeps on a "channel", an address to name the condition we are sleeping on
+  wakeup(chan)
+    wakeup wakes up all threads sleeping on chan
+    may wake up more than one thread
+  no formal connection to the condition the sleeper is waiting for
+    and indeed sleep() can return even if condition isn't true
+    so caller must treat sleep() return as a hint
+
+# two problems arise in design of sleep/wakeup
+  - lost wakeup
+  - termination while sleeping
+
+# example use of sleep/wakeup -- iderw() / ideintr()
+  iderw() queues block read request, then sleep()s
+    b is a buffer which will be filled with the block content
+    iderw() sleeps waiting for B_VALID -- the disk read to complete
+    chan is b -- this buffer (there may be other processes in iderw())
+  ideintr() is called via interrupt when current disk read is done
+    marks b B_VALID
+    wakeup(b) -- same chan as sleep
+
+puzzles
+  iderw() holds idelock when it calls sleep
+  but ideintr() needs to acquire idelock!
+  why doesn't iderw() release idelock before calling sleep()?
+  let's try it!
+
+# lost wakeup demo
+  modify iderw() to call release ; broken_sleep ; acquire
+  look at broken_sleep()
+  look at wakeup()
+  what happens?
+  ideintr() runs after iderw() saw no B_VALID
+    but before broken_sleep() sets state = SLEEPING
+    wakeup() scans proctable but no thread is SLEEPING
+  then sleep() sets current thread to SLEEPING and yields
+  sleep misses wakeup -> deadlock
+  this is a "lost wakeup"
+
+# xv6 lost wakeup solution:
+  goal: 
+    1) lock out wakeup() for entire time between condition
+       check and state = SLEEPING
+    2) release the condition lock while asleep
+  xv6 strategy:
+    require wakeup() to hold both lock on condition AND ptable.lock
+    sleeper at all times holds one or the other lock
+      can release condition lock after it holds ptable.lock
+  look at ideintr()'s call to wakeup()
+    and wakeup itself
+    both locks are held while looking for sleepers
+  look at iderw()'s call to sleep()
+    condition lock is held when it calls sleep()
+    look at sleep() -- acquires ptable.lock, then releases lock on condition
+  diagram:
+    |----idelock----|
+                  |---ptable.lock---|
+                                     |----idelock----|
+                                      |-ptable.lock-|
+  thus:
+    either complete sleep() sequence runs, then wakeup(),
+      and the sleeper will be woken up
+    or wakeup() runs first, before potential sleeper checks condition,
+      but waker will have set condition true
+  requires that sleep() takes a lock argument
+
+# People have developed many sequence coordination primitives,
+  all of which have to solve the lost wakeup problem.
+  e.g. condition variables (similar to sleep/wakeup)
+  e.g. counting semaphores
+  e.g. wait queues (linux kernel)
+
+# Another example: piperead()
+  the while loop is waiting for more than zero bytes of data in buffer
+    wakeup is at end of pipewrite()
+    chan is &p->nread
+  what is the race if piperead() used broken_sleep()?
+  why is there a loop around the sleep()?
+  why the wakeup() at the end of piperead()?
+
+# second sequence coordination challenge -- how to terminate a sleeping thread?
+
+# first, how does kill(target_pid) work?
+  problem: may not be safe to forcibly terminate a process
+    it might be executing in the kernel
+      using its kernel stack, page table, proc[] entry
+    might be in a critical section, needs to finish to restore invariants
+    so we can't immediately terminate it
+  solution: target exits at next convenient point
+    kill() sets p->killed flag 
+    target thread checks p->killed in trap() and exit()s
+      so kill() doesn't disturb e.g. critical sections
+    exit() closes FDs, sets state=ZOMBIE, yields CPU
+      why can't it free kernel stack and page table?
+    parent wait() frees kernel stack, page table, and proc[] slot
+
+# what if kill() target is sleep()ing?
+  e.g. waiting for console input, or in wait(), or iderw()
+  we'd like target to stop sleeping and exit()
+  but that's not always reasonable
+    maybe target is sleep()ing halfway through a complex operation
+      that (for consistency) must complete
+    e.g. creating a file
+
+# xv6 solution
+  see kill() in proc.c
+    changes SLEEPING to RUNNABLE -- like wakeup()
+  some sleep loops check for p->killed
+    e.g. piperead()
+    sleep() will return due to kill's state=RUNNABLE
+    in a loop, so re-checks
+      condition true -> reads some bytes, then trap ret calls exit()
+      condition false -> sees p->killed, return, trap ret calls exit()
+    either way, near-instant response to kill() of thread in piperead()
+  some sleep loops don't check p->killed
+    Q: why not modify iderw() to check p->killed in sleep loop and return?
+    A: if reading, calling FS code expects to see data in the disk buffer!
+       if writing (or reading), might be halfway through create()
+       quitting now leaves on-disk FS inconsistent.
+  so a thread in iderw() may continue executing for a while in the kernel
+    trap() will exit() after the system call finishes
+
+# xv6 spec for kill
+  if target is in user space
+    will die next time it makes a system call or takes a timer interrupt
+  if target is in the kernel
+    target will never execute another a user instruction
+    but may spend quite a while yet in the kernel
+
+# how does JOS cope with these problems?
+  lost wakeups?
+    JOS interrupts are disabled in the kernel
+    so wakeup can't sneak between condition check and sleep
+  termination while blocking?
+    JOS has only a few system calls, and they are fairly simple
+      no blocking multi-step operations like create()
+      since no FS and no disk driver in the kernel
+    really only one blocking call -- IPC recv()
+      if env_destroy() is running, the target thread is not running
+      recv() leaves env in a state where it can be safely destroyed
+
+# Summary
+  sleep/wakeup let threads wait for specific events
+  concurrency and interrupts mean we have to worry about lost wakeups
+  termination is a pain in threading systems
+    context switch vs process exit
+    sleeping vs kill

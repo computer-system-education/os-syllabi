@@ -1,0 +1,116 @@
+
+<!-- saved from url=(0063)https://pdos.csail.mit.edu/6.828/2018/homework/xv6-syscall.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Homework: xv6 system calls</title>
+<link rel="stylesheet" href="./Lec-05-Homework-xv6-system-calls_files/homework.css" type="text/css">
+</head>
+<body>
+
+<h1>Homework: xv6 system calls</h1>
+
+<p>Submit your solutions before the beginning of the next lecture to the <a href="https://6828.scripts.mit.edu/2018/handin.py/">submission web site</a>.
+
+</p><p>You will modify xv6 to add a system call.  You can use the same setup as for
+  the <a href="https://pdos.csail.mit.edu/6.828/2018/homework/xv6-boot.html">boot homework</a>.
+  
+</p><h2>Part One: System call tracing</h2>
+
+<p>Your first task is to modify the xv6 kernel to print out a line for
+each system call invocation. It is enough to print the name of the
+system call and the return value; you don't need to print the system
+call arguments.
+
+</p><p>
+When you're done, you should see output like this when booting
+xv6:
+
+</p><pre>...
+fork -&gt; 2
+exec -&gt; 0
+open -&gt; 3
+close -&gt; 0
+$write -&gt; 1
+ write -&gt; 1
+</pre>
+
+<p>
+That's init forking and execing sh, sh making sure only two file descriptors are
+open, and sh writing the $ prompt.  (Note: the output of the shell and the
+system call trace are intermixed, because the shell uses the write syscall to
+print its output.)
+
+</p><p>
+  Hint: modify the syscall() function in syscall.c.
+  
+
+</p><p>
+Optional challenge: print the system call arguments.
+
+</p><h2>Part Two: Date system call</h2>
+
+Your second task is to add a new system call to xv6. The main point of
+the exercise is for you to see some of the different pieces of the
+system call machinery.
+
+Your new system call will get the current UTC time and return it to the user
+program. You may want to use the helper function, <tt>cmostime()</tt>
+(defined in <tt>lapic.c</tt>), to read the real time clock. <tt>date.h</tt>
+contains the definition of the <tt>struct rtcdate</tt> struct, which you will
+provide as an argument to <tt>cmostime()</tt> as a pointer.
+
+<p>
+You should create a user-level program that calls your new date system
+call; here's some source you should put in <tt>date.c</tt>:
+
+</p><pre>#include "types.h"
+#include "user.h"
+#include "date.h"
+
+int
+main(int argc, char *argv[])
+{
+  struct rtcdate r;
+
+  if (date(&amp;r)) {
+    printf(2, "date failed\n");
+    exit();
+  }
+
+  // your code to print the time in any format you like...
+
+  exit();
+}
+</pre>
+
+<p>
+In order to make your new <tt>date</tt> program available to run from
+the xv6 shell, add <tt>_date</tt> to the <tt>UPROGS</tt> definition
+in <tt>Makefile</tt>.
+
+</p><p>
+Your strategy for making a date system call should be to clone all of
+the pieces of code that are specific to some existing system call, for
+example the "uptime" system call. You should grep for uptime in all
+the source files, using <tt>grep -n uptime *.[chS]</tt>.
+
+</p><p>
+When you're done, typing <tt>date</tt> to an xv6 shell prompt
+should print the current UTC time.
+
+</p><p>
+Write down a few words of explanation for each of the files you had
+to modify in the process of creating your date system call.
+
+</p><p>
+Optional challenge: add a dup2() system call and modify the shell to use it.
+
+</p><p>
+</p><div class="question">
+<p><b>Submit</b>: Your explanations of the modifications for date in a file
+named hwN.txt where N is the homework number as posted on the schedule.
+</p></div>
+
+
+
+
+</body></html>

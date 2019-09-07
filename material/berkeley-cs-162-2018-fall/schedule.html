@@ -1,0 +1,600 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html lang="en">
+<head>
+  <base href="/~cs162/fa18/">
+  <meta charset="UTF-8" />
+  <meta http-equiv="Pragma" content="no-cache">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+  <title>CS162 &mdash; Fall 2018</title>
+  <link rel="shortcut icon" href="static/site/favicon.ico">
+  <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="static/css/custom.css">
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src="static/js/bootstrap.min.js"></script>
+  <script src="static/js/custom.js"></script>
+</head>
+<body>
+<div class="navbar navbar-default navbar-fixed-top">
+<div class="container">
+<div class="navbar-header">
+<a href="." class="navbar-brand">CS162</a>
+</div>
+<div class="navbar-collapse collapse" id="navbar-main">
+<ul class="nav navbar-nav">
+<li><a href="info/">Course Info</a></li>
+<li><a href="staff/">Staff</a></li>
+<li><a href="resources/">Resources</a></li>
+<li><a href="https://piazza.com/berkeley/fall2018/cs162">Piazza <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a></li>
+<li><a href="autograder/">Autograder <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container" id="main">
+  
+  <h1>CS162: Operating Systems and Systems Programming</h1>
+  <p>
+  Instructor: Ion Stoica<br />
+  Lecture: MW 5:00-6:30PM, 155 Dwinelle
+  </p>
+  <hr />
+  <h3>Schedule (Tentative)</h3>
+<table id="calendar"><tr><th>Week</th><th>Day</th><th>#</th><th>Title</th><th>Reading/Section</th><th>HW Assigned</th><th>Project</th><th>Event</th></tr><tr><td class="weeknum" rowspan=1>1</td><td style="background: #ffffd8">Th 08/22</td><td style="background: #ffffd8">1</td><td style="background: #ffffd8" class="td-left"><a href=static/lectures/1.pdf>Intro to CS162</a>  [<a href=static/lectures/1.pptx>ppt</a>]</td><td style="background: #ffffd8">A&D Ch1</td><td style="background: #ffffd8"><a href="static/hw/hw0.pdf">HW0: Executable</a><br />due 9/04</td><td style="background: #ffffd8"></td><td style="background: #ffffd8"></td></tr><tr class="gray-bg"><td class="weeknum" rowspan=4>2</td><td >Tu 08/27</td><td >2</td><td  class="td-left"><a href=static/lectures/2.pdf>Introduction to the Process</a>  [<a href=static/lectures/2.pptx>ppt</a>]</td><td >A&D CH2.1-7, 3.1-3</td><td ></td><td ></td><td ></td></tr><tr class="gray-bg"><td >W 08/28</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section1.pdf">Section 1: Tools</a></td><td ></td><td ></td><td ></td></tr><tr class="gray-bg"><td >Th 08/29</td><td >3</td><td  class="td-left"><a href=static/lectures/3.pdf>Processes, Fork</a>  [<a href=static/lectures/3.pptx>ppt</a>]</td><td >A&D CH2.8-9, 3.1-3</td><td ></td><td ></td><td >
+</td></tr><tr class="gray-bg"><td >Sat 08/31</td><td ></td><td  class="td-left"><b>Early Drop Deadline!  (Must drop course by today!)</b></td><td ></td><td ></td><td ></td><td ><p> Drop Deadline </p></td></tr><tr><td class="weeknum" rowspan=4>3</td><td >Tu 09/03</td><td ></td><td  class="td-left">Labor Day (Holiday)</td><td ></td><td ><a href="static/hw/hw1.pdf">HW1: Basic Shell</a><br />due 9/17</td><td ></td><td ></td></tr><tr><td >W 09/04</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section2.pdf">Section 2: Processes</a><br><a href="static/sections/section2-sol.pdf">[Solutions]</a></td><td ></td><td ></td><td ></td></tr><tr><td >Th 09/05</td><td >4</td><td  class="td-left"><a href=static/lectures/4.pdf>I/O, Files, Sockets, Networking</a>  [<a href=static/lectures/4.pptx>ppt</a>]</td><td >A&D 2.10-11, 3.4-6, 11.1-2</td><td ></td><td ></td><td ></td></tr><tr><td >Sat 09/07</td><td ></td><td  class="td-left"></td><td ></td><td ></td><td ></td><td >Group Creation Deadline</td></tr><tr class="gray-bg"><td class="weeknum" rowspan=3>4</td><td >Tu 09/10</td><td >5</td><td  class="td-left"><a href=static/lectures/5.pdf>Concurrency: Processes and Threads</a>  [<a href=static/lectures/5.pptx>ppt</a>]</td><td ></td><td ></td><td  class="proj1"><a href="static/projects/proj1.pdf">Threads release</a></td><td >Group TA Preference Deadline</td></tr><tr class="gray-bg"><td >W 09/11</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section3.pdf">Section 3: Syscalls, I/O</a><br><a href="static/sections/section3-sol.pdf">[Solutions]</a></td><td ></td><td  class="proj1"></td><td ></td></tr><tr class="gray-bg"><td >Th 09/12</td><td >6</td><td  class="td-left"><a href=static/lectures/6.pdf>Cooperating threads, Synchronization</a>  [<a href=static/lectures/6.pptx>ppt</a>]</td><td >A&D Ch 4.1-5, OSC 2.7, 3.6</td><td ></td><td  class="proj1"></td><td ></td></tr><tr><td class="weeknum" rowspan=3>5</td><td >Tu 09/17</td><td >7</td><td  class="td-left"><a href=static/lectures/7.pdf>Mutual Exclusion, Lock Implementation</a>  [<a href=static/lectures/7.pptx>ppt</a>]</td><td >A&D Ch 4.5-10, OSC Ch 6 </td><td ><a href="static/hw/hw2.pdf">HW2: HTTP Server</a><br />due 10/08</td><td  class="proj1"></td><td ></td></tr><tr><td >W 09/18</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section4.pdf">Section 4: Threads</a><br><a href="static/sections/section4-sol.pdf">[Solutions]</a></td><td ></td><td  class="proj1"></td><td ></td></tr><tr><td >Th 09/19</td><td >8</td><td  class="td-left"><a href=static/lectures/8.pdf>Synchronization: Locks, Semaphores</a>  [<a href=static/lectures/8.pptx>ppt</a>]</td><td >A&D 5.1-9 <br /> <a 
+href="static/readings/garman_bug_81.pdf">"The Bug Heard 'round the 
+World,"</a><br /><a
+ href="static/readings/TheracNew.pdf"> "Medical Devices: The 
+Therac-25"</a>
+ </td><td ></td><td  class="proj1">Initial Design Doc Due</td><td ></td></tr><tr class="gray-bg"><td class="weeknum" rowspan=4>6</td><td >Tu 09/24</td><td >9</td><td  class="td-left"><a href=static/lectures/9.pdf>Synchronization: Condition Variables, Readers/Writers</a>  [<a href=static/lectures/9.pptx>ppt</a>]</td><td >A&D 5.4, 5.7</td><td ></td><td  class="proj1"></td><td >
+</td></tr><tr class="gray-bg"><td >W 09/25</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section5.pdf">Section 5: Thread Synchronization</a><br><a href="static/sections/section5-sol.pdf">[Solutions]</a></td><td ></td><td  class="proj1"></td><td ></td></tr><tr class="gray-bg"><td >Th 09/26</td><td >10</td><td  class="td-left"><a href=static/lectures/10.pdf>Advanced Scheduling</a>  [<a href=static/lectures/10.pptx>ppt</a>]</td><td >A&D 7.1</td><td ></td><td  class="proj1"></td><td ></td></tr><tr class="gray-bg"><td >Sun 09/29</td><td ></td><td  class="td-left"></td><td ></td><td ></td><td  class="proj1"></td><td >Midterm I Review: 12:00 - 3:00 PM (GPB 100)</td></tr><tr><td class="weeknum" rowspan=4>7</td><td >Tu 10/01</td><td ></td><td  class="td-left">Midterm I (No class): 5:00-6:30PM (TBD)</td><td ></td><td ></td><td  class="proj1"></td><td >Midterm I (No class): 5:00-6:30PM (See Piazza for rooms)</td></tr><tr><td >W 10/02</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section6.pdf">Section 6: Synchronization and Scheduling</a><br><a href="static/sections/section6-sol.pdf">[Solutions]</a></td><td ></td><td  class="proj1"></td><td ></td></tr><tr><td >Th 10/03</td><td >11</td><td  class="td-left"><a href=static/lectures/11.pdf>Deadlock, Address Translation, Virtual Memory</a>  [<a href=static/lectures/11.pptx>ppt</a>]</td><td >A&D 2.7, 6.5, 7.2-5, 8.1-2</td><td ></td><td  class="proj1"></td><td ></td></tr><tr><td >Sat 10/05</td><td ></td><td  class="td-left"></td><td ></td><td ></td><td  class="proj1">Code Due</td><td ></td></tr><tr class="gray-bg"><td class="weeknum" rowspan=3>8</td><td >Tu 10/08</td><td >12</td><td  class="td-left"><a href=static/lectures/12.pdf>Address Translation</a>  [<a href=static/lectures/12.pptx>ppt</a>]</td><td >A&D 8.3, 9.1-7</td><td ><a href="static/hw/hw3.pdf">HW3: Malloc</a><br />due 10/29</td><td  class="proj1">Final Report Due</td><td ></td></tr><tr class="gray-bg"><td >W 10/09</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section7.pdf">Section 7: Scheduling and Fairness</a><br><a href="static/sections/section7-sol.pdf">[Solutions]</a></td><td ></td><td ></td><td ></td></tr><tr class="gray-bg"><td >Th 10/10</td><td >13</td><td  class="td-left"><a href=static/lectures/13.pdf>Address Translation (cont'd), Caching</a>  [<a href=static/lectures/13.pptx>ppt</a>]</td><td ></td><td >
+</td><td  class="proj2"><a href="static/projects/proj2.pdf">Userprog release</a></td><td ></td></tr><tr><td class="weeknum" rowspan=3>9</td><td >Tu 10/15</td><td >14</td><td  class="td-left"><a href=static/lectures/14.pdf>Caching (finished), Demand Paging</a>  [<a href=static/lectures/14.pptx>ppt</a>]</td><td >A&D 9.6-7 </td><td ></td><td  class="proj2"></td><td ></td></tr><tr><td >W 10/16</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section8.pdf">Section 8: Address Translation and Pintos Wait-Exit</a><br><a href="static/sections/section8-sol.pdf">[Solutions]</a></td><td ></td><td  class="proj2"></td><td ></td></tr><tr><td >Th 10/17</td><td >15</td><td  class="td-left"><a href=static/lectures/15.pdf>Demand Paging (finished), I/O start</a>  [<a href=static/lectures/15.pptx>ppt</a>]</td><td ></td><td ></td><td  class="proj2">Initial Design Doc Due</td><td ></td></tr><tr class="gray-bg"><td class="weeknum" rowspan=4>10</td><td >Tu 10/22</td><td >16</td><td  class="td-left"><a href=static/lectures/16.pdf>Demand Paging (finished), I/O start</a>  [<a href=static/lectures/16.pptx>ppt</a>]</td><td >OSC 13.1-5, A&D 11.1-4, 12, A&D 12.1, 7.5</td><td ></td><td  class="proj2"></td><td ></td></tr><tr class="gray-bg"><td >W 10/23</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section9.pdf">Section 9: Cache, Clock Algorithm, Banker's Algorithm and Demand Paging</a><br><a href="static/sections/section9-sol.pdf">[Solutions]</a></td><td ></td><td  class="proj2"></td><td ></td></tr><tr class="gray-bg"><td >Th 10/24</td><td >17</td><td  class="td-left"><a href=static/lectures/17.pdf>Input/Output, I/O Layers, Storage DevicesI/O Performance and Low-level Optimization</a>  [<a href=static/lectures/17.pptx>ppt</a>]</td><td >A&D 12-12.3, <a href="static/readings/FFS84.pdf">Fast File System</a></td><td ></td><td  class="proj2"></td><td ></td></tr><tr class="gray-bg"><td >Sun 10/27</td><td ></td><td  class="td-left"></td><td ></td><td ></td><td  class="proj2"></td><td >Midterm II Review: 12:00 - 3:00 PM (VLSB 2060) <a href="https://docs.google.com/presentation/d/1pxZi4aeOvgwqBfs8oYnqKCe7NPRqpyIqIhVkZTp-OAI">[Slides]</a></td></tr><tr><td class="weeknum" rowspan=4>11</td><td >Tu 10/29</td><td ></td><td  class="td-left">Midterm II (No class): 5:00-6:30pm (TBD)</td><td ></td><td ></td><td  class="proj2"></td><td >Midterm II (No Class): 5:00-6:30PM (See piazza)</td></tr><tr><td >W 10/30</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section10.pdf">Section 10: Intro to I/O, Device Drivers, File Systems, FAT, and Queuing Theory</a><br><a href="static/sections/section10-sol.pdf">[Solutions]</a></td><td ></td><td  class="proj2"></td><td ></td></tr><tr><td >Th 10/31</td><td >18</td><td  class="td-left"><a href=static/lectures/18.pdf>File SystemsDesign: Concept to FAT, Advanced File Systems: FFS, NTFS, COW</a>  [<a href=static/lectures/18.pptx>ppt</a>]</td><td ></td><td ></td><td  class="proj2"></td><td ></td></tr><tr><td >Sat 11/02</td><td ></td><td  class="td-left"></td><td ></td><td ></td><td  class="proj2">Code Due</td><td ></td></tr><tr class="gray-bg"><td class="weeknum" rowspan=3>12</td><td >Tu 11/05</td><td >19</td><td  class="td-left"><a href=static/lectures/19.pdf>FileSystems (finished), MMAP</a>  [<a href=static/lectures/19.pptx>ppt</a>]</td><td ></td><td ></td><td  class="proj2">Final Report Due</td><td ></td></tr><tr class="gray-bg"><td >W 11/06</td><td ></td><td  class="td-left"></td><td ><a href="static/sections/section11.pdf">Section 11: File Systems and Reliability, Two Phase Commit</a><br><a href="static/sections/section11-sol.pdf">[Solutions]</a></td><td ></td><td ></td><td ></td></tr><tr class="gray-bg"><td >Th 11/07</td><td >20</td><td  class="td-left"><a href=static/lectures/20.pdf>Reliability, Transactions, Distributed system</a>  [<a href=static/lectures/20.pptx>ppt</a>]</td><td >Dist Sys: RPC, <br> <a href="static/readings/Original_Byzantine.pdf">The Byzantine Generals Problem.</a></td><td ></td><td  class="proj3"><a href="static/projects/proj3.pdf">File Systems release</a></td><td ></td></tr><tr><td class="weeknum" rowspan=3>13</td><td >Tu 11/12</td><td ></td><td  class="td-left">Veterans Day (Holiday)</td><td ></td><td ></td><td  class="proj3"></td><td ></td></tr><tr><td >W 11/13</td><td ></td><td  class="td-left">
+</td><td ><a href="static/sections/section12.pdf">Section 12: TCP and Distributed Systems</a><br><a href="static/sections/section12-sol.pdf">[Solutions]</a></td><td ></td><td  class="proj3"></td><td ></td></tr><tr><td >Th 11/14</td><td >21</td><td  class="td-left"><a href=static/lectures/21.pdf>Layering, End-to-End Argument</a>  [<a href=static/lectures/21.pptx>ppt</a>]</td><td >End-to-End Arguments in System Design</td><td ></td><td  class="proj3">Initial Design Doc Due</td><td ></td></tr><tr class="gray-bg"><td class="weeknum" rowspan=4>14</td><td >M 11/18</td><td ></td><td  class="td-left"></td><td ></td><td ></td><td  class="proj3"></td><td >Midterm III Review: 12:00 - 3:00 PM  (Hearst Annex A1)</td></tr><tr class="gray-bg"><td >Tu 11/19</td><td ></td><td  class="td-left"></td><td ></td><td ></td><td  class="proj3"></td><td ></td></tr><tr class="gray-bg"><td >W 11/20</td><td ></td><td  class="td-left"></td><td >No section (Thanksgiving)</td><td ></td><td  class="proj3"></td><td ></td></tr><tr class="gray-bg"><td >Th 11/21</td><td ></td><td  class="td-left">Thanksgiving (Holiday)</td><td ></td><td ></td><td  class="proj3"></td><td ></td></tr><tr><td class="weeknum" rowspan=3>15</td><td >Tu 11/26</td><td >22</td><td  class="td-left"><a href=static/lectures/22.pdf>End-to-End (finished), TCP Flow Control</a>  [<a href=static/lectures/22.pptx>ppt</a>]</td><td ></td><td ></td><td  class="proj3"></td><td ></td></tr><tr><td >W 11/27</td><td ></td><td  class="td-left"></td><td ><i>Project Office Hours instead of Section</i></td><td ></td><td  class="proj3"></td><td ></td></tr><tr><td >Th 11/28</td><td ></td><td  class="td-left">Midterm III (No class): 5:00-6:30PM (TBD)</td><td ></td><td ></td><td  class="proj3"></td><td >Midterm III (No class): 5:00-6:30PM (TBD)</td></tr><tr class="gray-bg"><td class="weeknum" rowspan=3>16</td><td >Tu 12/03</td><td >RR</td><td  class="td-left">No Meeting</td><td ></td><td ></td><td  class="proj3">Code Due</td><td ></td></tr><tr class="gray-bg"><td >W 12/04</td><td >RR</td><td  class="td-left">No Meeting</td><td ></td><td ></td><td  class="proj3"></td><td ></td></tr><tr class="gray-bg"><td >Th 12/05</td><td >RR</td><td  class="td-left">No Meeting</td><td ></td><td ></td><td  class="proj3">Report Due</td><td ></td></tr><tr><td class="weeknum" rowspan=___WEEK_17_ROWSPAN___>17</td><td >Sat 12/14</td><td ></td><td  class="td-left">No Final Exam</td><td ></td><td ></td><td ></td><td ></td></tr></table>
+
+  <hr />
+
+  <a name="weekly-schedule"></a>
+  <h3>Weekly Schedule (Lecture and Sections)</h3>
+  <p><a href="./#office-hours">Click here to see office hours</a></p>
+  <table id="schedule">
+    <tr>
+      <th></th>
+      
+      <th colspan="6">Monday</th>
+      
+      <th colspan="6">Tuesday</th>
+      
+      <th colspan="6">Wednesday</th>
+      
+      <th colspan="6">Thursday</th>
+      
+      <th colspan="6">Friday</th>
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">9:00-9:30</th>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class="sched-dis">DIS 110: 405 Soda (William)</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">9:30-10:00</th>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">10:00-10:30</th>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">10:30-11:00</th>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">11:00-11:30</th>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class="sched-dis">DIS 101: 289 Cory (William)</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">11:30-12:00</th>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">12:00-12:30</th>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class="sched-dis">DIS 102: 220 Wheeler (Jason)</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class="sched-dis">DIS 108: 136 Barrows (Yang)</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">12:30-1:00</th>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">1:00-1:30</th>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">1:30-2:00</th>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">2:00-2:30</th>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="3" rowspan="2" class="sched-dis">DIS 103: 24 Wheeler (Jason)</td>
+        
+      
+        
+        <td colspan="3" rowspan="2" class="sched-dis">DIS 104: 224 Wheeler (Eric Hou)</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class="sched-dis">DIS 109: 179 Stanley (Alex)</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">2:30-3:00</th>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">3:00-3:30</th>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class="sched-dis">DIS 105: 30 Wheeler (Devin)</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class="sched-dis">DIS 111: 283 Dwinelle (Eric Zhou)</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">3:30-4:00</th>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">4:00-4:30</th>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class="sched-dis">DIS 106: 126 Wheeler (Alon)</td>
+        
+      
+        
+        <td colspan="3" rowspan="2" class="sched-dis">DIS 112: 251 Dwinelle (Eric Zhou)</td>
+        
+      
+        
+        <td colspan="3" rowspan="2" class="sched-dis">DIS 113: 250 Dwinelle (Eric Hou)</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">4:30-5:00</th>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">5:00-5:30</th>
+        
+      
+        
+        <td colspan="6" rowspan="3" class="sched-lec">LEC: 155 Dwinelle</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class="sched-dis">DIS 107: 124 Wheeler (Alon)</td>
+        
+      
+        
+        <td colspan="6" rowspan="3" class="sched-lec">LEC: 155 Dwinelle</td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">5:30-6:00</th>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">6:00-6:30</th>
+        
+      
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">6:30-7:00</th>
+        
+      
+        
+        <td colspan="6" rowspan="1" class=""></td>
+        
+      
+        
+      
+        
+        <td colspan="6" rowspan="1" class=""></td>
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">7:00-7:30</th>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+        
+        <td colspan="6" rowspan="2" class=""></td>
+        
+      
+    </tr>
+    
+    <tr>
+      
+        
+        <th class="min30">7:30-8:00</th>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </tr>
+    
+  </table>
+  <br/><p>Please note that all events start 10 minutes after they are listed on the above calendar due to Berkeley time.</p>
+
+  <hr />
+
+  <a name="office-hours"></a>
+  <h3>Office Hours</h3>
+  <p>This calendar includes changes in the normal Office Hours schedule (cancellation and rescheduling).</p>
+  <iframe src="https://calendar.google.com/calendar/embed?src=berkeley.edu_0s5qb05t48o774itf2ek0amelc%40group.calendar.google.com&ctz=America%2FLos_Angeles&mode=WEEK" style="border: 0; width: 100%; height: 900px;" frameborder="0" scrolling="no"></iframe>
+
+</div>
+</body>
+</html>

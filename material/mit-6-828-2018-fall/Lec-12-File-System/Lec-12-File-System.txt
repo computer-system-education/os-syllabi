@@ -1,0 +1,278 @@
+6.828 2018 Lecture 12: File System
+
+lecture plan:
+  file systems
+  disks
+  disk layout
+  xv6 case study
+
+why are file systems useful?
+  durability across restarts
+  naming and organization
+  sharing among programs and users
+
+why interesting?
+  crash recovery
+  performance
+  sharing
+  security
+  abstraction is useful: pipes, devices, /proc, /afs, Plan 9
+    so FS-oriented apps work with many kinds of objects
+  you will implement one for JOS
+
+API example -- UNIX/Posix/Linux/xv6/&c:
+  fd = open("x/y", -);
+  write(fd, "abc", 3);
+  link("x/y", "x/z");
+  unlink("x/y");
+
+high-level choices visible in the UNIX FS API
+  objects: files (vs virtual disk, DB)
+  content: byte array (vs 80-byte records, BTree)
+  naming: human-readable (vs object IDs)
+  organization: name hierarchy
+  synchronization: none (vs locking, versions)
+  there are other file system APIs, sometimes quite different!
+
+a few implications of the API:
+  fd refers to something
+    that is preserved even if file name changes
+    or if file is deleted while open!
+  a file can have multiple links
+    i.e. occur in multiple directories
+    no one of those occurences is special
+    so file must have info stored somewhere other than directory
+  thus:
+    FS records file info in an "inode" on disk
+    FS refers to inode with i-number (internal version of FD)
+    inode must have link count (tells us when to free)
+    inode must have count of open FDs
+    inode deallocation deferred until last link and FD are gone
+
+let's talk about xv6
+
+FS software layers
+  system calls
+  name ops | FD ops
+  inodes
+  inode cache
+  log
+  buffer cache
+  ide driver
+
+IDE is a standard to talk to devices
+  https://en.wikipedia.org/wiki/Parallel_ATA
+  connectors, interface, protocol, etc.
+  CPU talks to IDE controller
+  controller talks to hard drive, SSD, CD-ROM
+  
+hard disk drives (HDD)
+  concentric tracks
+  each track is a sequence of sectors, usually 512 bytes
+  head must seek, disk must rotate
+    random access is slow (5 or 10ms per access)
+    sequential access is much faster (100 MB/second)
+  ECC on each sector
+  can only read/write whole sectors
+  thus: sub-sector writes are expensive (read-modify-write)
+
+solid state drives (SSD)
+  non-volatile "flash" memory
+  random access: 100 microseconds
+  sequential: 500 MB/second
+  internally complex -- hidden except sometimes performance
+    flash must be erased before it's re-written
+    limit to the number of times a flash block can be written
+    SSD copes with a level of indirection -- remapped blocks
+
+for both HDD and SSD:
+  sequential access is much faster than random
+  big reads/writes are faster than small ones
+  both of these influence FS design and performance
+  
+disk blocks
+  most o/s use blocks of multiple sectors, e.g. 4 KB blocks = 8 sectors
+  to reduce book-keeping and seek overheads
+  xv6 uses single-sector blocks for simplicity
+
+on-disk layout
+  xv6 file system on 2nd IDE drive; first has just kernel
+  xv6 treats IDE drive as an array of sectors, ignores track structure
+  0: unused
+  1: super block (size, ninodes)
+  2: log for transactions
+  32: array of inodes, packed into blocks
+  58: block in-use bitmap (0=free, 1=used)
+  59: file/dir content blocks
+  end of disk
+
+xv6's mkfs program generates this layout for an empty file system
+  the layout is static for the file system's lifetime
+
+"meta-data"
+  everything on disk other than file content
+  super block, i-nodes, bitmap, directory content
+
+on-disk inode
+  type (free, file, directory, device)
+  nlink
+  size
+  addrs[12+1]
+
+direct and indirect blocks
+
+example:
+  how to find file's byte 8000?
+  logical block 15 = 8000 / 512
+  3rd entry in the indirect block
+
+each i-node has an i-number
+  easy to turn i-number into inode
+  inode is 64 bytes long
+  byte address on disk: 32*512 + 64*inum
+
+directory contents
+  directory much like a file
+    but user can't directly write
+  content is array of dirents
+  dirent:
+    inum
+    14-byte file name
+  dirent is free if inum is zero
+
+you should view FS as an on-disk data structure
+  [tree: dirs, inodes, blocks]
+  with two allocation pools: inodes and blocks
+
+let's look at xv6 in action
+  focus on disk writes
+  illustrate on-disk data structures via how updated
+
+Q: how does xv6 create a file?
+
+rm fs.img
+
+$ echo > a
+write 34 ialloc (from create sysfile.c; mark it non-free)
+write 34 iupdate (from create; initialize nlink &c)
+write 59 writei (from dirlink fs.c, from create)
+
+call graph:
+  sys_open      sysfile.c
+    create      sysfile.c
+      ialloc    fs.c
+      iupdate   fs.c
+      dirlink   fs.c
+        writei  fs.c
+
+Q: what's in block 34?
+   look at create() in sysfile.c
+
+Q: why *two* writes to block 34?
+
+Q: what is in block 59?
+
+Q: what if there are concurrent calls to ialloc?
+   will they get the same inode?
+   note bread / write / brelse in ialloc
+   bread locks the block, perhaps waiting, and reads from disk
+   brelse unlocks the block
+
+Q: how does xv6 write data to a file?
+
+$ echo x > a
+write 58 balloc  (from bmap, from writei)
+write 508 bzero
+write 508 writei (from filewrite file.c)
+write 34 iupdate  (from writei)
+write 508 writei
+write 34 iupdate
+
+call graph:
+  sys_write       sysfile.c
+    filewrite     file.c
+      writei      fs.c
+        bmap
+          balloc
+            bzero
+        iupdate
+
+Q: what's in block 58?
+   look at writei call to bmap
+   look at bmap call to balloc
+
+Q: what's in block 508?
+
+Q: why the iupdate?
+   file length and addrs[]
+
+Q: why *two* writei+iupdate?
+   echo calls write() twice, 2nd time for the newline
+
+Q: how does xv6 delete a file?
+
+$ rm a
+write 59 writei (from sys_unlink; directory content)
+write 34 iupdate (from sys_unlink; link count of file)
+write 58 bfree  (from itrunc, from iput)
+write 34 iupdate (from itrunc; zeroed length)
+write 34 iupdate (from iput; marked free)
+
+call graph:
+  sys_unlink
+    writei
+    iupdate
+    iunlockput
+      iput
+        itrunc
+          bfree
+          iupdate
+        iupdate
+
+Q: what's in block 59?
+   sys_unlink in sysfile.c
+
+Q: what's in block 34?
+
+Q: what's in block 58?
+   look at iput
+
+Q: why three iupdates?
+
+Let's look at the block cache in bio.c
+   block cache holds just a few recently-used blocks
+   bcache at start of bio.c
+
+FS calls bread, which calls bget
+   bget looks to see if block already cached
+   if present and not B_BUSY, return the block
+   if present and B_BUSY, wait
+   if not present, re-use an existing buffer
+   b->refcnt++ prevents buf from being recycled while we're waiting
+
+Two levels of locking here
+  bcache.lock protects the description of what's in the cache
+  buf->lock protects just the one buffer
+
+Q: what is the block cache replacement policy?
+   prev ... head ... next
+   bget re-uses bcache.head.prev -- the "tail"
+   brelse moves block to bcache.head.next
+
+Q: is that the best replacement policy?
+
+Q: what if lots of processes need to read the disk? who goes first?
+   iderw appends to idequeue list
+   ideintr calls idestart on head of idequeue list
+   so FIFO
+
+Q: is FIFO a good disk scheduling policy?
+   priority to interactive programs?
+   elevator sort?
+
+Q: why does it make sense to have a double copy of I/O?
+   disk to buffer cache
+   buffer cache to user space
+   can we fix it to get better performance?
+
+Q: how much RAM should we dedicate to disk buffers?

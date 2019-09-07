@@ -1,0 +1,38 @@
+h2 {
+    font-size: 1.2em;
+    margin-bottom: 0.5em;
+}
+
+div.required, div.question, div.note, div.old {
+    width: 80%;
+    align: center;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin: 1em auto 1em auto;
+}
+
+div.required {
+    background-color: #e0e0ff;
+    border: 1px solid #c0c0ff;
+}
+
+div.question {
+    background-color: #e0e0ff;
+    border: 1px solid #c0c0ff;
+}
+
+div.note {
+    background-color: #ffffb0;
+    border: 1px solid #ffff80;
+}
+
+div.old {
+    background-color: #ffe0e0;
+    border: 1px solid #ffc0c0;
+    text-align: center;
+    padding: 1em;
+}
+
+div.old:before {
+    content: "This homework has not been updated for 2011.  Use it for reference only.";
+}

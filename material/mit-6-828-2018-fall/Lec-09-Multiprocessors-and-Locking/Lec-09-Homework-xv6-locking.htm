@@ -1,0 +1,117 @@
+
+<!-- saved from url=(0060)https://pdos.csail.mit.edu/6.828/2018/homework/xv6-lock.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Homework: xv6 locking</title>
+<link rel="stylesheet" href="./Lec-09-Homework-xv6-locking_files/homework.css" type="text/css">
+</head>
+<body>
+
+<h1>Homework: xv6 locking</h1>
+
+<p>In this assignment you will explore some of the interaction between interrupts
+and locking. Submit your solutions before the beginning of the next lecture to
+the <a href="https://6828.scripts.mit.edu/2018/handin.py/">submission web site</a>.
+
+</p><h2>Don't do this</h2>
+<p>
+Make sure you understand what would happen if the xv6 kernel executed
+the following code snippet:
+</p>
+<pre>  struct spinlock lk;
+  initlock(&amp;lk, "test lock");
+  acquire(&amp;lk);
+  acquire(&amp;lk);
+</pre>
+(Feel free to use QEMU to find out.  <code>acquire</code> is in <code>spinlock.c</code>.)
+
+<div class="question">
+<p><b>Submit</b>: Explain in one sentence what happens.
+</p></div>
+
+<h2>Interrupts in ide.c</h2>
+
+<p>
+An <code>acquire</code> ensures that interrupts are off
+on the local processor using the <code>cli</code> instruction
+(via <code>pushcli()</code>),
+and that interrupts remain off until the <code>release</code>
+of the last lock held by that processor
+(at which point they are enabled using <code>sti</code>).
+</p>
+
+<p>
+Let's see what happens if we turn on interrupts while
+holding the <code>ide</code> lock.
+In <code>iderw</code> in <code>ide.c</code>, add a call
+to <code>sti()</code> after the <code>acquire()</code>,
+and a call to <code>cli()</code> just before the <code>release()</code>.
+Rebuild the kernel and boot it in QEMU.
+Chances are the kernel will panic soon after boot; try booting QEMU a few times
+if it doesn't.
+</p>
+
+<div class="question">
+<p><b>Submit</b>: Explain in a few sentences why the kernel panicked.
+You may find it useful to look up the stack trace
+(the sequence of <code>%eip</code> values printed by <code>panic</code>)
+in the <code>kernel.asm</code> listing.</p>
+</div>
+
+<h2>Interrupts in file.c</h2>
+
+Remove the <code>sti()</code> and <code>cli()</code> you added,
+rebuild the kernel, and make sure it works again.
+
+<p>
+Now let's see what happens if we turn on interrupts
+while holding the <code>file_table_lock</code>.
+This lock  protects the table of file descriptors,
+which the kernel modifies when an application opens or closes
+a file.
+In <code>filealloc()</code> in <code>file.c</code>, add
+a call to
+<code>sti()</code> after the call to <code>acquire()</code>,
+and a <code>cli()</code> just before <b>each</b> of the
+<code>release()</code>es.
+You will also need to add 
+<code>#include "x86.h"</code> at the top of the file after
+the other <code>#include</code> lines.
+Rebuild the kernel and boot it in QEMU.
+It most likely will not panic.
+</p>
+
+<div class="question">
+<p><b>Submit</b>: Explain in a few sentences why the kernel didn't panic.
+Why do <code>file_table_lock</code> and <code>ide_lock</code> have
+different behavior in this respect?</p>
+<p>
+You do not need to understand anything about the details of the IDE hardware
+to answer this question, but you may find it helpful to look 
+at which functions acquire each lock, and then at when those
+functions get called.
+</p>
+</div>
+
+(On qemu there is a small chance that the kernel will panic
+with the extra <code>sti()</code> in <code>filealloc()</code>.
+If the kernel <i>does</i> panic, make doubly sure that
+you removed the <code>sti()</code> call from 
+<code>iderw</code>.  If it continues to panic and the
+only extra <code>sti()</code> is in <code>filealloc()</code>,
+then think about why this should be unlikely on real hardware.
+If you are running on real hardware, then
+mail <i>6.828-staff@pdos.csail.mit.edu</i>
+and think about buying a lottery ticket.)
+
+<h2>xv6 lock implementation</h2>
+
+<div class="question">
+<p><b>Submit</b>: Why does <code>release()</code> clear
+<code>lk-&gt;pcs[0]</code> and <code>lk-&gt;cpu</code>
+<i>before</i> clearing <code>lk-&gt;locked</code>?
+Why not wait until after?</p>
+</div>
+
+
+
+</body></html>

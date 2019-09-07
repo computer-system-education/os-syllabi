@@ -1,0 +1,280 @@
+6.828 2018 Lecture 22: O/S Network Performance, IX
+
+*** please fill out a course evaluation!
+    http://web.mit.edu/subjectevaluation/
+
+Reading: IX: A Protected Dataplane Operating System for
+         High Throughput and Low Latency, OSDI 2014
+
+this lecture
+  O/S network stack performance
+  IX as case study
+
+Linux network software structure
+  [diagram]
+  queue: NIC DMA
+  processing: driver interrupt 
+  queue: input queue
+  processing: TCP (or UDP, ICMP, NFS, &c)
+  queue: socket buffer (store until app wants to read)
+  processing: application read()
+
+note a few things:
+  in-kernel to get access to NIC hardware
+  in-kernel to de-multiplex, e.g. ARP vs TCP
+  in-kernel to prevent one app from messing with another app's connections
+  lots of locks and inter-core sharing, e.g. queues, TCP connection state
+
+how does network software structure affect performance?
+
+let's focus on high-performance network servers
+  e.g. memcached, an in-memory key/value storage server
+  high request rate
+  short requests / responses
+  lots of clients, lots of potential parallelism
+  want high throughput under high load (requests per second)
+  want low latency under low/modest load (seconds per request)
+  want low tail of latency distribution
+
+what are the relevant h/w limits?
+  i.e. what can we hope for?
+
+throughput limits:
+  10 gigabit ethernet: 15 million tiny packets/second
+  40 gigabit ethernet: 60 million tiny packets/second
+  RAM: a few gigabytes per second
+  interrupts: a million per second
+  system calls: a few million per second
+  contended locks: a million per second
+  inter-core data movement: a few million per second
+  so:
+    if limited by ethernet and RAM, ~10 million/sec short queries
+    if limited by interrupts, locks, &c: ~1 million/sec (maybe per core)
+
+latency ingredients:
+  latency important for e.g. web page with 100s of items
+  low load: sum of a sequence of steps
+    network speed-of-light and switch round-trip time
+    interrupt
+    queue operations
+    sleep/wakeup
+    system calls
+    inter-core data movement
+    RAM fetches
+  high load:
+    latency is largely determined by wait time -- queuing
+    efficiency (high throughput) reduces queuing time
+    bursty arrivals increase queuing time
+    bursty service times increase queuing time
+    structural problems can increase queuing time
+      load imbalance, or no-one serving a queue
+  latency is hard to reason about, hard to improve
+
+IX: a design for a high-performance network stack
+  OSDI 2014
+  lives in Linux
+  different syscall API (doesn't preserve Linux API)
+  different stack architecture (doesn't use Linux stack code or design)
+
+IX diagram -- Figure 1(a)
+  Linux kernel
+  IX kernel
+     NIC DMA queues
+     TCP/IP stack
+  IX application
+     multiple threads
+
+IX notes
+  IX runs in VMX non-root (guest) mode using Dune
+  IX kernel at CPL=0
+  IX application at CPL=3
+  Linux kernel gives IX dedicated NIC queues and dedicated cores
+    then Linux isn't involved much
+  IX application makes system calls to IX kernel
+    mostly to send and receive packets
+  packet buffers in memory shared between IX kernel and IX application
+    so packet data isn't copied (unlike Linux)
+
+idea: batching syscall interface
+  the problem:
+    syscall overhead is big if messages are small
+    want to send/recv more packets/second than one can do syscalls/second
+  the solution: run_io() (Section 4.3)
+    run_io() argument describes many writes to many TCP connections
+    run_io() return describes incoming data on many TCP connections
+    (really more general, e.g. returns new connection events too)
+    so: each user/kernel crossing does lots of work
+  while True:
+    run_io(out, in)
+    for msg in in:
+      process msg
+      out.append(reply)
+
+idea: run-to-completion -- Figure 1(b)
+  the problem:
+    Linux uses CPU time moving packets through stages and queues
+    queues:
+      good if application is doing something else
+      bad for network performance (locks, core-to-core, cache eviction)
+  what is "run-to-completion"?
+    complete the processing of one batch of inputs before starting on next batch
+    really complete: driver, TCP, application, enqueue reply
+  how?
+    run_io(), function call down to driver, return pkt all the way up to app
+    app calls next run_io() with reply message
+  why?
+    single thread carries the batch of packets through all steps
+    avoids queues, sleep/wakeup, context switch, inter-core xfers
+    helps keep active packet batch in the CPU data cache (vs long queues)
+    avoids worries about balancing processing rate in each stage
+ 
+idea: polling rather than interrupts
+  the problem:
+    interrupts are expensive
+    interrupts are redundant if always likely to be input waiting
+  what is polling?
+    periodically check NIC DMA queues for new input
+    and disable NIC interrupts
+  why hard?
+    where to put the checks? i.e. in what loop?
+    might check too often -- waste CPU
+    might check too rarely -- high latency, queue overflow
+  IX's solution:
+    each core dedicated to one application thread
+      while(1) { run_io(); ... }
+    run_io() polls NIC DMA queues
+    no waste: if no input, nothing for the core to do anyway
+    if input, grabs a batch and returns it to application
+    automatically polls more frequently at low load, less at high load
+      very nice; paper calls this "adaptive polling"
+
+what about multi-core parallelism?
+  the problem:
+    one core often can't deliver enough throughput
+    will leave most of 10-gigabit ethernet idle
+  the opportunity:
+    lots of clients
+    work for each client is often independent
+    all modern machines have multiple cores
+  the dangers:
+    lock contention is expensive
+    data movement (between cores) is expensive
+  to avoid data movement and lock contention:
+    all actions for a client, TCP, and packet should be on same core
+    no data should be used on more than one core
+  examples of potentially shared data:
+    packet content
+    NIC queues
+    packet free lists
+    TCP data structures
+    application data (e.g. memcached's in-memory DB)
+
+idea: multiple NIC queues for parallelism
+  modern NICs support many independent DMA queues
+    NIC uses filters and hashing to pick the queue
+  Linux sets up a separate set of NIC DMA queues per IX application
+    one queue per core for each IX application
+    Linux tells NIC a filter for each IX application
+  NIC hashes client IP addr / port to pick the queue for each incoming packet
+    "flow-consistent hashing" or "receive-side scaling" (RSS)
+    NIC gives all packets for a given TCP connection to the same core!
+    no need to share TCP connection state among cores
+    no need to move packet data between cores
+  run_io() looks at NIC DMA queue for just its own core
+  a new connection is given to the core determined by the NIC's hash
+    hopefully uniform and results in balanced load
+
+idea: zero copy
+  how to avoid IX/user and user/IX copies of TCP data?
+    across the CPL=0/CPL=3 boundary (like user/kernel)
+    40 gigabits/sec may stress RAM throughput
+  IX uses page table to map packet buffers into both IX and application
+    NIC DMAs to/from this memory
+    run_io() carries pointers into this memory
+  app/IX cooperate to note when received/sent buffer is free
+    freed buffers reported via run_io()
+
+IX design limitations
+  assumes many parallel clients making small requests
+    you'd want something else for a single 40-megabit/second transfer
+  assumes good load balance across cores
+    i.e. clients and requests evenly divided by NIC onto queues
+    i.e. requests all take about the same amount of time
+    could re-assign flows to NIC queues?
+    could steal work from other cores?
+  assumes non-blocking request handling
+    i.e. service code computes and then replies
+    does not read the disk, send an RPC and wait, &c
+    b/c blocking would produce an idle core and a rapidly-growing queue
+    could shift block requests to a dedicated thread/core?
+
+Evaluation
+  what should we look for?
+  high throughput under high load -- especially for small messages
+  low latency under light load
+  throughput proportional of # of cores
+
+Figure 2
+  looks at latency under light load
+  one client, ping-pong, one request outstanding at a time
+  x-axis is message size
+  y-axis is throughput (gigabits/second)
+  why does the line rise with increasing message size?
+    lots of fixed overheads amortized over increasing data
+    increased opportunity for batching, since many packets/message
+    rtt, TCP/IP header, interrupts (for Linux), syscalls, TCP processing
+  what limits the rise? 
+    10-gigabit ethernet minus headers
+  why does IX beat Linux?
+    for small messages (e.g. 64 bytes):
+      latency-limited
+      IX polling sees the message sooner
+      IX has no interrupt/queueing/sleep/wakeup
+      fewer user/kernel crossings
+      paper says 5.7 us for IX 64-byte; 24 us for Linux
+        this is enough for people to care!
+    for big messages:
+      throughput-limited
+      IX has less advantage here, since most wins are per-packet
+      IX's zero-copy might be important
+
+Figure 3(a)
+  effect of adding cores on throughput
+  ideally: throughput increases with core count
+    until we hit the 10- or 40-megabit/second ethernet limit
+    note this does *not* show that the software is efficient
+      only that it gets good parallel speedup
+  18 clients, 64-byte messages, one per connection
+  x-axis is number of cores
+  y-axis is RPCs/second in millions
+  why do the lines go up (at least at start)?
+    work is split over more parallel cores
+    18 clients, so perhaps up to 18 cores could be used
+  is the throughput proportional to the number of cores?
+    probably "yes" for all lines, at start
+    so locking &c are not eliminating all parallelism
+  note half a million / second for IX with one core
+    that's 2 microseconds of CPU time per request/response
+    or about 4000 CPU cycles
+  why does IX 10 gigabit line level off?
+  why does IX beat Linux?
+    polling, batched system calls, run to completion
+  it's impressive that IX still scales linearly at 4 million/sec
+    that's a very high number for any system!
+    it suggests that parallelization is nearly perfect
+      RSS helps
+      s/w must have absolutely no locks, no inter-core data movement
+
+IX makes some big architectural decisions differently
+  per-application network stack
+    rather than single stack shared by all applications
+    allows packet buffers to be shared, so zero-copy
+  dedicates cores to applications, and to application threads
+    rather than shared cores, multiplexed by the kernel
+    allows polling and run-to-completion
+    helps make the software more efficient, simpler
+    requires plentiful cores
+  dedicates NIC queues to application
+    rather than shared queues, de-multiplexed by the kernel
+    more direct access, for better efficiency
+    requires plentiful NIC queues

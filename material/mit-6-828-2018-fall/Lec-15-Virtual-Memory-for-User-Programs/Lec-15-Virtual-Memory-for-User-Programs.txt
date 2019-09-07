@@ -1,0 +1,91 @@
+VM primitives for user programs by Appel & Li
+
+What's the point?
+  O/S should provide better support for user-controlled VM.
+    Faster. More correct. More complete.
+  Would make programs faster.
+  Would allow neat tricks that are otherwise too painful.
+  They provide laundry list of examples of uses.
+  They analyze O/S VM efficiency, argue plenty of room for improvement.
+  Do they define a new VM interface or design or implementation?
+
+What are the primitives?
+  TRAP, PROT1, PROTN, UNPROT, DIRTY, MAP2
+  Are any of these hard? (MAP2...)
+  Are any not easy in a simple (VAX-like) VM model?
+
+What does PROTx actually do?
+  Mark PTE/TLB "protected".
+  And/or mark O/S vm structures "protected".
+    And at least invalidate h/w PTE/TLB.
+  Make sure it's not going to look like a page fault for disk paging...
+
+What does TRAP actually mean?
+  PTE (or TLB entry) marked "protected"
+  CPU saves user state, jumps into kernel.
+  Kernel asks VM system what to do?
+    I.e. page in from disk? Core dump?
+  Generate signal -- upcall into user process.
+    Lower on user stack now, or on separate stack...
+  Run user handler, can do anything.
+    Probably must call UNPROT for referenced page.
+    That is, must avoid repeated fault.
+    Maybe we can change faulting address/register???? Maybe not.
+  User handler returns to kernel.
+  Kernel returns to user program.
+  Continue or re-start instruction that trapped.
+
+Were the primitives available in 1991 O/S's?
+  
+Were the primitives fast?
+  What would fast mean?
+    Perhaps relative to compiler-generated checking code?
+    Perhaps relative to what we were going to do to handle the fault?
+  Are they faster today?
+    (needs to be relative to ordinary instruction times)
+    12 microseconds on 1.2 GHz Athlon, FreeBSD 4.3. For trap, unprot, prot.
+
+Do we really need VM hardware for these primitives?
+  Not a security issue, so can be user controlled.
+  Why doesn't RISC ideology apply?
+  Why not have cc (or Atom) generate code to simulate VM?
+    More flexible...
+    Might be as fast; spare execution units.
+    But it's a pain to modify the compiler (hence Atom).
+  CPUs already have VM h/w, why not use it?
+    Because then the O/S has to be involved. And it's slow and rigid.
+    Cheap embedded CPUs don't have VM.
+  For ordinary people, much easier to use VM than hack the compiler.
+
+Let's look at concurrent GC.
+  1. How does two-space compacting copying GC work?
+     Need forwarding pointers in old space (and "copied" flag).
+     Why is this attractive? Alloc is cheap. Compacts, so no free list.
+     Why isn't it perfect?
+  2. How does Baker's incremental GC work?
+     Especially "scanned area" of to-space.
+     Every load from non-scanned to-space must be checked.
+       Does it point back to from-space?
+     Must leave forwarding pointers in from-space for copied objects.
+     Incremental: every allocation scans a little.
+  3. How does VM help?
+     Avoid explicit checks for ptrs back to from space.
+       By read-protecting unscanned area.
+       Why can't we just read-protect from-space?
+     Also, a concurrent collector on another CPU.
+       Why no conflict?
+       Collector only reads from-space and protected unscanned to-space.
+       Need sync when mutator thread traps.
+
+Are existing VM primitives good enough for concurrent GC?
+  MAP2 is the only functionality issue -- but not really.
+    We never have to make the same page accessible twice!
+  Are traps &c fast enough?
+    They say no: 500 us to scan a page, 1200 us to take the trap.
+    Why not scan 3 pages?
+    How much slower to run Baker's actual algorithm, w/ checks?
+      VM version might be faster! Even w/ slow traps.
+    What about time saved by 2nd CPU scanning? They don't count this.
+  Is it an issue how often faults occur for concurrent GC?
+    Not really -- more faults means more scanning.
+    I.e. we'll get <= one fault per page, at most.

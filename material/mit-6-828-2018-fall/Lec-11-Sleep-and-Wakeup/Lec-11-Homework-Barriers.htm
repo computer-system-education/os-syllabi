@@ -1,0 +1,72 @@
+
+<!-- saved from url=(0059)https://pdos.csail.mit.edu/6.828/2018/homework/barrier.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Homework: Barriers</title>
+<link rel="stylesheet" href="./Lec-11-Homework-Barriers_files/homework.css" type="text/css">
+</head>
+<body>
+
+<h1>Barriers</h1>
+
+<p>In this assignment we will explore how to implement a <a href="http://en.wikipedia.org/wiki/Barrier_(computer_science)">barrier</a> using condition
+variables provided by the pthread library.  A barrier is a point in an
+application at which all threads must wait until all other threads reach
+that point too. Condition variables are a sequence
+coordination technique similar to xv6's sleep and wakeup.  Submit your solutions
+before the beginning of the next lecture to <a href="https://6828.scripts.mit.edu/2018/handin.py/">the submission web site</a>.
+
+</p><p>Download <a href="https://pdos.csail.mit.edu/6.828/2018/homework/barrier.c">barrier.c</a> and compile it on your laptop or Athena machine:
+</p><pre>$ gcc -g -O2 -pthread barrier.c
+$ ./a.out 2
+Assertion failed: (i == t), function thread, file barrier.c, line 55.
+</pre>
+
+The 2 specifies the number of threads that synchronize on the barrier (
+<tt>nthread</tt> in <tt>barrier.c</tt>).  Each thread sits in a tight loop. In
+each loop iteration a thread calls <tt>barrier()</tt> and then sleeps for some
+random number of microseconds. The assert triggers, because one thread leaves the
+barrier before the other thread has reached the barrier.  The desired behavior is
+that all threads should block until <tt>nthread</tt>s have called
+<tt>barrier</tt>.
+
+<p>Your goal is to achieve the desired behavior. In addition to the <a href="https://pdos.csail.mit.edu/6.828/2018/homework/lock.html">lock primitives</a> that you have seen before, you will need
+ the following new pthread primitives (see man pthreads for more detail):
+
+</p><pre>pthread_cond_wait(&amp;cond, &amp;mutex);  // go to sleep on cond, releasing lock mutex
+pthread_cond_broadcast(&amp;cond);     // wake up every thread sleeping on cond
+</pre>
+
+<tt>pthread_cond_wait</tt> releases the <tt>mutex</tt> when called,
+and re-acquires the <tt>mutex</tt> before returning.
+
+<p>We have given you <tt>barrier_init()</tt>. Your job is to implement
+<tt>barrier()</tt> so that the panic won't occur.
+We've defined <tt>struct barrier</tt> for you; its fields are for
+your use.
+
+</p><p>There are two issues that complicate your task:
+
+</p><ul>
+  
+<li> You have to deal with a succession of barrier calls,
+each of which we'll call a round.
+  <tt>bstate.round</tt> records the current round.  You
+  should increase <tt>bstate.round</tt> when each round starts.
+
+</li><li> You have to handle the case in which one thread races around the loop before
+the others have exited the barrier. In particular, you are re-using
+<tt>bstate.nthread</tt> from one round to the next.  Make sure that a thread that
+leaves the barrier and races around the loop doesn't increase <tt>bstate.nthread</tt>
+while a previous round is still using it.
+
+</li></ul>
+
+<p>Test your code with one, two, and more than two threads.
+
+</p><div class="question">
+<p><b>Submit</b>: your modified barrier.c
+</p></div>
+
+
+
+</body></html>

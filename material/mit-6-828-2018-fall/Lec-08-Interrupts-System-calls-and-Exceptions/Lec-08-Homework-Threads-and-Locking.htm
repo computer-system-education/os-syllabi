@@ -1,0 +1,103 @@
+
+<!-- saved from url=(0056)https://pdos.csail.mit.edu/6.828/2018/homework/lock.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Homework: Locking</title>
+<link rel="stylesheet" href="./Lec-08-Homework-Threads-and-Locking_files/homework.css" type="text/css">
+</head>
+<body>
+
+<h1>Homework: Threads and Locking</h1>
+
+<p>In this assignment you will explore parallel programming with threads and
+locks using a hash table.
+You should do this homework on a real computer (not xv6, not qemu)
+that has multiple cores.
+Most recent laptops have
+multicore processors. Submit your solutions before the beginning of the next
+lecture to <a href="https://6828.scripts.mit.edu/2018/handin.py/">the submission web
+site</a>.
+
+</p><p>Download <a href="https://pdos.csail.mit.edu/6.828/2018/homework/ph.c">ph.c</a> and compile it on your laptop or Athena
+machine (you can use your OS' gcc; you don't need the 6.828 tools):
+</p><pre>$ gcc -g -O2 ph.c -pthread
+$ ./a.out 2
+</pre>
+
+The 2 specifies the number of threads that execute put and get operations on the the hash table.
+
+<p>After running for a little while, the program will produce output similar
+to this:
+
+</p><pre>1: put time = 0.003338
+0: put time = 0.003389
+0: get time = 7.684335
+0: 17480 keys missing
+1: get time = 7.684335
+1: 17480 keys missing
+completion time = 7.687856
+</pre>
+
+<p>Each thread runs in two phases.  In the first phase each thread puts NKEYS/nthread
+keys into the hash table.  In the second phase, each thread gets NKEYS from the hash
+table.  The print statements tell you how long each phase took for each thread.
+The completion time at the bottom tells you the total runtime for the
+application.  In the output above, the completion time for the application is about 7.7 seconds.  Each
+thread computed for about 7.7 seconds (~0.0 for put + ~7.7 for get).
+
+</p><p>To see if using two threads improved performance,
+let's compare against a single thread:
+
+</p><pre>$ ./a.out 1
+0: put time = 0.004073
+0: get time = 6.929189
+0: 0 keys missing
+completion time = 6.933433
+</pre>
+The completion time for the 1 thread case (~7.0s) is slightly less than for the 2
+thread case (~7.7s), but the two-thread case did twice as much total
+work during the get phase.
+Thus the two-thread case achieved nearly 2x parallel speedup for the get phase on two cores,
+which is very good.
+
+<p>When you run this application, you may see no parallelism if you are running
+on a machine with only one core or if the machine is busy running other applications.
+
+</p><p>Two points: 1) The completion time is about the same as for 2 threads, but
+this run did twice as many gets as with 2 threads; we are achieving good
+parallelism. 2) The output for 2 threads says that many keys are missing.  In
+your runs, there may be more or fewer keys missing. If you run with 1 thread,
+there will never be any keys missing.
+
+</p><p>Why are there missing keys
+with 2 or more threads, but not with 1 thread?  Identify a sequence of
+events that can lead to keys missing for 2 threads.
+
+</p><p>To avoid this sequence of events, insert lock and unlock statements in
+<tt>put</tt> and <tt>get</tt> so that the number of keys missing is always 0.  The
+relevant pthread calls are (for more see the manual pages, man pthread):
+
+</p><pre>pthread_mutex_t lock;     // declare a lock
+pthread_mutex_init(&amp;lock, NULL);   // initialize the lock
+pthread_mutex_lock(&amp;lock);  // acquire lock
+pthread_mutex_unlock(&amp;lock);  // release lock
+</pre>
+
+<p>Test your code first with 1 thread, then test it with 2 threads.
+Is it correct (i.e. have you eliminated missing keys?)?  Is the
+two-threaded version faster than the single-threaded version?
+
+</p><p>Modify your code so that <tt>get</tt> operations run in parallel while
+maintaining correctness.
+(Hint: are the locks in <tt>get</tt> necessary for
+correctness in this application?)
+
+</p><p>Modify your code so that some <tt>put</tt> operations run in parallel 
+while maintaining correctness. (Hint: would a lock per bucket work?)
+
+</p><div class="question">
+<p><b>Submit</b>: your modified ph.c
+</p></div>
+
+
+
+</body></html>

@@ -1,0 +1,197 @@
+
+<!-- saved from url=(0063)https://pdos.csail.mit.edu/6.828/2018/homework/xv6-new-log.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Homework: xv6 log</title>
+<link rel="stylesheet" href="./Lec-13-Homework-xv6-log_files/homework.css" type="text/css">
+</head>
+<body>
+
+<h1>Homework: xv6 log</h1>
+
+<p>This assignment explores the xv6 log in two parts.
+First, you'll artificially create a crash which illustrates
+why logging is needed. Second, you'll remove one
+inefficiency in the xv6 logging system.
+
+</p><p>
+Submit your solution before the beginning of the next lecture
+to <a href="https://6828.scripts.mit.edu/2018/handin.py/">the submission
+web site</a>.
+
+</p><h2>Creating a Problem</h2>
+
+<p>
+The point of the xv6 log is to cause all the disk updates of a
+filesystem operation to be atomic with respect to crashes.
+For example, file creation involves both adding a new entry
+to a directory and marking the new file's inode as in-use.
+A crash that happened after one but before the other would
+leave the file system in an incorrect state after a reboot,
+if there were no log.
+
+</p><p>
+The following steps will break the logging code in a way that
+leaves a file partially created.
+
+</p><p>
+First, replace <tt>commit()</tt> in <tt>log.c</tt> with
+this code:
+</p><pre>#include "mmu.h"
+#include "proc.h"
+void
+commit(void)
+{
+  int pid = myproc()-&gt;pid;
+  if (log.lh.n &gt; 0) {
+    write_log();
+    write_head();
+    if(pid &gt; 1)            // AAA
+      log.lh.block[0] = 0; // BBB
+    install_trans();
+    if(pid &gt; 1)            // AAA
+      panic("commit mimicking crash"); // CCC
+    log.lh.n = 0; 
+    write_head();
+  }
+}
+</pre>
+
+<p>
+The BBB line causes the first block in the log to be written to
+block zero, rather than wherever it should be written. During file
+creation, the first block in the log is the new file's inode updated
+to have non-zero <tt>type</tt>.
+Line BBB causes the block
+with the updated inode to be written to block 0 (whence
+it will never be read), leaving the on-disk inode still marked
+unallocated. The CCC line forces a crash.
+The AAA lines suppress this buggy behavior for <tt>init</tt>,
+which creates files before the shell starts.
+
+</p><p>
+Second, replace <tt>recover_from_log()</tt> in <tt>log.c</tt>
+with this code:
+</p><pre>static void
+recover_from_log(void)
+{
+  read_head();      
+  cprintf("recovery: n=%d but ignoring\n", log.lh.n);
+  // install_trans();
+  log.lh.n = 0;
+  // write_head();
+}
+</pre>
+
+<p>
+This modification suppresses log recovery (which would repair
+the damage caused by your change to <tt>commit()</tt>).
+
+</p><p>
+Finally, remove the <tt>-snapshot</tt> option from the definition
+of <tt>QEMUEXTRA</tt> in your Makefile so that the disk image will see the
+changes.
+
+</p><p>
+Now remove <tt>fs.img</tt> and run xv6:
+</p><pre>  % rm fs.img ; make qemu
+</pre>
+<p>
+Tell the xv6 shell to create a file:
+</p><pre>  $ echo hi &gt; a
+</pre>
+
+<p>
+You should see the panic from <tt>commit()</tt>. So far
+it is as if a crash occurred in a non-logging system in the middle
+of creating a file.
+
+</p><p>
+Now re-start xv6, keeping the same <tt>fs.img</tt>:
+</p><pre>  % make qemu
+</pre>
+
+<p>
+And look at file <tt>a</tt>:
+</p><pre>  $ cat a
+</pre>
+
+<p>
+  You should see <tt>panic: ilock: no type</tt>. Make sure you understand what happened.
+Which of the file creation's modifications were written to the disk
+before the crash, and which were not?
+
+</p><h2>Solving the Problem</h2>
+
+Now fix <tt>recover_from_log()</tt>:
+<pre>static void
+recover_from_log(void)
+{
+  read_head();
+  cprintf("recovery: n=%d\n", log.lh.n);
+  install_trans();
+  log.lh.n = 0;
+  write_head();
+}
+</pre>
+
+<p>
+Run xv6 (keeping the same <tt>fs.img</tt>) and read <tt>a</tt> again:
+</p><pre>  $ cat a
+</pre>
+
+<p>
+This time there should be no crash. Make sure you understand why
+the file system now works.
+
+</p><p>
+Why was the file empty, even though you created
+it with <tt>echo&nbsp;hi&nbsp;&gt;&nbsp;a</tt>?
+
+</p><p>
+Now remove your modifications to <tt>commit()</tt>
+(the if's and the AAA and BBB lines), so that logging works again,
+and remove <tt>fs.img</tt>.
+
+</p><h2>Streamlining Commit</h2>
+
+<p>
+Suppose the file system code wants to update an inode in block 33.
+The file system code will call <tt>bp=bread(block 33)</tt> and update the
+buffer data. <tt>write_log()</tt> in <tt>commit()</tt>
+will copy the data to a block in the log on disk, for example block 3.
+A bit later in <tt>commit</tt>, <tt>install_trans()</tt> reads
+block 3 from the log (containing block 33), copies its contents into the in-memory
+buffer for block 33, and then writes that buffer to block 33 on the disk.
+
+</p><p>
+However, in <tt>install_trans()</tt>, it turns out that the modified
+block 33 is guaranteed to be still in the buffer cache, where the
+file system code left it. Make sure you understand why it would be a
+mistake for the buffer cache to evict block 33 from the buffer cache
+before the commit.
+
+</p><p>
+Since the modified block 33 is guaranteed to already be in the buffer
+cache, there's no need for <tt>install_trans()</tt> to read block
+33 from the log. Your job: modify <tt>log.c</tt> so that, when
+<tt>install_trans()</tt> is called from <tt>commit()</tt>,
+<tt>install_trans()</tt> does not perform the needless read from the log.
+
+</p><p>
+To test your changes, create a file in xv6, restart, and
+make sure the file is still there.
+
+</p><p>
+</p><div class="question">
+<p><b>Submit</b>: your modified log.c
+</p></div>
+
+
+
+
+
+<!--  LocalWords:  inode trans proc pid mmu AAA BBB CCC init cprintf fs img rm
+ -->
+<!--  LocalWords:  qemu creation's if's
+ -->
+</body></html>

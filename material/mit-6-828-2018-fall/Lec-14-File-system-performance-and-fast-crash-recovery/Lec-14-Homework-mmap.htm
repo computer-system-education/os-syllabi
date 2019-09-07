@@ -1,0 +1,63 @@
+
+<!-- saved from url=(0056)https://pdos.csail.mit.edu/6.828/2018/homework/mmap.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Homework: mmap()</title>
+<link rel="stylesheet" href="./Lec-14-Homework-mmap_files/homework.css" type="text/css">
+</head>
+<body>
+
+<h1>Homework: mmap()</h1>
+
+<p>This assignment will make you more familiar with how to manage virtual memory
+in user programs using the Unix system call interface. You can do this
+assignment on any operating system that supports the Unix API (a Linux Athena
+machine, your laptop with Linux or MacOS, etc.). Submit your solution to the
+<a href="https://6828.scripts.mit.edu/2018/handin.py/">submission web site</a>
+as a text file with the name "hwN.c", where N is the homework number as listed
+on the schedule.
+
+</p><p>Download the <a href="https://pdos.csail.mit.edu/6.828/2018/homework/mmap.c">mmap homework assignment</a> and look it over.
+The program maintains a very large table of square root values in virtual
+memory. However, the table is too large to fit in physical RAM. Instead, the
+square root values should be computed on demand in response to page faults
+that occur in the table's address range.  Your
+job is to implement the demand faulting mechanism using a signal handler and
+UNIX memory mapping system calls. To stay within the physical RAM limit, we
+suggest using the simple strategy of unmapping the last page whenever a new page
+is faulted in.
+
+</p><p>To compile <tt>mmap.c</tt>, you need a C compiler, such as gcc. On Athena,
+you can type:
+</p><pre>$ add gnu
+</pre>
+Once you have gcc, you can compile mmap.c as follows:
+<pre>$ gcc mmap.c -lm -o mmap
+</pre>
+Which produces a <tt>mmap</tt> file, which you can run:
+<pre>$ ./mmap
+page_size is 4096
+Validating square root table contents...
+oops got SIGSEGV at 0x7f6bf7fd7f18
+</pre>
+
+<p>When the process accesses the square root table, the mapping does not exist
+and the kernel passes control to the signal handler code in
+<tt>handle_sigsegv()</tt>. Modify the code in <tt>handle_sigsegv()</tt> to map
+in a page at the faulting address, unmap a previous page to stay within the
+physical memory limit, and initialize the new page with the correct square root
+values. Use the function <tt>calculate_sqrts()</tt> to compute the values.
+The program includes test logic that verifies if the contents of the
+square root table are correct. When you have completed your task
+successfully, the process will print “All tests passed!”.
+
+</p><p>You may find that the man pages for mmap() and munmap() are helpful references.
+</p><pre>$ man mmap
+$ man munmap
+</pre>
+
+<p>Don't forget to submit your solution to the <a href="https://6828.scripts.mit.edu/2018/handin.py/">submission web site</a>
+ (using the "hwN.c" naming convention as outlined above).
+
+
+
+</p></body></html>

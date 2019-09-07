@@ -51,3 +51,4 @@ Here are some topics of each course:
 | Verification                |      |      |      |      |      |      |      |      | 1    |      |      |      |      |      |      |      |      |
 | Memory consistency model    |      |      |      |      |      |      |      |      | 1    |      |      |      |      |      |      |      |      |
 | Linking                     |      |      |      |      |      | 1    |      |      |      |      |      |      | 1    |      |      |      |      |
+

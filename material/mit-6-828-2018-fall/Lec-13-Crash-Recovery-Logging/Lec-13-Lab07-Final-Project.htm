@@ -1,0 +1,197 @@
+
+<!-- saved from url=(0048)https://pdos.csail.mit.edu/6.828/2018/labs/lab7/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Lab 7: Final Project</title>
+<link rel="stylesheet" href="./Lec-13-Lab07-Final-Project_files/labs.css" type="text/css">
+<script type="text/javascript" src="./Lec-13-Lab07-Final-Project_files/labs.js"></script>
+</head>
+
+<body><div class="jump-hdr"><div class="jump-section">Sections &#9663;<div class="jump-drop"><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab7/#Introduction" style="padding-left: 1em;">Introduction</a><a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab7/#Deliverables" style="padding-left: 1em;">Deliverables</a></div></div><div class="jump-section">Exercises &#9663;<div class="jump-drop"></div></div></div>
+
+<h1>Lab 7: Final JOS project</h1>
+
+<p><b>
+Piazza Discussion Due, November 2, 2018 <br>
+Proposals Due, November 8, 2018 <br>
+Code repository Due, December 6, 2018 <br>
+Check-off and in-class demos, Week of December 10, 2018
+</b></p>
+
+<h2 id="Introduction">Introduction</h2>
+
+<p>For the final project you have two options:
+</p><ul>
+  
+  <li>Work on your own and do <a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab6/index.html">lab 6</a>, including
+  one challenge exercise in lab 6.  (You are free, of course, to extend lab 6,
+  or any part of JOS, further in interesting ways, but it isn't required.)</li>
+  
+  <li>Work in a team of one, two or three, on a project of your choice that
+  involves your JOS. This project must be of the same scope as lab 6 or larger
+  (if you are working in a team).</li>
+  
+</ul>
+
+<p>The goal is to have fun and explore more advanced O/S topics; you don't have to
+do novel research.
+  
+</p><p>If you are doing your own project, we'll grade you on how much you got
+working, how elegant your design is, how well you can explain it, and how
+interesting and creative your solution is. We do realize that time is limited,
+so we don't expect you to re-write Linux by the end of the semester. Try to make
+sure your goals are reasonable; perhaps set a minimum goal that's definitely
+achievable (e.g., something of the scale of lab 6) and a more ambitious goal if
+things go well.
+
+</p><p>If you are doing lab 6, we will grade you on whether you pass the tests and
+the challenge exercise.
+
+</p><h2 id="Deliverables">Deliverables</h2>
+
+<div class="required">
+
+<p>Nov 3: Piazza discussion and form groups of 1, 2, or 3 (depending on which
+  final project option you are choosing).  Use the lab7
+tag/folder on Piazza. Discuss ideas with others in comments on their Piazza
+posting. Use these postings to help find other students interested in similar
+ideas for forming a group. Course staff will provide feedback on project ideas
+on Piazza; if you'd like more detailed feedback, come chat with us in
+person.</p>
+  
+</div>
+
+
+<div class="required">
+<p>Nov 9: Submit a proposal at <a href="https://6828.scripts.mit.edu/2018/handin.py/"> the submission website</a>,
+ just a paragraph or two.  The proposal should include your group members list,
+ the problem you want to address, how you plan to address it, and what are you
+ proposing to specifically design and implement. (If you are doing lab 6, there
+  is nothing to do for this deliverable.)</p>
+
+  </div>
+
+<div class="required">
+
+<p>   Dec 7: submit source code along with a brief write-up. 
+ Put the write-up under the top-level source directory with the
+name "<tt>README.pdf</tt>". Since some of you will be working in groups for this lab assignment, you may
+want to use git to share your project code between group members.  You will need
+to decide on whose source code you will use as a starting point for your group
+project.  Make sure to create a branch for your final project, and name it
+<b>lab7</b>. (If you do lab 6, follow the lab 6 submission instructions.)</p>
+
+</div>
+
+<div class="required">
+
+<p>Week of Dec 11: short in-class demonstration.  Prepare a short in-class
+ demo of your JOS project. We will provide a projector that you can use to
+ demonstrate your project. Depending on the number of groups and the kinds of
+ projects that each group chooses, we may decide to limit the total number of
+ presentations, and some groups might end up not presenting in class.</p>
+
+ </div>
+
+ <div class="required">
+
+<p>Week of Dec 11: check-off with TAs.  Demo your project to the TAs so that
+we can ask you some questions and find out in more detail what you did.</p>
+
+</div>
+
+<h2>Project ideas</h2>
+
+<p>If you are not doing lab 6, here's a list of ideas to get you started
+thinking. But, you should feel free to pursue your own ideas.  Some of the ideas
+are starting points and by themselves not of the scope of lab 6, and others are
+likely to be much of larger scope.</p>
+
+
+<ul>
+
+<li> Build a virtual machine monitor that can run multiple guests (for
+example, multiple instances of JOS), using
+<a href="http://www.intel.com/technology/itj/2006/v10i3/1-hardware/3-software.htm">x86 VM support</a>.
+
+</li><li>Do something useful with the hardware protection of Intel SGX. <a href="https://www.usenix.org/system/files/conference/osdi14/osdi14-paper-baumann.pdf">Here
+  is a recent paper using Intel SGX</a>.
+
+</li><li> Make the JOS file system support writing, file creation, logging for
+  durability, etc., perhaps taking ideas from Linux EXT3.
+
+</li><li> Use file system ideas from
+<a href="http://www.ece.cmu.edu/~ganger/papers/osdi94.pdf">Soft
+updates</a>,
+<a href="https://ng.gnunet.org/sites/default/files/10.1.1.40.3691.pdf">WAFL</a>,
+ZFS, or another advanced file system.
+
+</li><li> Add snapshots to a file system, so that a user can look at
+the file system as it appeared at various points in the past.
+You'll probably want to use some kind of copy-on-write for disk
+storage to keep space consumption down.
+
+</li><li> Build a
+<a href="http://www.cdf.toronto.edu/~csc469h/fall/handouts/nitzberg91.pdf">distributed shared memory</a> (DSM) system, so that you can run
+multi-threaded shared memory parallel programs on a cluster of
+machines, using paging to give the appearance of real shared memory.
+When a thread tries to access a page that's on another machine, the
+page fault will give the DSM system a chance to fetch the page over
+the network from whatever machine currently stores it.
+
+</li><li> Allow processes to migrate from one machine to another over the
+network. You'll need to do something about the various pieces of a process's
+state, but since much state in JOS is in user-space it may be easier than
+process migration on Linux.
+
+</li><li> Implement <a href="http://en.wikipedia.org/wiki/Paging">paging</a> to disk
+  in JOS, so that processes can be bigger than RAM. Extend your pager
+  with swapping.
+
+</li><li> Implement <a href="http://en.wikipedia.org/wiki/Mmap">mmap()</a> of files
+  for JOS.
+
+</li><li> Use <a href="http://static.usenix.org/event/osdi06/tech/erlingsson.html">xfi</a> to
+sandbox code within a process.
+
+</li><li> Support x86 <a href="http://en.wikipedia.org/wiki/Page_(computer_memory)">2MB or 4MB pages</a>.
+
+</li><li> Modify JOS to have kernel-supported threads inside processes.  See <a href="http://pdos.csail.mit.edu/6.828/2018/homework/xv6-uthread.html">in-class
+  uthread assignment</a> to get started.  Implementing scheduler activations
+  would be one way to do this project.
+
+</li><li> Use fine-grained locking or lock-free concurrency in JOS in the kernel or
+     in the file server (after making it multithreaded). The linux kernel uses
+     <a href="http://en.wikipedia.org/wiki/Read-copy-update">read copy
+     update</a> to be able to perform read operations without holding locks.
+     Explore RCU by implementing it in JOS and use it to support a name cache with
+     lock-free reads.
+
+</li><li> Implement ideas from the <a href="http://pdos.csail.mit.edu/6.828/2018/readings/engler95exokernel.pdf">Exokernel papers</a>, for example the packet filter.
+
+</li><li> Make JOS have soft real-time behavior.  You will have to identify some
+  application for which this is useful.
+
+</li><li> Make JOS run on 64-bit CPUs. This includes redoing the virtual
+  memory system to use 4-level pages tables. See <a href="http://pdos.csail.mit.edu/6.828/2018/reference.html">reference page</a>
+  for some documentation.
+
+</li><li> Port JOS to a different microprocessor.  The <a href="http://wiki.osdev.org/Main_Page">osdev wiki</a> may be helpful.
+
+</li><li> A window system for JOS, including graphics driver and mouse.  See
+  <a href="http://pdos.csail.mit.edu/6.828/2018/reference.html">reference
+  page</a> for some documentation.  <a href="http://web.mit.edu/amdragon/www/pubs/sqrtx-6.828.html">sqrt(x)</a> is
+  an example JOS window system (and writeup).
+
+</li><li> Implement <a href="https://www.usenix.org/system/files/conference/osdi12/osdi12-final-117.pdf">dune</a>
+   to export privileged hardware instructions to user-space applications in JOS.
+
+</li><li>Write a user-level debugger; add strace-like functionality;
+hardware register profiling (e.g. Oprofile); call-traces</li>
+
+<li>Binary emulation for (static) Linux executables</li>
+
+</ul>
+
+
+
+</body></html>
