@@ -15,9 +15,29 @@
 5. Kernels and processes: interrupts
 6. Kernels and processes: the programming interface
 7. Concurrency and threads
+   - Thread abstraction
+   - Context switch
+   - yield()
+   - User-level thread vs. kernel-level thread
+   - Fork/join concurrency
 8. Synchronization: synchronization I
+   - Too-much-milk problem
+   - Bounded buffer
 9. Synchronization: synchronization II
+   - Barrier
+   - Semaphores
+   - Locks
+   - Condition variables
+   - Mesa vs. Hoare semantics
+   - Synchronization best practices
+   - Atomic instructions
 10. Synchronization: OS support for sync
+    - Multi-cores
+    - Spinlock
+    - Mutex
+    - Semaphores
+    - Bounded buffer
+    - Implementing CVs with semaphores
 11. Scheduling: Intro
 12. Scheduling: scheduling in Linux
 13. Scheduling: scheduling priodic tasks in embedded systems

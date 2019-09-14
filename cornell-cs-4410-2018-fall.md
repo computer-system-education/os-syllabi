@@ -13,12 +13,30 @@
 3. Processes
 4. Threads
 5. Synchronization (1)
+   - Race conditions
+   - Critical section
 6. Synchronization (2)
+   - Too-much-milk problem
+   - Spinlock
 7. Synchronization (3)
+   - Producer-consumer problem
+   - Reader-writer problem
 8. Synchronization (4)
+   - Semaphore
+   - Monitor
+   - Condition variable
 9. Synchronization (5)
+   - Hoare vs. Mesa/Hansen semantics
+   - 12 commandments of synchronization
 10. CPU scheduling
 11. Deadlocks
+    - Wait-for graph
+    - Four conditions for deadlock
+    - Preventing deadlock
+    - Avoiding deadlock
+    - Detecting deadlock
+    - Recovering deadlock
+    - Banker's algorithm
 12. Memory management (1)
 13. Memory management (2)
 14. Virtual memory (1)

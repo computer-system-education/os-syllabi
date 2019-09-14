@@ -12,10 +12,35 @@
 2. OS architectural support
 3. Processes
 4. Threads
+   - Process and thread comparision
+   - Kernel-level vs. user-level threads
+   - Nachos thread API
+   - Preemptive vs. non-preemptive scheduling
 5. Synchronization
+   - Race condition: bank accounts
+   - Critical section
+   - Mutex
+   - Atomic read/write
+   - Peterson's algorithm
+   - Atomic instructions
+   - Spinlock
 6. Semaphores and monitors (1)
+   - Semaphore
+   - Readers/writers problem
+   - Bounded buffer
 7. Semaphores and monitors (2)
+   - Monitor
+   - Condition variables
+   - Interesting example: a bug in Linux driver
 8. Scheduling and deadlock
+   - FCFS/FIFO
+   - SJF
+   - Priority scheduling
+   - Round robin
+   - UNIX scheduler
+   - Deadlock
+   - Resource allocation graph
+   - Banker's algorithm
 9. Memory management
 10. Paging (1)
 11. Paging (2)

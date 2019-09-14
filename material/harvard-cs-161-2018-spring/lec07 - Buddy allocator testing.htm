@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<!-- saved from url=(0057)https://read.seas.harvard.edu/cs161-18/lectures/lecture7/ -->
+<html lang="en" class="gr__read_seas_harvard_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="./lec07 - Buddy allocator testing_files/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="./lec07 - Buddy allocator testing_files/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+    <link rel="stylesheet" href="./lec07 - Buddy allocator testing_files/cs161.css">
+    <title>Lecture 7 – CS 161 2018</title>
+  <style type="text/css" id="fb80a5c2-ba79-49b7-bd97-9bfca0cffa30">.b037aadd-65a7-4b74-8f02-0af0890d7c99 { position: relative !important; border-radius: 0.2em !important; padding: 0px !important; margin: 0px !important; }
+
+.d81d7c3b-01f0-4d36-b3a9-59912b10e1e9 .ssh-close { position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; z-index: 999; border: none; background: url("data:image/png;base64,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") no-repeat border-box; animation-duration: 275ms; animation-timing-function: ease-out; box-shadow: none; animation-name: f313694b-e095-4c35-8c18-0169917a1588; }
+
+.d81d7c3b-01f0-4d36-b3a9-59912b10e1e9 .ssh-close:hover, .d81d7c3b-01f0-4d36-b3a9-59912b10e1e9 .ssh-close:focus { background-image: url("data:image/png;base64,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"); }
+
+@media print {
+  .d81d7c3b-01f0-4d36-b3a9-59912b10e1e9 { box-shadow: unset !important; -webkit-print-color-adjust: exact !important; }
+}
+
+@keyframes f313694b-e095-4c35-8c18-0169917a1588 { 
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes d598dfc8-8b14-4a0c-a6cd-551970441f6f { 
+  100% { opacity: 0; transform: scale(0.3); }
+}
+
+.d81d7c3b-01f0-4d36-b3a9-59912b10e1e9 { background-color: rgba(238, 238, 238, 0.8); color: rgb(170, 170, 170); font: inherit; box-shadow: rgb(238, 238, 238) 0px 0px 0.35em; text-shadow: none !important; }
+
+.default-red-aa94e3d5-ab2f-4205-b74e-18ce31c7c0ce { box-shadow: rgb(255, 128, 128) 0px 0px 0.35em; background-color: rgba(255, 128, 128, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-orange-da01945e-1964-4d27-8a6c-3331e1fe7f14 { box-shadow: rgb(255, 210, 170) 0px 0px 0.35em; background-color: rgba(255, 210, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-yellow-aaddcf5c-0e41-4f83-8a64-58c91f7c6250 { box-shadow: rgb(255, 255, 170) 0px 0px 0.35em; background-color: rgba(255, 255, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-green-c4d41e0a-e40f-4c3f-91ad-2d66481614c2 { box-shadow: rgb(170, 255, 170) 0px 0px 0.35em; background-color: rgba(170, 255, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-cyan-f88e8827-e652-4d79-a9d9-f6c8b8ec9e2b { box-shadow: rgb(170, 255, 255) 0px 0px 0.35em; background-color: rgba(170, 255, 255, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-purple-c472dcdb-f2b8-41ab-bb1e-2fb293df172a { box-shadow: rgb(255, 170, 255) 0px 0px 0.35em; background-color: rgba(255, 170, 255, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-grey-da7cb902-89c6-46fe-b0e7-d3b35aaf237a { box-shadow: rgb(119, 119, 119) 0px 0px 0.35em; background-color: rgba(119, 119, 119, 0.8) !important; color: rgb(255, 255, 255) !important; }</style></head>
+  <body data-gr-c-s-loaded="true">
+
+<nav class="navbar navbar-expand-lg navbar-light">
+  <a class="navbar-brand" href="https://read.seas.harvard.edu/cs161-18/">CS 161 2018</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/#" id="nav-dropdown-doc" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Documentation
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-doc">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/cplusplus/">C++</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/lists/">Lists</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/memory-layout/">Memory layout</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/contexts/">Contexts</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/memory-iterators/">Memory iterators</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/spinlocks/">Spinlocks</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/synchronization-invariants/">Synchronization invariants</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/chickadeefs/">ChickadeeFS</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item">
+    
+      <a class="nav-link" href="https://read.seas.harvard.edu/cs161-18/schedule/">Schedule</a>
+    
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/#" id="nav-dropdown-psets" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Problem sets
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-psets">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset1/">Problem set 1</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset2/">Problem set 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset3/">Problem set 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset4/">Problem set 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset5/">Problem set 5</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/#" id="nav-dropdown-lectures" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Lectures
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-lectures">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture2/">Lecture 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture3/">Lecture 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture4/">Lecture 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture5/">Lecture 5</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture6/">Lecture 6</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/">Lecture 7</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture8/">Lecture 8</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture9/">Lecture 9</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture10/">Lecture 10</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture11/">Lecture 11</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture12/">Lecture 12</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture14/">Lecture 14</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture15/">Lecture 15</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture16/">Lecture 16</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture17/">Lecture 17</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/">Lecture 18</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture19/">Lecture 19</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture20/">Lecture 20</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture21/">Lecture 21</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture22/">Lecture 22</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture23/">Lecture 23</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture24/">Lecture 24</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture25/">Lecture 25</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/papers/">Papers</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/#" id="nav-dropdown-sections" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Sections
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-sections">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section1/">Section 1</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section2/">Section 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section3/">Section 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section4/">Section 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section5/">Section 5</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section6/">Section 6</a>
+    
+    </div>
+  </li>
+
+    </ul>
+  </div>
+</nav>
+
+
+<div class="container">
+    <h1><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/">Lecture 7</a></h1>
+    <div class="post">
+        <h2 id="buddy-allocator-testing">Buddy allocator testing</h2>
+
+<p>Swap your <a href="https://read.seas.harvard.edu/cs161-18/pset2">buddy allocator</a> <code>test_kalloc</code> function with another group.</p>
+
+<ol>
+<li>Group up with another group of students. (2 minutes)</li>
+<li>Using a whiteboard, describe your testing strategy (whether implemented or
+not). (10 minutes)</li>
+<li>Swap test implementations and run them. Do you find any bugs? If there
+aren’t implementations to swap, then come up with an improvement to one or
+the other testing strategy. (15–20 minutes)</li>
+<li>Present your findings to the class. (10 minutes)</li>
+</ol>
+
+<div class="has-solution"><blockquote class="solution-collapsed js-solution show"><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/" class="js-solution show">Show notes</a></blockquote><blockquote class="hidden solution" data-hide-text="Hide notes" data-show-text="Show notes">
+<p>No one fully swapped test functions successfully, largely because everyone’s
+tests depended on code internals. But discussing testing strategies did
+reveal some bugs where one team hadn’t considered a case.</p>
+
+<p>We also discussed general testing strategies and patterns. Highlights:</p>
+
+<ul>
+<li><p>Write <em>validators</em> that verify the internal state of your system. For
+example, a buddy allocator validator might walk over the entire <code>pages</code>
+array, validating invariants such as:</p>
+
+<ul>
+<li>Every block’s order is in range.</li>
+<li>The buddy of a block of order <span class="math"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>o</mi></mrow><annotation encoding="application/x-tex">o</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.43056em; vertical-align: 0em;"></span><span class="mord mathdefault">o</span></span></span></span></span> has order <span class="math"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>≤</mo><mi>o</mi></mrow><annotation encoding="application/x-tex">\leq o</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.77194em; vertical-align: -0.13597em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right: 0.277778em;"></span></span><span class="base"><span class="strut" style="height: 0.43056em; vertical-align: 0em;"></span><span class="mord mathdefault">o</span></span></span></span></span>.</li>
+<li>If a block of order <span class="math"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>o</mi></mrow><annotation encoding="application/x-tex">o</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.43056em; vertical-align: 0em;"></span><span class="mord mathdefault">o</span></span></span></span></span> is free, then either its buddy is allocated
+or its buddy has lower order.</li>
+<li>Free blocks only contain <code>mem_available</code> memory.</li>
+</ul>
+
+<p>And it might walk over the free lists, validating invariants such as:</p>
+
+<ul>
+<li>Every block on the free list for order <span class="math"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>o</mi></mrow><annotation encoding="application/x-tex">o</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.43056em; vertical-align: 0em;"></span><span class="mord mathdefault">o</span></span></span></span></span> has order <span class="math"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>o</mi></mrow><annotation encoding="application/x-tex">o</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.43056em; vertical-align: 0em;"></span><span class="mord mathdefault">o</span></span></span></span></span>.</li>
+</ul></li>
+
+<li><p>Use <em>cross-checking invariants</em>. For example, our buddy allocator design
+has two data structures, the <code>pages</code> array and the free lists, that can be
+cross-checked: every block that’s free according to <code>pages</code> should be in
+some free list, and vice versa.</p>
+
+<p>Precise cross-checking invariants can be expensive or painful to verify,
+but simpler variants are often almost as good. For example, one could
+compute the total amount of free memory in <code>pages</code> and compare that to
+the total amount of free memory in free lists; these values should be equal.
+Though less precise than checking the one-to-one
+correspondence between <code>pages</code> and free lists, the total-free-memory test is still pretty good.</p></li>
+
+<li><p>Random testing (e.g., randomly allocating a bunch of different-sized memory,
+then freeing it, or freeing and allocating it) is a powerful tool.</p></li>
+
+<li><p>Consider building your code so that it can be tested independently,
+outside of Chickadee. This can simplify debugging and is independently
+useful. The concept is called <em>unit testing</em>.</p></li>
+</ul>
+
+<p>Reading: <a href="https://blog.regehr.org/archives/1091">John Regehr on assertions</a></p>
+<p><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/" class="js-solution hide">Hide notes</a></p></blockquote></div>
+
+<h2 id="using-list">Using <code>list</code></h2>
+
+<p>Change the kernel’s per-CPU run queue to use <code>list</code> and <code>list_links</code> rather
+than the current hand-built doubly-linked list. (10 minutes)</p>
+
+<div class="has-solution"><blockquote class="solution-collapsed js-solution show"><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/" class="js-solution show">Show solution</a></blockquote><blockquote class="hidden solution">
+<p>The <code>list</code> template has two parts, a <code>list_links</code> member for next and
+previous links and <code>list</code> template for the list head. The per-CPU run queue
+is a list of <code>proc</code>s, with the list head and tail stored in the <code>cpustate</code>.
+So we just stick a <code>list</code> in the <code>cpustate</code> and a <code>list_links</code> in the <code>proc</code>.
+Here’s the diff; you can see it on GitHub on <a href="https://github.com/cs161/chickadee/tree/runqueue-list">branch <code>runqueue-list</code></a>:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#000080;font-weight:bold">diff --git a/k-cpu.cc b/k-cpu.cc
+</span><span style="color:#000080;font-weight:bold">index 3793039..9080db6 100644
+</span><span style="color:#000080;font-weight:bold"></span><span style="color:#a00000">--- a/k-cpu.cc
+</span><span style="color:#a00000"></span><span style="color:#00a000">+++ b/k-cpu.cc
+</span><span style="color:#00a000"></span><span style="color:#800080;font-weight:bold">@@ -27,8 +27,6 @@ void cpustate::init() {
+</span><span style="color:#800080;font-weight:bold"></span>     self_ = this;
+     current_ = nullptr;
+     index_ = this - cpus;
+<span style="color:#a00000">-    runq_head_ = nullptr;
+</span><span style="color:#a00000">-    runq_tail_ = nullptr;
+</span><span style="color:#a00000"></span>     runq_lock_.clear();
+     idle_task_ = nullptr;
+     nschedule_ = 0;
+<span style="color:#800080;font-weight:bold">@@ -46,10 +44,7 @@ void cpustate::init() {
+</span><span style="color:#800080;font-weight:bold"></span> 
+ void cpustate::enqueue(proc* p) {
+     assert(p-&gt;resumable() || p-&gt;state_ != proc::runnable);
+<span style="color:#a00000">-    assert(!p-&gt;runq_pprev_);
+</span><span style="color:#a00000">-    p-&gt;runq_pprev_ = runq_head_ ? &amp;runq_tail_-&gt;runq_next_ : &amp;runq_head_;
+</span><span style="color:#a00000">-    p-&gt;runq_next_ = nullptr;
+</span><span style="color:#a00000">-    *p-&gt;runq_pprev_ = runq_tail_ = p;
+</span><span style="color:#a00000"></span><span style="color:#00a000">+    runq_.push_back(p);
+</span><span style="color:#00a000"></span> }
+ 
+ 
+<span style="color:#800080;font-weight:bold">@@ -93,17 +88,9 @@ void cpustate::schedule(proc* yielding_from) {
+</span><span style="color:#800080;font-weight:bold"></span>             // switch to a safe page table
+             lcr3(ktext2pa(early_pagetable));
+         }
+<span style="color:#a00000">-        if (runq_head_) {
+</span><span style="color:#a00000"></span><span style="color:#00a000">+        if (!runq_.empty()) {
+</span><span style="color:#00a000"></span>             // pop head of run queue into `current_`
+<span style="color:#a00000">-            current_ = runq_head_;
+</span><span style="color:#a00000">-            runq_head_ = runq_head_-&gt;runq_next_;
+</span><span style="color:#a00000">-            if (runq_head_) {
+</span><span style="color:#a00000">-                runq_head_-&gt;runq_pprev_ = &amp;runq_head_;
+</span><span style="color:#a00000">-            } else {
+</span><span style="color:#a00000">-                runq_tail_ = nullptr;
+</span><span style="color:#a00000">-            }
+</span><span style="color:#a00000">-            current_-&gt;runq_next_ = nullptr;
+</span><span style="color:#a00000">-            current_-&gt;runq_pprev_ = nullptr;
+</span><span style="color:#a00000"></span><span style="color:#00a000">+            current_ = runq_.pop_front();
+</span><span style="color:#00a000"></span>         }
+         runq_lock_.unlock_noirq();
+ 
+<span style="color:#000080;font-weight:bold">diff --git a/k-proc.cc b/k-proc.cc
+</span><span style="color:#000080;font-weight:bold">index 9f8c37f..23775b0 100644
+</span><span style="color:#000080;font-weight:bold"></span><span style="color:#a00000">--- a/k-proc.cc
+</span><span style="color:#a00000"></span><span style="color:#00a000">+++ b/k-proc.cc
+</span><span style="color:#00a000"></span><span style="color:#800080;font-weight:bold">@@ -60,8 +60,7 @@ void proc::init_user(pid_t pid, x86_64_pagetable* pt) {
+</span><span style="color:#800080;font-weight:bold"></span> 
+     pagetable_ = pt;
+ 
+<span style="color:#a00000">-    runq_pprev_ = nullptr;
+</span><span style="color:#a00000">-    runq_next_ = nullptr;
+</span><span style="color:#a00000"></span><span style="color:#00a000">+    runq_links_.reset();
+</span><span style="color:#00a000"></span> }
+ 
+ 
+<span style="color:#800080;font-weight:bold">@@ -91,8 +90,7 @@ void proc::init_kernel(pid_t pid, void (*f)(proc*)) {
+</span><span style="color:#800080;font-weight:bold"></span> 
+     pagetable_ = early_pagetable;
+ 
+<span style="color:#a00000">-    runq_pprev_ = nullptr;
+</span><span style="color:#a00000">-    runq_next_ = nullptr;
+</span><span style="color:#a00000"></span><span style="color:#00a000">+    runq_links_.reset();
+</span><span style="color:#00a000"></span> }
+ 
+ 
+<span style="color:#000080;font-weight:bold">diff --git a/kernel.hh b/kernel.hh
+</span><span style="color:#000080;font-weight:bold">index efa8852..b67ff04 100644
+</span><span style="color:#000080;font-weight:bold"></span><span style="color:#a00000">--- a/kernel.hh
+</span><span style="color:#a00000"></span><span style="color:#00a000">+++ b/kernel.hh
+</span><span style="color:#00a000"></span><span style="color:#800080;font-weight:bold">@@ -3,6 +3,7 @@
+</span><span style="color:#800080;font-weight:bold"></span> #include "x86-64.h"
+ #include "lib.hh"
+ #include "k-lock.hh"
+<span style="color:#00a000">+#include "k-list.hh"
+</span><span style="color:#00a000"></span> #include "k-memrange.hh"
+ #if CHICKADEE_PROCESS
+ #error "kernel.hh should not be used by process code."
+<span style="color:#800080;font-weight:bold">@@ -27,8 +28,7 @@ struct __attribute__((aligned(4096))) cpustate {
+</span><span style="color:#800080;font-weight:bold"></span>     int index_;
+     int lapic_id_;
+ 
+<span style="color:#a00000">-    proc* runq_head_;
+</span><span style="color:#a00000">-    proc* runq_tail_;
+</span><span style="color:#a00000"></span><span style="color:#00a000">+    list&lt;proc, &amp;proc::runq_links_&gt; runq_;
+</span><span style="color:#00a000"></span>     spinlock runq_lock_;
+     unsigned long nschedule_;
+     proc* idle_task_;
+<span style="color:#800080;font-weight:bold">@@ -79,8 +79,7 @@ struct __attribute__((aligned(4096))) proc {
+</span><span style="color:#800080;font-weight:bold"></span>     state_t state_;                    // process state
+     x86_64_pagetable* pagetable_;      // process's page table
+ 
+<span style="color:#a00000">-    proc** runq_pprev_;
+</span><span style="color:#a00000">-    proc* runq_next_;
+</span><span style="color:#a00000"></span><span style="color:#00a000">+    list_links runq_links_;
+</span><span style="color:#00a000"></span> 
+ 
+     proc();
+</code></pre></div>
+<p>Some notes.</p>
+
+<ol>
+<li><p>The full diff is larger because of “header soup” (an
+ordering dependency between declarations). Specifically, the <code>runq_</code> list
+relies on the internal layout of <code>proc</code>, so we must switch the declaration
+order and declare <code>proc</code> before we declare <code>cpustate</code>.</p></li>
+
+<li><p>The <code>cpustate::runq_</code> member is <em>automatically</em> initialized.
+Since the <code>cpus</code> array is a global, C++ and Chickadee have automatically
+called the <code>cpustate::cpustate</code> <a href="https://read.seas.harvard.edu/cs161-18/doc/cplusplus#constructors">constructor</a>
+for each member of the array. The <code>cpustate</code> constructor in turn called the
+<code>list</code> constructor on <code>runq_</code>, which initialized the list to empty.</p>
+
+<p>(In more detail, the C++ compiler generated a function that called the
+<code>cpustate::cpustate</code> constructor for every element of <code>cpus</code>, then
+emitted the address of that function to a special object code region,
+<code>.init_array</code>. Chickadee’s <code>init_constructors</code> in <code>k-init.cc</code> calls
+every function in that array.)</p></li>
+
+<li><p>We <em>explicitly</em> initialize the <code>proc::runq_links_</code> member by calling
+<code>runq_links_.reset()</code>. <code>proc</code>, unlike <code>cpustate</code>, is <em>dynamically</em>
+allocated like so:</p>
+
+<div class="githubref"><a href="https://github.com/cs161/chickadee/blob/pset1-2018/kernel.cc#L44">kernel.cc:44</a></div>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">proc<span style="color:#666">*</span> p <span style="color:#666">=</span> ptable[pid] <span style="color:#666">=</span> <span style="color:#007020;font-weight:bold">reinterpret_cast</span><span style="color:#666">&lt;</span>proc<span style="color:#666">*&gt;</span>(kallocpage());
+</code></pre></div>
+<p>When we create a <code>proc</code> by casting freshly-allocated memory, the compiler
+will not call the constructor automatically.</p></li>
+
+<li><p>However, it’s best to ensure the constructor is called. The new <code>kalloc_proc</code>
+function does this:</p>
+
+<div class="githubref"><a href="https://github.com/cs161/chickadee/blob/e9de3621aae8bef644433ee69f44ec3d2eea8aed/k-proc.cc#L18">k-proc.cc:18</a></div>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">proc<span style="color:#666">*</span> <span style="color:#06287e">kalloc_proc</span>() {
+    <span style="color:#902000">void</span><span style="color:#666">*</span> ptr <span style="color:#666">=</span> kallocpage();
+    <span style="color:#007020;font-weight:bold">if</span> (ptr) {
+        <span style="color:#007020;font-weight:bold">return</span> <span style="color:#007020;font-weight:bold">new</span> (ptr) proc;
+    } <span style="color:#007020;font-weight:bold">else</span> {
+        <span style="color:#007020;font-weight:bold">return</span> <span style="color:#007020;font-weight:bold">nullptr</span>;
+    }
+}
+</code></pre></div>
+<p>The funny <code>new</code> syntax, which is called <em>placement <code>new</code></em>, tells C++ to
+initialize a given piece of memory (here, <code>ptr</code>) as a <code>proc</code>
+by calling the <code>proc::proc</code> constructor. If you use <code>kalloc_proc</code>, then
+<code>proc::runq_links_</code> <em>will</em> be initialized automatically.</p></li>
+</ol>
+<p><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/" class="js-solution hide">Hide solution</a></p></blockquote></div>
+
+<h2 id="sleep-debugging">Sleep debugging</h2>
+
+<p>Implement <a href="https://read.seas.harvard.edu/cs161-18/pset2#c-sleep">Part C of the problem set</a>. Your work should go
+quickly, and then you might get stuck at the warning. Try to debug this
+problem; write down your debugging process. (20 minutes)</p>
+
+<div class="has-solution"><blockquote class="solution-collapsed js-solution show"><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/" class="js-solution show">Show solution</a></blockquote><blockquote class="hidden solution">
+<p>We implemented the <code>SYSCALL_MSLEEP</code> system call like this:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">    <span style="color:#007020;font-weight:bold">case</span> <span style="color:#002070;font-weight:bold">SYSCALL_MSLEEP</span>: {
+        <span style="color:#902000">unsigned</span> <span style="color:#902000">long</span> want_ticks <span style="color:#666">=</span> ticks <span style="color:#666">+</span> (regs<span style="color:#666">-&gt;</span>reg_rdi <span style="color:#666">+</span> <span style="color:#40a070">9</span>) <span style="color:#666">/</span> <span style="color:#40a070">10</span>;
+        <span style="color:#007020;font-weight:bold">while</span> (<span style="color:#902000">long</span>(want_ticks <span style="color:#666">-</span> ticks) <span style="color:#666">&gt;</span> <span style="color:#40a070">0</span>) {
+            <span style="color:#007020;font-weight:bold">this</span><span style="color:#666">-&gt;</span>yield();
+        }
+        <span style="color:#007020;font-weight:bold">return</span> <span style="color:#40a070">0</span>;
+    }
+</code></pre></div>
+<blockquote>
+<p><strong>Sidebar</strong>: The expression <code>long(want_ticks - ticks) &gt; 0</code> is like
+“<code>want_ticks &gt; ticks</code>”, but works even if <code>ticks</code> overflows. It’s a common pattern
+when comparing overflow-prone counters (for instance, it’s used for
+of TCP sequence numbers). In C/C++, it requires unsigned
+counter types; overflow on signed types is undefined behavior.</p>
+</blockquote>
+
+<p>When we first ran this code, nothing happened!!</p>
+
+<p>A good debugging process resembles applying the scientific method: propose a
+hypothesis, try to disprove it with experiment, and repeat. We first
+hypothesized that <code>proc::yield</code> didn’t return (run queue coruption?); we
+added a <code>log_printf</code> to see:</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">    <span style="color:#007020;font-weight:bold">case</span> <span style="color:#002070;font-weight:bold">SYSCALL_MSLEEP</span>: {
+        <span style="color:#902000">unsigned</span> <span style="color:#902000">long</span> want_ticks <span style="color:#666">=</span> ticks <span style="color:#666">+</span> (regs<span style="color:#666">-&gt;</span>reg_rdi <span style="color:#666">+</span> <span style="color:#40a070">9</span>) <span style="color:#666">/</span> <span style="color:#40a070">10</span>;
+        <span style="color:#007020;font-weight:bold">while</span> (<span style="color:#902000">long</span>(want_ticks <span style="color:#666">-</span> ticks) <span style="color:#666">&gt;</span> <span style="color:#40a070">0</span>) {
+            <span style="color:#007020;font-weight:bold">this</span><span style="color:#666">-&gt;</span>yield();
+            log_printf(<span style="color:#4070a0">"%d: ticks %lu</span><span style="color:#4070a0;font-weight:bold">\n</span><span style="color:#4070a0">"</span>, pid_, ticks); <span style="color:#60a0b0;font-style:italic">// ********
+</span><span style="color:#60a0b0;font-style:italic"></span>        }
+        <span style="color:#007020;font-weight:bold">return</span> <span style="color:#40a070">0</span>;
+    }
+</code></pre></div>
+<p>The hypothesis was disproved: we saw many printouts from <code>p-testmsleep</code> and
+all of its children. But, <em>against</em> our expectation, the <code>ticks</code> variable
+<em>never changed</em>, or it changed only very very slowly.</p>
+
+<p>The <code>ticks</code> variable is changed by the timer interrupt handler, so a natural
+hypothesis is that timer interrupts are not being delivered—perhaps they are
+disabled. This seems a likely possibility, since the kernel runs with
+interrupts disabled by default. To confirm or disprove it, we ran the
+<code>sys_msleep</code> system call with interrupts <em>enabled</em>. If the bug were to
+persist, we’d need to find another culprit.</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">    <span style="color:#007020;font-weight:bold">case</span> <span style="color:#002070;font-weight:bold">SYSCALL_MSLEEP</span>: {
+        <span style="color:#902000">unsigned</span> <span style="color:#902000">long</span> want_ticks <span style="color:#666">=</span> ticks <span style="color:#666">+</span> (regs<span style="color:#666">-&gt;</span>reg_rdi <span style="color:#666">+</span> <span style="color:#40a070">9</span>) <span style="color:#666">/</span> <span style="color:#40a070">10</span>;
+        sti(); <span style="color:#60a0b0;font-style:italic">// ********
+</span><span style="color:#60a0b0;font-style:italic"></span>        <span style="color:#007020;font-weight:bold">while</span> (<span style="color:#902000">long</span>(want_ticks <span style="color:#666">-</span> ticks) <span style="color:#666">&gt;</span> <span style="color:#40a070">0</span>) {
+            <span style="color:#007020;font-weight:bold">this</span><span style="color:#666">-&gt;</span>yield();
+            log_printf(<span style="color:#4070a0">"%d: ticks %lu</span><span style="color:#4070a0;font-weight:bold">\n</span><span style="color:#4070a0">"</span>, pid_, ticks);
+        }
+        <span style="color:#007020;font-weight:bold">return</span> <span style="color:#40a070">0</span>;
+    }
+</code></pre></div>
+<p>When we ran this code everything immediately worked as expected.</p>
+
+<h3 id="analysis">Analysis</h3>
+
+<p>You might conclude that any frequently-blocking kernel
+code should enable interrupts. And that is arguably true! But a kernel that
+fails, in a difficult-to-understand and profound way, given a pretty reasonable
+system call implementation, is not <em>robust</em>. It would be far better to
+adapt the kernel so that this bug could not happen, or would cause an
+assertion failure of some kind.</p>
+
+<p>We chose to prevent the bug using <a href="https://github.com/CS161/chickadee/commit/68ea29969567a34a4149d3e47ca1647ac2f6fc26">this commit</a>, which you should consider and understand.</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#a00000">--- a/k-exception.S
+</span><span style="color:#a00000"></span><span style="color:#00a000">+++ b/k-exception.S
+</span><span style="color:#00a000"></span><span style="color:#800080;font-weight:bold">@@ -230,7 +230,19 @@ _ZN4proc5yieldEv:
+</span><span style="color:#800080;font-weight:bold"></span>         pushq %rbx
+         pushq %rbp
+ 
+<span style="color:#a00000">-        // disable interrupts, store yieldstate pointer,
+</span><span style="color:#a00000"></span><span style="color:#00a000">+        // check if interrupts are disabled
+</span><span style="color:#00a000">+        testq $EFLAGS_IF, 48(%rsp)
+</span><span style="color:#00a000">+        jnz 1f
+</span><span style="color:#00a000">+        // if interrupts are disabled, momentarily enable them.
+</span><span style="color:#00a000">+        // This bounds interrupt delay to the time it takes a
+</span><span style="color:#00a000">+        // single kernel task to yield.
+</span><span style="color:#00a000">+        // Note that `sti; cli` would not work! `sti` only enables
+</span><span style="color:#00a000">+        // external, maskable interrupts at the end of the *next*
+</span><span style="color:#00a000">+        // instruction. A no-op instruction is required.
+</span><span style="color:#00a000">+        sti
+</span><span style="color:#00a000">+        movq (%rsp), %rax     // any delayed interrupts will happen here
+</span><span style="color:#00a000">+
+</span><span style="color:#00a000">+1:      // disable interrupts, store yieldstate pointer,
+</span><span style="color:#00a000"></span>         // switch to cpustack
+         cli
+         movq %rsp, 16(%rdi)
+</code></pre></div>
+<p>This change to <code>proc::yield</code> enforces a bound on the amount of time
+interrupts can be disabled. Before the commit, interrupts could remain
+disabled for <em>unbounded</em> lengths of time, if processes with interrupts
+disabled yielded to one another. After the commit, interrupts can remain
+disabled for at most the length of time it takes a single process to yield.</p>
+<p><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/" class="js-solution hide">Hide solution</a></p></blockquote></div>
+
+    </div>
+</div>
+
+        <script src="./lec07 - Buddy allocator testing_files/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="./lec07 - Buddy allocator testing_files/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="./lec07 - Buddy allocator testing_files/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+        <script src="./lec07 - Buddy allocator testing_files/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
+        <script>(function () {
+        $(".math").each(function () {
+            var t = this.innerText,
+                opt = {throwOnError: false, displayMode: t.substr(0, 2) === "\\["};
+            katex.render(t.replace(/(?:^\\\(|^\\\[|\\\)$|\\\]$)/g, ""), this, opt);
+        });
+        function sol_toggle(sol, hide, storage) {
+            sol.childNodes[0].classList.toggle("hidden", !hide);
+            sol.childNodes[0].classList.toggle("shown", hide);
+            sol.childNodes[1].classList.toggle("hidden", hide);
+            sol.childNodes[1].classList.toggle("shown", !hide);
+            if (storage) {
+                var key = location.href + " " + $(".has-solution").index(sol);
+                if (hide)
+                    sessionStorage.removeItem(key);
+                else
+                    sessionStorage.setItem(key, true);
+            }
+        }
+        $(".solution").each(function () {
+            $(this).wrap('<div class="has-solution"></div>');
+            var sol = this.parentElement;
+            $(sol).prepend('<blockquote class="solution-collapsed js-solution show"><a href="" class="js-solution show"></a></blockquote>');
+            $(this).append('<p><a href="" class="js-solution hide"></a></p>');
+            $(sol).find("a.js-solution.show").text(this.getAttribute("data-show-text") || "Show solution");
+            $(sol).find("a.js-solution.hide").text(this.getAttribute("data-hide-text") || "Hide solution");
+            var key = location.href + " " + $(".has-solution").index(sol);
+            if (sessionStorage.getItem(key))
+                sol_toggle(sol, false, false);
+        });
+        $(document).on("click", ".js-solution", function (event) {
+            var sol = $(this).closest(".has-solution")[0];
+            sol_toggle(sol, this.classList.contains("hide"), true);
+            event.preventDefault();
+        });
+        })()</script>
+    
+
+
+</body></html>

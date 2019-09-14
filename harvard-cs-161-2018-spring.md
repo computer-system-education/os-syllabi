@@ -14,28 +14,51 @@
 2. x86-64 page tables
 3. Task switching and %gs register
 4. Boot process and memory layout
-5. Task switching exercises
-6. Meltdown
+5. (Exercises)
+6. Task switching exercises
 7. Buddy allocator testing
-9. Wait queues
+8. Wait queues
 9. Debugging in real operating systems
 10. Virtual file system design
-11. The microkernel debate
-12. File system disk structures
-13. Lambdas, virtual functions, and reference counting
-14. VFS design tournament
-15. File system correctness and speed
-16. Kernels and programming languages
-17. NCQ and journal design
-18. Large-scale file systems and GFS
-19. Kernel and file system bugs
-20. Scheduling and BVT
-21. System call performance
-22. Lock design
-23. Scalability
-24. Scalable and read-write locks
-25. RCU
-26. System call design, file system invariants
-27. Networking
-29. Containers
-30. Virtualization 
+11. File system disk structures
+12. Lambdas, virtual functions, and reference counting
+13. VFS design tournament
+14. File system correctness and speed
+15. NCQ and journal design
+16. Large-scale file systems and GFS
+17. Scheduling and BVT
+18. System call performance
+19. Lock design
+    - Multicore
+    - MESI protocol
+    - Cacheline bouncing problem
+    - False sharing
+    - Atomic instruction
+    - Spinlock
+    - Memory models
+    - Ticket lock
+20. Scalable and read-write locks
+    - Locking characteristics
+    - Throughput vs. latency
+    - Simple lock
+    - Ticket lock
+    - MCS lock
+    - Futex
+    - Read-write locking
+21. RCU
+    - RCU implementation
+22. System call design, file system invariants
+23. Networking
+24. (Special seminar: Mothy Roscoe talk)
+25. Virtualization 
+
+
+
+## Section
+
+1. Meltdown
+2. The microkernel debate
+3. Kernels and programming languages
+4. Kernel and file system bugs
+5. Scalability
+6. Containers

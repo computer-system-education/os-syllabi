@@ -1,0 +1,109 @@
+@import url("https://use.typekit.net/jlb5olz.css");
+
+ol > li > ol {
+	list-style-type: lower-alpha;
+}
+p + ol, p + ul {
+	margin-bottom: 1rem;
+}
+p:last-child {
+	margin-bottom: 0.5rem;
+}
+blockquote {
+	margin-left: 2rem;
+	padding-left: 1rem;
+	border-left: 0.25rem solid rgba(0, 0, 80, 0.25);
+}
+.hidden {
+	display: none;
+}
+.solution.shown, .solution-collapsed.shown {
+	animation: slide-down .3s ease-out;
+}
+.solution, blockquote.highlight {
+	border-left: 0.25rem solid rgba(255, 255, 0, 0.5);
+	background: #fffff0;
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	padding-right: 1rem;
+}
+.solution-collapsed {
+	background: #f0f0ff;
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	padding-right: 1rem;
+}
+.githubref {
+	text-align: right;
+	margin-top: -0.5rem;
+	font-style: italic;
+	font-size: 0.75rem;
+}
+@keyframes slide-down {
+	0% { opacity: 0; }
+	100% { opacity: 1; }
+}
+.post {
+	margin-bottom: 3rem;
+}
+.post img {
+	max-width: 100%;
+}
+.tall > img {
+	max-height: 50vh;
+}
+h1, h2, h3, h4 {
+	font-family: "brix-slab", sans-serif;
+}
+h1 {
+	font-weight: 900;
+}
+h2 {
+	margin-top: 3rem;
+	font-weight: 700;
+}
+h2:first-child {
+	margin-top: 0;
+}
+.h3, h3 {
+	font-size: 1.5rem;
+}
+.h4, h4 {
+	font-size: 1.25rem;
+	font-style: italic;
+}
+h3 > code {
+	color: inherit;
+}
+.container th, .container td {
+	padding: 0.15rem 1.5rem 0.15rem 0;
+}
+.container table {
+	margin: 0.85rem 0;
+	border-spacing: 0;
+}
+.navbar {
+	background: #ddddee;
+	margin-bottom: 1rem;
+}
+
+@media print {
+html {
+	font-size: 125%;
+}
+h1 {
+	font-size: 2rem;
+}
+h2 {
+	font-size: 1.5rem;
+	margin-top: 2rem;
+}
+.prbr {
+	page-break-before: always;
+	margin-top: 0;
+}
+@page {
+	margin-top: 0.75in;
+	margin-bottom: 0.75in;
+}
+}

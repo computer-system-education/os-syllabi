@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<!-- saved from url=(0071)https://courses.cs.washington.edu/courses/cse451/18au/notes/vm-ext.html -->
+<html lang="en" class="gr__courses_cs_washington_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>CSE 451</title>
+  <meta name="description" content="Operating Systems">
+
+  <link rel="canonical" href="https://courses.cs.washington.edu/courses/cse451/18au/notes/vm-ext.html">
+
+  <link href="./lec06-virtual memory Q&amp;A_files/icon" rel="stylesheet">
+
+  <link href="./lec06-virtual memory Q&amp;A_files/css" rel="stylesheet" type="text/css">
+  <link href="./lec06-virtual memory Q&amp;A_files/css(1)" rel="stylesheet" type="text/css">
+
+  <link href="./lec06-virtual memory Q&amp;A_files/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./lec06-virtual memory Q&amp;A_files/main.css">
+
+  <script>window.q = []; window.$ = function(f) { q.push(f); }</script>
+<style type="text/css" id="eaed8159-3ce8-4560-9249-cef4cd6e0de1">.d01ef550-5eac-4889-8427-4d0e02bdcfab { position: relative !important; border-radius: 0.2em !important; padding: 0px !important; margin: 0px !important; }
+
+.d05a9fcc-e8e0-4b75-9a86-930c11334713 .ssh-close { position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; z-index: 999; border: none; background: url("data:image/png;base64,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") no-repeat border-box; animation-duration: 275ms; animation-timing-function: ease-out; box-shadow: none; animation-name: eff49199-6658-4215-be04-34958174310f; }
+
+.d05a9fcc-e8e0-4b75-9a86-930c11334713 .ssh-close:hover, .d05a9fcc-e8e0-4b75-9a86-930c11334713 .ssh-close:focus { background-image: url("data:image/png;base64,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"); }
+
+@media print {
+  .d05a9fcc-e8e0-4b75-9a86-930c11334713 { box-shadow: unset !important; -webkit-print-color-adjust: exact !important; }
+}
+
+@keyframes eff49199-6658-4215-be04-34958174310f { 
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes a8d40b7d-ea09-4289-a816-ccc588340780 { 
+  100% { opacity: 0; transform: scale(0.3); }
+}
+
+.d05a9fcc-e8e0-4b75-9a86-930c11334713 { background-color: rgba(238, 238, 238, 0.8); color: rgb(170, 170, 170); font: inherit; box-shadow: rgb(238, 238, 238) 0px 0px 0.35em; text-shadow: none !important; }
+
+.default-red-aa94e3d5-ab2f-4205-b74e-18ce31c7c0ce { box-shadow: rgb(255, 128, 128) 0px 0px 0.35em; background-color: rgba(255, 128, 128, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-orange-da01945e-1964-4d27-8a6c-3331e1fe7f14 { box-shadow: rgb(255, 210, 170) 0px 0px 0.35em; background-color: rgba(255, 210, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-yellow-aaddcf5c-0e41-4f83-8a64-58c91f7c6250 { box-shadow: rgb(255, 255, 170) 0px 0px 0.35em; background-color: rgba(255, 255, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-green-c4d41e0a-e40f-4c3f-91ad-2d66481614c2 { box-shadow: rgb(170, 255, 170) 0px 0px 0.35em; background-color: rgba(170, 255, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-cyan-f88e8827-e652-4d79-a9d9-f6c8b8ec9e2b { box-shadow: rgb(170, 255, 255) 0px 0px 0.35em; background-color: rgba(170, 255, 255, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-purple-c472dcdb-f2b8-41ab-bb1e-2fb293df172a { box-shadow: rgb(255, 170, 255) 0px 0px 0.35em; background-color: rgba(255, 170, 255, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-grey-da7cb902-89c6-46fe-b0e7-d3b35aaf237a { box-shadow: rgb(119, 119, 119) 0px 0px 0.35em; background-color: rgba(119, 119, 119, 0.8) !important; color: rgb(255, 255, 255) !important; }</style></head>
+
+
+  <body data-gr-c-s-loaded="true">
+
+    <header class="site-header">
+
+<nav class="navbar navbar-expand-md navbar-dark fixed-top">
+  <a class="navbar-brand" href="https://courses.cs.washington.edu/courses/cse451/18au/">CSE 451: Operating Systems</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav nav-pills mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="https://courses.cs.washington.edu/courses/cse451/18au/index.html">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://courses.cs.washington.edu/courses/cse451/18au/overview.html">Overview</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://courses.cs.washington.edu/courses/cse451/18au/schedule.html">Schedule</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://courses.cs.washington.edu/courses/cse451/18au/exercises/">Exercises</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://courses.cs.washington.edu/courses/cse451/18au/labs/">Labs</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://courses.cs.washington.edu/courses/cse451/18au/readings/">Readings</a>
+      </li>
+    </ul>
+  </div>
+  <span class="navbar-text d-none d-md-block"><a>18au</a></span>
+</nav>
+
+</header>
+
+
+    <div class="container">
+    <h1 id="lecture-virtual-memory-qa">Lecture: virtual memory Q&amp;A</h1>
+
+<h2 id="preparation">preparation</h2>
+
+<ul>
+  <li>read OSPP §9, <em>Caching and Virtual Memory</em> and §10, Applications of <em>Memory Management</em></li>
+</ul>
+
+<h2 id="lab-2">lab 2</h2>
+
+<ul>
+  <li><code class="highlighter-rouge">boot_alloc()</code>: what should it “allocate” &amp; return</li>
+  <li><code class="highlighter-rouge">pgdir_walk()</code>: why to allocate “a new page table page”</li>
+  <li>think twice whether an address is virtual or physical
+    <ul>
+      <li>addresses from e820 - virtual or physical?</li>
+      <li>if you are directly casting between integers and pointers, it’s often wrong!</li>
+    </ul>
+  </li>
+  <li>make sure you understand exercise 8, lab 1
+    <ul>
+      <li>it’s easy to “understand” the high-level concepts; implementing them is another story</li>
+      <li>go to office hours or schedule extra hours</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="virtual-memory-recap">virtual memory recap</h2>
+
+<ul>
+  <li>CPU asks OS to set up a data structure for VA → PA</li>
+  <li>isolation: each process has its own address space
+    <ul>
+      <li>per-process page table; flags (P/W/U/…)</li>
+      <li>switch page table with process</li>
+      <li>xv6
+        <ul>
+          <li><code class="highlighter-rouge">struct proc</code> in <code class="highlighter-rouge">proc.h</code></li>
+          <li><code class="highlighter-rouge">scheduler()</code> → <code class="highlighter-rouge">switchuvm(p)</code> → <code class="highlighter-rouge">lcr3(v2p(p-&gt;pgdir))</code></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>exercise: re-read chapter 2 of the xv6 book
+    <ul>
+      <li>what’s the initial setup in <code class="highlighter-rouge">entrypgdir</code>?</li>
+      <li>focus on <code class="highlighter-rouge">kinit1()</code> and <code class="highlighter-rouge">kvmalloc()</code> in <code class="highlighter-rouge">main()</code>, <code class="highlighter-rouge">main.c</code></li>
+      <li>a few questions to help you understand the code
+        <ul>
+          <li>how does xv6 alloc/free physical memory</li>
+          <li>how does the free list work</li>
+          <li>in <code class="highlighter-rouge">walkpgdir()</code>, are the permissions <code class="highlighter-rouge">PTE_P | PTE_W | PTE_U</code> correct (overly generous)?</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="example-page-fault">example: page fault</h2>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">volatile</span> <span class="kt">char</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="k">volatile</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="mh">0xcafebeef</span><span class="p">;</span>
+<span class="n">cprintf</span><span class="p">(</span><span class="s">"XXX: %x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">);</span></code></pre></figure>
+
+<ul>
+  <li>add the above code to <code class="highlighter-rouge">i386_init</code> and see what happens</li>
+  <li>invalid read/write
+    <ul>
+      <li>add two lines of code in JOS to read an invalid address</li>
+      <li>with unpatched QEMU: reboot</li>
+      <li>with patched QEMU: stop &amp; print registers
+        <ul>
+          <li>useful for debugging</li>
+          <li>what are the values of CR2, CR3, EIP</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="examples-protection-virtualization-lazy-allocation">examples: protection, virtualization, lazy allocation</h2>
+
+<ul>
+  <li>kernel runs in high virtual addresses
+    <ul>
+      <li>kernel is mapped into every process’s address space - why?</li>
+      <li>commonly used by today’s OSes - why high VAs for the kernel</li>
+      <li>how does the kernel set this up - see comments in <code class="highlighter-rouge">kern/entry.S </code> in JOS</li>
+    </ul>
+  </li>
+  <li>protect against stack overflow
+    <ul>
+      <li>see Michael Barr’s <a href="http://www.safetyresearch.net/Library/BarrSlides_FINAL_SCRUBBED.pdf">Bookout v. Toyota</a>, “Toyota’s major stack mistakes”</li>
+      <li>trick: put a non-mapped page right below user stack</li>
+      <li>JOS: <code class="highlighter-rouge">inc/memlayout.h</code></li>
+    </ul>
+  </li>
+  <li>implement null pointer dereference exception
+    <ul>
+      <li>how would you implement this for Java, say <code class="highlighter-rouge">obj-&gt;field</code></li>
+      <li>trick: put a non-mapped page at VA zero
+        <ul>
+          <li>useful for catching program bugs</li>
+          <li>limitations?</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>limited physical memory
+    <ul>
+      <li>applications need more memory than physical memory
+        <ul>
+          <li>early days: two floppy drives</li>
+          <li>strawman: applications store part of state to disk and load back later</li>
+          <li>hard to write applications</li>
+        </ul>
+      </li>
+      <li>virtual memory: offer the illusion of a large, continuous memory
+        <ul>
+          <li>swap space: OS pages out some pages to disk transparently</li>
+          <li>distributed shared memory: access other machines’ memory across network</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>memory-mapped files
+    <ul>
+      <li><code class="highlighter-rouge">mmap()</code>: map files, read/write files like memory</li>
+      <li>simple programming interface</li>
+      <li>when to page-in/page-out content?</li>
+      <li>avoid data copying: send an mmaped file to network
+        <ul>
+          <li>compare to using <code class="highlighter-rouge">read</code>/<code class="highlighter-rouge">write</code></li>
+          <li>no data transfer from kernel to user</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>copy-on-write fork
+    <ul>
+      <li>strawman fork: copy all pages from parent to child</li>
+      <li>observation: child and parent share most of the data
+        <ul>
+          <li>mark pages as copy-on-write</li>
+          <li>make a copy on page fault</li>
+          <li>lab 4: you will implement user-level copy-on-write fork</li>
+        </ul>
+      </li>
+      <li>other sharing
+        <ul>
+          <li>multiple guest OSes running inside the same hypervisor</li>
+          <li>shared objects: <code class="highlighter-rouge">.so</code>/<code class="highlighter-rouge">.dll</code> files</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>grow stack on demand: see the <a href="https://courses.cs.washington.edu/courses/cse451/18au/exercises/lazyalloc.html">in-class exercise</a></li>
+</ul>
+
+<h2 id="single-level-paging">single-level paging</h2>
+
+<ul>
+  <li>x86 (32-bit): <a href="https://en.wikipedia.org/wiki/File:X86_Paging_4M.svg">4M single-level paging</a>
+    <ul>
+      <li>turn on the <code class="highlighter-rouge">PSE</code> bit on <code class="highlighter-rouge">CR4</code></li>
+      <li>add the <code class="highlighter-rouge">PS</code> bit to page entries</li>
+    </ul>
+  </li>
+  <li>VA → PA translation
+    <ul>
+      <li>linear address
+        <ul>
+          <li>bits 31-22: page directory index</li>
+          <li>bits 21-0: offset into 4M page</li>
+        </ul>
+      </li>
+      <li>page directory entry
+        <ul>
+          <li>bits 31-22: physical 4M page address</li>
+          <li>bits 21-12: reserved</li>
+          <li>bits 11-0: flags</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>example
+    <ul>
+      <li>xv6: used during booting - see <code class="highlighter-rouge">entrypgdir</code> in <code class="highlighter-rouge">main.c</code></li>
+      <li>demo: turn your JOS into using 4M pages</li>
+    </ul>
+  </li>
+  <li>general concept: superpages (also known as huge pages or large pages)
+    <ul>
+      <li>benefits?</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="four-level-paging">four-level paging</h2>
+
+<ul>
+  <li>x86_64: <a href="https://commons.wikimedia.org/wiki/File:X86_Paging_64bit.svg">4K four-level paging</a>
+    <ul>
+      <li>pros &amp; cons</li>
+      <li>overhead, performance (what kind of user-space workloads?)</li>
+    </ul>
+  </li>
+  <li>exercise: five-level paging, <a href="https://courses.cs.washington.edu/courses/cse451/16au/exams/16au.pdf">2016 final III(b)</a></li>
+</ul>
+
+    <footer class="site-footer">
+
+<div>
+  <a href="https://www.washington.edu/online/terms/">UW Site Use Agreement</a>
+</div>
+
+</footer>
+
+<script>
+$(function () {
+  // vertical align callout captions with icons
+  $(".bs-callout h4").wrapInner("<span style='vertical-align:middle'></span>");
+  // add icons to callouts
+  var glyphicons = {
+    "bs-callout-info"     : "info",
+    "bs-callout-warning"  : "warning",
+    "bs-callout-danger"   : "explore",
+    "bs-callout-primary"  : "keyboard",
+    "bs-callout-success"  : "help",
+  };
+  $.each(glyphicons, function(k, v) {
+    $("<i/>")
+      .text(v)
+      .addClass("material-icons")
+      .prependTo($("." + k +" h4"))
+      .attr("aria-hidden", "true")
+      .css("padding-right", "5px")
+      .css("vertical-align", "middle");
+    ;
+  });
+});
+</script>
+
+<!--
+<script src="/courses/cse451/18au/node_modules/jquery/dist/jquery.min.js"></script>
+-->
+
+<script src="./lec06-virtual memory Q&amp;A_files/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="./lec06-virtual memory Q&amp;A_files/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="./lec06-virtual memory Q&amp;A_files/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+<script>$.each(q, function(index, f) { $(f); });</script>
+
+    </div>
+
+    
+
+  
+
+
+</body></html>

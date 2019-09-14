@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://read.seas.harvard.edu/cs161-18/lectures/lecture20/ -->
+<html lang="en" class="gr__read_seas_harvard_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="./lec20 - Scalable and read-write locks_files/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="./lec20 - Scalable and read-write locks_files/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+    <link rel="stylesheet" href="./lec20 - Scalable and read-write locks_files/cs161.css">
+    <title>Lecture 20 – CS 161 2018</title>
+  <style type="text/css" id="e9c417cb-ecc0-4b20-b227-d73e3933fc4b">.ac67b376-e20b-4db7-a32f-f08af74e081d { position: relative !important; border-radius: 0.2em !important; padding: 0px !important; margin: 0px !important; }
+
+.ba38fe55-0886-4d76-8883-1668e53b2c4a .ssh-close { position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; z-index: 999; border: none; background: url("data:image/png;base64,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") no-repeat border-box; animation-duration: 275ms; animation-timing-function: ease-out; box-shadow: none; animation-name: a3e0ec30-58b0-44eb-902f-8c1568590395; }
+
+.ba38fe55-0886-4d76-8883-1668e53b2c4a .ssh-close:hover, .ba38fe55-0886-4d76-8883-1668e53b2c4a .ssh-close:focus { background-image: url("data:image/png;base64,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"); }
+
+@media print {
+  .ba38fe55-0886-4d76-8883-1668e53b2c4a { box-shadow: unset !important; -webkit-print-color-adjust: exact !important; }
+}
+
+@keyframes a3e0ec30-58b0-44eb-902f-8c1568590395 { 
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes b1c72eae-97a9-41de-bb26-926c89d626d0 { 
+  100% { opacity: 0; transform: scale(0.3); }
+}
+
+.ba38fe55-0886-4d76-8883-1668e53b2c4a { background-color: rgba(238, 238, 238, 0.8); color: rgb(170, 170, 170); font: inherit; box-shadow: rgb(238, 238, 238) 0px 0px 0.35em; text-shadow: none !important; }
+
+.default-red-aa94e3d5-ab2f-4205-b74e-18ce31c7c0ce { box-shadow: rgb(255, 128, 128) 0px 0px 0.35em; background-color: rgba(255, 128, 128, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-orange-da01945e-1964-4d27-8a6c-3331e1fe7f14 { box-shadow: rgb(255, 210, 170) 0px 0px 0.35em; background-color: rgba(255, 210, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-yellow-aaddcf5c-0e41-4f83-8a64-58c91f7c6250 { box-shadow: rgb(255, 255, 170) 0px 0px 0.35em; background-color: rgba(255, 255, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-green-c4d41e0a-e40f-4c3f-91ad-2d66481614c2 { box-shadow: rgb(170, 255, 170) 0px 0px 0.35em; background-color: rgba(170, 255, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-cyan-f88e8827-e652-4d79-a9d9-f6c8b8ec9e2b { box-shadow: rgb(170, 255, 255) 0px 0px 0.35em; background-color: rgba(170, 255, 255, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-purple-c472dcdb-f2b8-41ab-bb1e-2fb293df172a { box-shadow: rgb(255, 170, 255) 0px 0px 0.35em; background-color: rgba(255, 170, 255, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-grey-da7cb902-89c6-46fe-b0e7-d3b35aaf237a { box-shadow: rgb(119, 119, 119) 0px 0px 0.35em; background-color: rgba(119, 119, 119, 0.8) !important; color: rgb(255, 255, 255) !important; }</style></head>
+  <body data-gr-c-s-loaded="true">
+
+<nav class="navbar navbar-expand-lg navbar-light">
+  <a class="navbar-brand" href="https://read.seas.harvard.edu/cs161-18/">CS 161 2018</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture20/#" id="nav-dropdown-doc" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Documentation
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-doc">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/cplusplus/">C++</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/lists/">Lists</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/memory-layout/">Memory layout</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/contexts/">Contexts</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/memory-iterators/">Memory iterators</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/spinlocks/">Spinlocks</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/synchronization-invariants/">Synchronization invariants</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/chickadeefs/">ChickadeeFS</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item">
+    
+      <a class="nav-link" href="https://read.seas.harvard.edu/cs161-18/schedule/">Schedule</a>
+    
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture20/#" id="nav-dropdown-psets" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Problem sets
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-psets">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset1/">Problem set 1</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset2/">Problem set 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset3/">Problem set 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset4/">Problem set 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset5/">Problem set 5</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture20/#" id="nav-dropdown-lectures" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Lectures
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-lectures">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture2/">Lecture 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture3/">Lecture 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture4/">Lecture 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture5/">Lecture 5</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture6/">Lecture 6</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/">Lecture 7</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture8/">Lecture 8</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture9/">Lecture 9</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture10/">Lecture 10</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture11/">Lecture 11</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture12/">Lecture 12</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture14/">Lecture 14</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture15/">Lecture 15</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture16/">Lecture 16</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture17/">Lecture 17</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/">Lecture 18</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture19/">Lecture 19</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture20/">Lecture 20</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture21/">Lecture 21</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture22/">Lecture 22</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture23/">Lecture 23</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture24/">Lecture 24</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture25/">Lecture 25</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/papers/">Papers</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture20/#" id="nav-dropdown-sections" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Sections
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-sections">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section1/">Section 1</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section2/">Section 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section3/">Section 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section4/">Section 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section5/">Section 5</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section6/">Section 6</a>
+    
+    </div>
+  </li>
+
+    </ul>
+  </div>
+</nav>
+
+
+<div class="container">
+    <h1><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture20/">Lecture 20: Scalable and read-write locks</a></h1>
+    <div class="post">
+        <p>Notes by Thomas Lively</p>
+
+<p>Schedule</p>
+
+<ol>
+<li>Locking characteristics and throughput vs latency</li>
+<li>Simple lock</li>
+<li>Ticket lock</li>
+<li>Mellor-Crummey Scott (MCS) lock</li>
+<li>Read-write locking</li>
+<li>Read Copy Update (RCU)</li>
+</ol>
+
+<h2 id="lockingsynchronization-in-practice">Locking/synchronization in practice</h2>
+
+<p>These parameters of the synchronization problem affect what synchronization
+solutions work best. The best locks work well across a wide range of
+parameters.</p>
+
+<ol>
+<li>Contention level
+
+<ul>
+<li>High contention = many (&gt;1) interested waiters</li>
+<li>high contention is Bad(tm) (i.e. low performance)</li>
+<li>Fairness doesn't matter for low contention lock</li>
+<li>Fairness does matter for high contention locks!</li>
+<li>Latency matters for low contention locks (a shame to take a long time to acquire a lock that is not locked by anyone)</li>
+</ul></li>
+<li>Coarse-grained vs fine-grained locking
+
+<ul>
+<li>coarse-grained: few locks each protecting lots of data</li>
+<li>fine-grained: many locks each protecting little data</li>
+<li>coarse-grained: higher contention, less space/complexity overhead</li>
+<li>fine-grained: lower contention, more space/complexity overhead</li>
+</ul></li>
+<li>Throughput vs latency
+
+<ul>
+<li>throughput: lock acquisitions / time (higher is better)</li>
+<li>time: time to acquire a lock (lower is better)</li>
+<li>Some designs have high throughput but also high latency!</li>
+</ul></li>
+<li>Reads and writes
+
+<ul>
+<li>counters: writes &gt;&gt; reads (think about sloppy counters from section)</li>
+<li>pipes: all ops are writes ("reads" modify state)</li>
+<li>proc state: reads ~= writes</li>
+<li>config info: reads &gt;&gt; writes</li>
+<li>want to engineer solutions optimized for specific read/write patterns</li>
+</ul></li>
+<li>Number of threads
+
+<ul>
+<li>highest <em>raw performance</em> solutions use #threads = #cores</li>
+<li>that is also typical for kernel</li>
+<li>sometimes have #threads &gt; #cores for programming convenience</li>
+<li>example: web browsers</li>
+</ul></li>
+</ol>
+
+<h2 id="simple-test-and-set-lock">Simple test and set lock</h2>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#007020;font-weight:bold">struct</span> spinlock {
+    std<span style="color:#666">::</span>atomic_flag f_;
+
+    <span style="color:#902000">void</span> <span style="color:#06287e">lock</span>() {
+        <span style="color:#007020;font-weight:bold">while</span> (f_.test_and_set()) {
+            pause();
+        }
+    }
+    <span style="color:#902000">void</span> <span style="color:#06287e">unlock</span>() {
+        f_.clear();
+    }
+};
+</code></pre></div>
+<p>Does the <code>pause</code> instruction optimize for latency or throughput?</p>
+
+<ul>
+<li>throughput, because it reduces the number of threads spinning and
+reading simultaneously. <code>pause</code> won't necessarily help acquire the
+thread faster, though.</li>
+</ul>
+
+<p>What if we use <code>sched_yield()</code> instead of the <code>pause</code> instruction?</p>
+
+<ul>
+<li>this would be better if #threads &gt; #cores, because it allows some
+other useful work to be scheduled, but if #threads == #cores, this
+is just extra overhead.</li>
+</ul>
+
+<h2 id="ticket-lock">Ticket lock</h2>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#007020;font-weight:bold">struct</span> ticket_lock {
+    std<span style="color:#666">::</span>atomic<span style="color:#666">&lt;</span><span style="color:#902000">unsigned</span><span style="color:#666">&gt;</span> now_;
+    std<span style="color:#666">::</span>atomic<span style="color:#666">&lt;</span><span style="color:#902000">unsigned</span><span style="color:#666">&gt;</span> next_;
+
+    <span style="color:#902000">void</span> <span style="color:#06287e">lock</span>() {
+        <span style="color:#902000">unsigned</span> me <span style="color:#666">=</span> next_<span style="color:#666">++</span>;
+        <span style="color:#007020;font-weight:bold">while</span> (me <span style="color:#666">!=</span> now_) {
+            pause();
+        }
+    }
+    <span style="color:#902000">void</span> <span style="color:#06287e">unlock</span>() {
+        now_<span style="color:#666">++</span>;
+    }
+};
+</code></pre></div>
+<p>More scalable because shared data is only written on unlock and the spin in
+<code>lock</code> only <em>reads</em>.</p>
+
+<p>What if we use <code>msleep(10 * (me - now_))</code> instead of <code>pause</code> or
+<code>sched_yield()</code>?</p>
+
+<ul>
+<li>This would reduce spinning (it is real blocking!), but if 10ms is too long
+this will hurt both latency and throughput.</li>
+</ul>
+
+<h2 id="mcs-mellorcrummey-scott-lock">MCS (Mellor-Crummey Scott) lock</h2>
+
+<p>This is one of the first high-performance fair locks for high-contention
+scenarios. It’s very clever! Its basic data structure is a queue of waiting
+threads, implemented as a singly-linked list. The shared lock points at the
+<em>tail</em> of the list (the thread that will get the lock last, if any). Threads
+spin not on shared state, but on <em>local</em> state, which makes spinning much
+cheaper (it doesn't hammer the memory bus).</p>
+
+<p>“Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors.”
+John M. Mellor-Crummey and Michael L. Scott. <em>ACM Transactions on Computer Systems</em> <strong>9</strong>(1). <a href="http://www.cs.rochester.edu/~scott/papers/1991_TOCS_synch.pdf">Link</a>; <a href="https://dl.acm.org/citation.cfm?id=109637">Shorter earlier version</a></p>
+
+<p>This lock is used in Java</p>
+
+<p>It was <a href="https://lwn.net/Articles/590243/">proposed for Linux</a> (that article
+also has a good series of example diagrams), but not adopted (due to high
+overhead)</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#007020;font-weight:bold">struct</span> mcs_lock {
+    <span style="color:#007020;font-weight:bold">struct</span> qentry {    <span style="color:#60a0b0;font-style:italic">// user must declare one of these to lock
+</span><span style="color:#60a0b0;font-style:italic"></span>        std<span style="color:#666">::</span>atomic<span style="color:#666">&lt;</span>qentry<span style="color:#666">*&gt;</span> next;
+        std<span style="color:#666">::</span>atomic<span style="color:#666">&lt;</span><span style="color:#902000">bool</span><span style="color:#666">&gt;</span> locked;
+    };
+
+    std<span style="color:#666">::</span>atomic<span style="color:#666">&lt;</span>qentry<span style="color:#666">*&gt;</span> lk_;   <span style="color:#60a0b0;font-style:italic">// points at tail
+</span><span style="color:#60a0b0;font-style:italic"></span>
+    <span style="color:#902000">void</span> <span style="color:#06287e">lock</span>(qentry<span style="color:#666">&amp;</span> w) {
+        w.next <span style="color:#666">=</span> <span style="color:#007020;font-weight:bold">nullptr</span>;
+        qentry<span style="color:#666">*</span> prev_tail <span style="color:#666">=</span> lk_.exchange(<span style="color:#666">&amp;</span>w);  <span style="color:#60a0b0;font-style:italic">// mark self as tail
+</span><span style="color:#60a0b0;font-style:italic"></span>        <span style="color:#007020;font-weight:bold">if</span> (prev_tail) {                    <span style="color:#60a0b0;font-style:italic">// previous tail exists
+</span><span style="color:#60a0b0;font-style:italic"></span>            w.locked <span style="color:#666">=</span> <span style="color:#007020">true</span>;
+            prev_tail<span style="color:#666">-&gt;</span>next <span style="color:#666">=</span> <span style="color:#666">&amp;</span>w;          <span style="color:#60a0b0;font-style:italic">// link to previous tail
+</span><span style="color:#60a0b0;font-style:italic"></span>            <span style="color:#007020;font-weight:bold">while</span> (w.locked) {
+                pause();
+            }
+        }
+    }
+    <span style="color:#902000">void</span> <span style="color:#06287e">unlock</span>(qentry<span style="color:#666">&amp;</span> w) {
+        <span style="color:#007020;font-weight:bold">if</span> (<span style="color:#666">!</span>w.next) {                    <span style="color:#60a0b0;font-style:italic">// maybe become unlocked
+</span><span style="color:#60a0b0;font-style:italic"></span>            <span style="color:#007020;font-weight:bold">if</span> (lk_.compare_exchange_weak(<span style="color:#666">&amp;</span>w, <span style="color:#007020;font-weight:bold">nullptr</span>)) {
+                <span style="color:#007020;font-weight:bold">return</span>;
+            }
+            <span style="color:#007020;font-weight:bold">while</span> (<span style="color:#666">!</span>w.next) {   <span style="color:#60a0b0;font-style:italic">// wait for next tail to link self
+</span><span style="color:#60a0b0;font-style:italic"></span>                pause();
+            }
+        }
+        w.next<span style="color:#666">-&gt;</span>locked <span style="color:#666">=</span> <span style="color:#007020">false</span>;
+    }
+}
+
+<span style="color:#60a0b0;font-style:italic">// some function that uses a lock `l`
+</span><span style="color:#60a0b0;font-style:italic"></span>f() {
+    ...
+    mcs_lock<span style="color:#666">::</span>qentry w;
+    l.lock(w);
+    ...
+    l.unlock(w);
+    ...
+}
+</code></pre></div>
+<p>There is much more overhead here. Notice the atomic ops and spins in
+both lock and unlock.</p>
+
+<p>How does this lock work?</p>
+
+<ul>
+<li>if atomic swap (<code>std::atomic&lt;T&gt;::exchange</code>) in <code>lock</code> returns non-nullptr,
+<code>w</code> is appended to linked list and spins until it is notified that it is no
+longer locked.</li>
+<li>unlock waits until there is a next waiter in the list, and unlocks it</li>
+</ul>
+
+<p>Each waiter is spinning on private state, not shared state!</p>
+
+<p>What if we call <code>sched_yield()</code> in spin?</p>
+
+<ul>
+<li>This would reduce overhead, but could decrease throughput considerably.</li>
+</ul>
+
+<p>Unfortunately, this lock is optimized for high contention, but in that case you already have performance issues.</p>
+
+<h2 id="futex">Futex</h2>
+
+<p>Let's put the waiting part of a lock in kernel space to decrease overhead!</p>
+
+<p>Goals: no overhead in low contention case, fairness in high contention case.
+No overhead means we can’t go straight to the kernel—system calls are
+expensive! We must divide locking into two phases. In the first phase, we lock
+under a low-contention assumption, without calling into the kernel. In the
+second phase, we have observed contention, so we block, calling into the
+kernel (and obtaining fairness).</p>
+
+<p>This code isn’t right (the futex interface is complicated!) but it shows the
+idea. For a very clear description of the reasons for this biphase structure
+(and a futexless implementation), read:</p>
+
+<blockquote>
+<p><a href="https://webkit.org/blog/6161/locking-in-webkit/">“Locking in WebKit” by Filip Pizlo</a></p>
+</blockquote>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#007020;font-weight:bold">struct</span> spinlock_futex {
+    std<span style="color:#666">::</span>atomic<span style="color:#666">&lt;</span><span style="color:#902000">unsigned</span> <span style="color:#902000">char</span><span style="color:#666">&gt;</span> val_;
+    <span style="color:#60a0b0;font-style:italic">// 0 = unlocked; 1 = locked
+</span><span style="color:#60a0b0;font-style:italic"></span>    <span style="color:#60a0b0;font-style:italic">// or'ed with bit 2 == futex_mode
+</span><span style="color:#60a0b0;font-style:italic"></span>
+    <span style="color:#902000">void</span> <span style="color:#06287e">lock</span>() {
+        <span style="color:#60a0b0;font-style:italic">// phase 1
+</span><span style="color:#60a0b0;font-style:italic"></span>        <span style="color:#007020;font-weight:bold">for</span> (<span style="color:#902000">unsigned</span> i <span style="color:#666">=</span> <span style="color:#40a070">0</span>; i <span style="color:#666">&lt;</span> <span style="color:#40a070">40</span>; i<span style="color:#666">++</span>) {
+            <span style="color:#007020;font-weight:bold">if</span> (val_.compare_exchange_weak(<span style="color:#40a070">0</span>, <span style="color:#40a070">1</span>)) {
+                <span style="color:#007020;font-weight:bold">return</span>;
+            }
+            sched_yield();
+        }
+
+        <span style="color:#60a0b0;font-style:italic">// phase 2: enter futex mode
+</span><span style="color:#60a0b0;font-style:italic"></span>        <span style="color:#007020;font-weight:bold">do</span> {
+            val_ <span style="color:#666">|=</span> <span style="color:#40a070">2</span>;   <span style="color:#60a0b0;font-style:italic">// atomic operation
+</span><span style="color:#60a0b0;font-style:italic"></span>            futex(WAIT, <span style="color:#666">&amp;</span>val_, <span style="color:#60a0b0;font-style:italic">/* block unless val_ != */</span> <span style="color:#40a070">3</span>);
+        } <span style="color:#007020;font-weight:bold">while</span> (<span style="color:#666">!</span>val_.compare_exchange_weak(<span style="color:#40a070">2</span>, <span style="color:#40a070">3</span>))
+    }
+
+    <span style="color:#902000">void</span> <span style="color:#06287e">unlock</span>() {
+        <span style="color:#007020;font-weight:bold">while</span> (<span style="color:#666">!</span>val_.compare_exchange_weak(<span style="color:#40a070">1</span>, <span style="color:#40a070">0</span>)) {
+            <span style="color:#007020;font-weight:bold">if</span> (val_ <span style="color:#666">&amp;</span> <span style="color:#40a070">2</span>) {
+                <span style="color:#60a0b0;font-style:italic">// someone is waiting on the futex; wake them up
+</span><span style="color:#60a0b0;font-style:italic"></span>                futex(WAKE, <span style="color:#666">&amp;</span>val_, <span style="color:#60a0b0;font-style:italic">/* atomically change val_ to */</span> <span style="color:#40a070">2</span>);
+                <span style="color:#007020;font-weight:bold">return</span>;
+            }
+        }
+    }
+};
+</code></pre></div>
+<p>Two locks: user lock and kernel lock. <code>futex</code> syscall links the two.</p>
+
+<p>With low contention kernel does not get involved. With high contention kernel handles fair wakeup. 40 user level tries is optimal for some reason.</p>
+
+<p>Switching to a similar strategy increased performance by 10% in WebKit.</p>
+
+<h2 id="readwrite-locks">Read-write locks</h2>
+
+<p>These are good when reads are much more common than writes. There can
+be any number of readers <em>or</em> a single writer.</p>
+
+<p>The lock has three states</p>
+
+<ol>
+<li>unlocked (val_ == 0)</li>
+<li>read locked (val_ &gt; 0)</li>
+<li>write locked (val_ == -1)</li>
+</ol>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#007020;font-weight:bold">struct</span> rw_lock {
+    std<span style="color:#666">::</span>atomic<span style="color:#666">&lt;</span><span style="color:#902000">int</span><span style="color:#666">&gt;</span> val_;
+
+    <span style="color:#902000">void</span> <span style="color:#06287e">lock_read</span>() {
+        <span style="color:#902000">int</span> x <span style="color:#666">=</span> val_;
+        <span style="color:#007020;font-weight:bold">while</span> (x <span style="color:#666">&lt;</span> <span style="color:#40a070">0</span> <span style="color:#666">||</span> <span style="color:#666">!</span>val_.compare_exchange_weak(x, x <span style="color:#666">+</span> <span style="color:#40a070">1</span>)) {
+            pause();
+            x <span style="color:#666">=</span> val_;
+        }
+    }
+    <span style="color:#902000">void</span> <span style="color:#06287e">unlock_read</span>() {
+        <span style="color:#666">--</span>val_;
+    }
+
+    <span style="color:#902000">void</span> <span style="color:#06287e">lock_write</span>() {
+        <span style="color:#007020;font-weight:bold">while</span> (<span style="color:#666">!</span>val_.compare_exchange_weak(<span style="color:#40a070">0</span>, <span style="color:#666">-</span><span style="color:#40a070">1</span>)) {
+            pause();
+        }
+    }
+    <span style="color:#902000">void</span> <span style="color:#06287e">unlock_write</span>() {
+        val_ <span style="color:#666">=</span> <span style="color:#40a070">0</span>;
+    }
+};
+</code></pre></div>
+<p>This read-write lock is not fair (it starves writers).</p>
+
+<p>How can we reduce memory contention?</p>
+
+<ul>
+<li>Give each thread its own <code>val_</code>.</li>
+</ul>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#007020;font-weight:bold">struct</span> rw_lock_2 {
+    spinlock f_[NCPU];     <span style="color:#60a0b0;font-style:italic">// would really want separate cache lines
+</span><span style="color:#60a0b0;font-style:italic"></span>
+    <span style="color:#902000">void</span> <span style="color:#06287e">lock_read</span>() {
+        f_[this_cpu()].lock();
+    }
+    <span style="color:#902000">void</span> <span style="color:#06287e">unlock_read</span>() {
+        f_[this_cpu()].unlock();
+    }
+
+    <span style="color:#902000">void</span> <span style="color:#06287e">lock_write</span>() {
+        <span style="color:#007020;font-weight:bold">for</span> (<span style="color:#902000">unsigned</span> i <span style="color:#666">=</span> <span style="color:#40a070">0</span>; i <span style="color:#666">!=</span> NCPU; <span style="color:#666">++</span>i) {
+            f_[i].lock();
+        }
+    }
+    <span style="color:#902000">void</span> <span style="color:#06287e">unlock_write</span>() {
+        <span style="color:#007020;font-weight:bold">for</span> (<span style="color:#902000">unsigned</span> i <span style="color:#666">=</span> <span style="color:#40a070">0</span>; i <span style="color:#666">!=</span> NCPU; <span style="color:#666">++</span>i) {
+            f_[i].unlock();
+        }
+    }
+};
+</code></pre></div>
+<p>This makes reads super duper fast and writes fairly slow.</p>
+
+<h2 id="rcu-readcopyupdate">RCU (Read-Copy-Update)</h2>
+
+<p>Goal: zero-op locks.</p>
+
+<p>To be continued!</p>
+
+<h2 id="references">References</h2>
+
+<h3 id="futexes">Futexes</h3>
+
+<p><a href="http://man7.org/linux/man-pages/man2/futex.2.html">The <code>futex</code>(2) manual page</a></p>
+
+<p><a href="https://lwn.net/Articles/360699/">A futex overview and update by Darren Hart</a></p>
+
+<p>Example usage: “Futex based locks for C11’s generic atomics.” Jens Gustedt.
+[Research Report] RR-8818, INRIA Nancy, 2015.
+<a href="https://hal.inria.fr/hal-01236734/document">Link</a></p>
+
+<h3 id="rcu">RCU</h3>
+
+<p>“RCU Usage In the Linux Kernel: One Decade Later.” Paul E. McKenney,
+Silas Boyd-Wickizer, and Jonathan Walpole. <a href="https://pdos.csail.mit.edu/6.828/2017/readings/rcu-decade-later.pdf">Link</a></p>
+
+<blockquote>
+<p>Read-copy update (RCU) is a scalable high-performance synchronization
+mechanism implemented in the Linux kernel. RCU’s novel properties include
+support for concurrent reading and writing, and highly optimized inter-CPU
+synchronization. Since RCU’s introduction into the Linux kernel over a
+decade ago its usage has continued to expand. Today, most kernel subsystems
+use RCU. This paper discusses the requirements that drove the development of
+RCU, the design and API of the Linux RCU implementation, and how kernel
+developers apply RCU.</p>
+</blockquote>
+
+    </div>
+</div>
+
+        <script src="./lec20 - Scalable and read-write locks_files/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="./lec20 - Scalable and read-write locks_files/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="./lec20 - Scalable and read-write locks_files/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+        <script src="./lec20 - Scalable and read-write locks_files/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
+        <script>(function () {
+        $(".math").each(function () {
+            var t = this.innerText,
+                opt = {throwOnError: false, displayMode: t.substr(0, 2) === "\\["};
+            katex.render(t.replace(/(?:^\\\(|^\\\[|\\\)$|\\\]$)/g, ""), this, opt);
+        });
+        function sol_toggle(sol, hide, storage) {
+            sol.childNodes[0].classList.toggle("hidden", !hide);
+            sol.childNodes[0].classList.toggle("shown", hide);
+            sol.childNodes[1].classList.toggle("hidden", hide);
+            sol.childNodes[1].classList.toggle("shown", !hide);
+            if (storage) {
+                var key = location.href + " " + $(".has-solution").index(sol);
+                if (hide)
+                    sessionStorage.removeItem(key);
+                else
+                    sessionStorage.setItem(key, true);
+            }
+        }
+        $(".solution").each(function () {
+            $(this).wrap('<div class="has-solution"></div>');
+            var sol = this.parentElement;
+            $(sol).prepend('<blockquote class="solution-collapsed js-solution show"><a href="" class="js-solution show"></a></blockquote>');
+            $(this).append('<p><a href="" class="js-solution hide"></a></p>');
+            $(sol).find("a.js-solution.show").text(this.getAttribute("data-show-text") || "Show solution");
+            $(sol).find("a.js-solution.hide").text(this.getAttribute("data-hide-text") || "Hide solution");
+            var key = location.href + " " + $(".has-solution").index(sol);
+            if (sessionStorage.getItem(key))
+                sol_toggle(sol, false, false);
+        });
+        $(document).on("click", ".js-solution", function (event) {
+            var sol = $(this).closest(".has-solution")[0];
+            sol_toggle(sol, this.classList.contains("hide"), true);
+            event.preventDefault();
+        });
+        })()</script>
+    
+
+
+</body></html>

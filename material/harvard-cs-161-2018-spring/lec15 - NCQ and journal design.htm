@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://read.seas.harvard.edu/cs161-18/lectures/lecture15/ -->
+<html lang="en" class="gr__read_seas_harvard_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="./lec15 - NCQ and journal design_files/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="./lec15 - NCQ and journal design_files/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+    <link rel="stylesheet" href="./lec15 - NCQ and journal design_files/cs161.css">
+    <title>Lecture 15 – CS 161 2018</title>
+  <style type="text/css" id="c7d3345e-8dfa-40e5-88b9-df58d9c06063">.ff951e55-2eac-4f55-9e75-4b44562253fe { position: relative !important; border-radius: 0.2em !important; padding: 0px !important; margin: 0px !important; }
+
+.fcaf3b2e-dd0d-4301-8670-720bd6bc159a .ssh-close { position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; z-index: 999; border: none; background: url("data:image/png;base64,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") no-repeat border-box; animation-duration: 275ms; animation-timing-function: ease-out; box-shadow: none; animation-name: c383c181-038b-46dd-bd5b-11629b0a9048; }
+
+.fcaf3b2e-dd0d-4301-8670-720bd6bc159a .ssh-close:hover, .fcaf3b2e-dd0d-4301-8670-720bd6bc159a .ssh-close:focus { background-image: url("data:image/png;base64,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"); }
+
+@media print {
+  .fcaf3b2e-dd0d-4301-8670-720bd6bc159a { box-shadow: unset !important; -webkit-print-color-adjust: exact !important; }
+}
+
+@keyframes c383c181-038b-46dd-bd5b-11629b0a9048 { 
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ded974a4-edb1-4db7-8b1e-d9ce0c8a5abf { 
+  100% { opacity: 0; transform: scale(0.3); }
+}
+
+.fcaf3b2e-dd0d-4301-8670-720bd6bc159a { background-color: rgba(238, 238, 238, 0.8); color: rgb(170, 170, 170); font: inherit; box-shadow: rgb(238, 238, 238) 0px 0px 0.35em; text-shadow: none !important; }
+
+.default-red-aa94e3d5-ab2f-4205-b74e-18ce31c7c0ce { box-shadow: rgb(255, 128, 128) 0px 0px 0.35em; background-color: rgba(255, 128, 128, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-orange-da01945e-1964-4d27-8a6c-3331e1fe7f14 { box-shadow: rgb(255, 210, 170) 0px 0px 0.35em; background-color: rgba(255, 210, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-yellow-aaddcf5c-0e41-4f83-8a64-58c91f7c6250 { box-shadow: rgb(255, 255, 170) 0px 0px 0.35em; background-color: rgba(255, 255, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-green-c4d41e0a-e40f-4c3f-91ad-2d66481614c2 { box-shadow: rgb(170, 255, 170) 0px 0px 0.35em; background-color: rgba(170, 255, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-cyan-f88e8827-e652-4d79-a9d9-f6c8b8ec9e2b { box-shadow: rgb(170, 255, 255) 0px 0px 0.35em; background-color: rgba(170, 255, 255, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-purple-c472dcdb-f2b8-41ab-bb1e-2fb293df172a { box-shadow: rgb(255, 170, 255) 0px 0px 0.35em; background-color: rgba(255, 170, 255, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-grey-da7cb902-89c6-46fe-b0e7-d3b35aaf237a { box-shadow: rgb(119, 119, 119) 0px 0px 0.35em; background-color: rgba(119, 119, 119, 0.8) !important; color: rgb(255, 255, 255) !important; }</style></head>
+  <body data-gr-c-s-loaded="true">
+
+<nav class="navbar navbar-expand-lg navbar-light">
+  <a class="navbar-brand" href="https://read.seas.harvard.edu/cs161-18/">CS 161 2018</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture15/#" id="nav-dropdown-doc" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Documentation
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-doc">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/cplusplus/">C++</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/lists/">Lists</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/memory-layout/">Memory layout</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/contexts/">Contexts</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/memory-iterators/">Memory iterators</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/spinlocks/">Spinlocks</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/synchronization-invariants/">Synchronization invariants</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/chickadeefs/">ChickadeeFS</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item">
+    
+      <a class="nav-link" href="https://read.seas.harvard.edu/cs161-18/schedule/">Schedule</a>
+    
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture15/#" id="nav-dropdown-psets" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Problem sets
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-psets">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset1/">Problem set 1</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset2/">Problem set 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset3/">Problem set 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset4/">Problem set 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset5/">Problem set 5</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture15/#" id="nav-dropdown-lectures" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Lectures
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-lectures">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture2/">Lecture 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture3/">Lecture 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture4/">Lecture 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture5/">Lecture 5</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture6/">Lecture 6</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/">Lecture 7</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture8/">Lecture 8</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture9/">Lecture 9</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture10/">Lecture 10</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture11/">Lecture 11</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture12/">Lecture 12</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture14/">Lecture 14</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture15/">Lecture 15</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture16/">Lecture 16</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture17/">Lecture 17</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/">Lecture 18</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture19/">Lecture 19</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture20/">Lecture 20</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture21/">Lecture 21</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture22/">Lecture 22</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture23/">Lecture 23</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture24/">Lecture 24</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture25/">Lecture 25</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/papers/">Papers</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture15/#" id="nav-dropdown-sections" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Sections
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-sections">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section1/">Section 1</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section2/">Section 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section3/">Section 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section4/">Section 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section5/">Section 5</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section6/">Section 6</a>
+    
+    </div>
+  </li>
+
+    </ul>
+  </div>
+</nav>
+
+
+<div class="container">
+    <h1><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture15/">Lecture 15</a></h1>
+    <div class="post">
+        <h2 id="ncq">NCQ</h2>
+
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Native_Command_Queuing">Wikipedia</a></li>
+<li><a href="http://www.bit-tech.net/reviews/tech/storage/samsung-ssd-950-pro-review/3/">SSD performance review</a>: This recent SSD has 20x better 4KB random read throughput when using queue depth 32 (i.e., NCQ issues up to 32 parallel commands) compared to queue depth 1</li>
+</ul>
+
+<h2 id="journaling">Journaling</h2>
+
+<ul>
+<li><a href="http://yarchive.net/comp/linux/disk_corruption.html">Theodore Ts'o on disk
+corruption</a>: why block writes are not atomic, and why physical journaling is better than logical</li>
+</ul>
+
+<h2 id="notes">Notes</h2>
+
+<p>(Notes by Abby Lyons)</p>
+
+<p>(these notes start 40 minutes in, sry)</p>
+
+<h2 id="flash-memory">Flash memory</h2>
+
+<p>Flash memory is weird. You can't just overwrite one block; you must overwrite 16 blocks (64 kb) at once. Blocks also degrade over time.</p>
+
+<p>Modern flash drives have a remapping layer. It marks sectors as bad when they arise; so only the drive knows where blocks are located, and the OS doesn't.</p>
+
+<h2 id="failure-models">Failure models</h2>
+
+<p>The goal is to have a journal format that tolerates disk failure due to power failure.</p>
+
+<p>Disk failure model:</p>
+
+<pre><code>        DOOM
+
+-------------------&gt; Time
+
+w w w w w w 
+</code></pre>
+
+<p>The last two writes are in-flight. what happened to them?</p>
+
+<ul>
+<li><em>Academic failure model</em>: either the write 100% happened or it 100% didn't. Block writes are atomic. In practice, crazier things happen. We can use expensive hardware, or we can find a workaround using software.</li>
+<li><em>Aggressive failure model</em>: in-flight writes can be arbitrarily corrupt. This is more reasonable to assume.</li>
+</ul>
+
+<h2 id="journal-design">Journal design</h2>
+
+<p>Our solution to the aggressive failure model is physical redo journaling.</p>
+
+<ul>
+<li><em>physical</em>: This means that entire physical blocks are written into the journal.</li>
+<li><em>redo</em>: the journal is designed in a way that disk recovery redoes the operations that made it into the journal but not the disk.</li>
+</ul>
+
+<p>One common alternative to physical journaling is logical journaling, which doesn't store entire blocks; rather, it has records that track changes like "change byte 0xabc from 3 to 5". This means the journal is smaller, but can't protect against the most aggressive failures which turn entire blocks to garbage.</p>
+
+<p>To use the journal, one must:</p>
+
+<ol>
+<li>write blocks to disk in a special journal location</li>
+<li>write commit record</li>
+<li>when journal writes complete, write blocks to their final locations</li>
+<li>when those writes complete, write a completion record to the journal. Journal can now be overwritten.</li>
+</ol>
+
+<p>What about parallelism? As it turns out, steps 1 and 2 can be done in parallel. Then every part of step 3 can be done in parallel. Only after everything else is complete can step 4 take place.</p>
+
+<p>But we must wait after step 2 to start step 3, and wait after step 3 to start step 4. These mandatory waits are called <em>barriers</em>. A barrier is a kind of synchronization primitive.</p>
+
+<p>The journal in memory</p>
+
+<ul>
+<li>The entire journal consists of a circular buffer with a series of records.</li>
+<li>A record consists of:
+
+<ul>
+<li>One metablock, which stores the block numbers and checksums of data blocks</li>
+<li>0 or more data blocks</li>
+</ul></li>
+</ul>
+
+<p>Checksums help us figure out whether writes happened successfully inside the journal; if the checksum in the metablock matches the checksum of the corresponding data block, the write happened without any corruption. The metadata block stores a checksum of itself, in case it gets corrupted.</p>
+
+<p>Each journal block has a sequence number, which goes up by one every time. This is useful because:</p>
+
+<ul>
+<li>If there's a missing sequence number, we know a corruption happened.</li>
+<li>It helps us figure out where the beginning of the circular journal buffer is.</li>
+</ul>
+
+<p>Each metablock has a commit boundary and a complete boundary. This may seem redundant, but it's used for <em>cumulative acknowledgement</em>, which means that "I have heard everything up to point X." We use this to figure out which transactions were actually completed.</p>
+
+    </div>
+</div>
+
+        <script src="./lec15 - NCQ and journal design_files/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="./lec15 - NCQ and journal design_files/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="./lec15 - NCQ and journal design_files/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+        <script src="./lec15 - NCQ and journal design_files/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
+        <script>(function () {
+        $(".math").each(function () {
+            var t = this.innerText,
+                opt = {throwOnError: false, displayMode: t.substr(0, 2) === "\\["};
+            katex.render(t.replace(/(?:^\\\(|^\\\[|\\\)$|\\\]$)/g, ""), this, opt);
+        });
+        function sol_toggle(sol, hide, storage) {
+            sol.childNodes[0].classList.toggle("hidden", !hide);
+            sol.childNodes[0].classList.toggle("shown", hide);
+            sol.childNodes[1].classList.toggle("hidden", hide);
+            sol.childNodes[1].classList.toggle("shown", !hide);
+            if (storage) {
+                var key = location.href + " " + $(".has-solution").index(sol);
+                if (hide)
+                    sessionStorage.removeItem(key);
+                else
+                    sessionStorage.setItem(key, true);
+            }
+        }
+        $(".solution").each(function () {
+            $(this).wrap('<div class="has-solution"></div>');
+            var sol = this.parentElement;
+            $(sol).prepend('<blockquote class="solution-collapsed js-solution show"><a href="" class="js-solution show"></a></blockquote>');
+            $(this).append('<p><a href="" class="js-solution hide"></a></p>');
+            $(sol).find("a.js-solution.show").text(this.getAttribute("data-show-text") || "Show solution");
+            $(sol).find("a.js-solution.hide").text(this.getAttribute("data-hide-text") || "Hide solution");
+            var key = location.href + " " + $(".has-solution").index(sol);
+            if (sessionStorage.getItem(key))
+                sol_toggle(sol, false, false);
+        });
+        $(document).on("click", ".js-solution", function (event) {
+            var sol = $(this).closest(".has-solution")[0];
+            sol_toggle(sol, this.classList.contains("hide"), true);
+            event.preventDefault();
+        });
+        })()</script>
+    
+
+
+</body></html>

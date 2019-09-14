@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://read.seas.harvard.edu/cs161-18/lectures/lecture18/ -->
+<html lang="en" class="gr__read_seas_harvard_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="./lec18 - System call performance_files/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="./lec18 - System call performance_files/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+    <link rel="stylesheet" href="./lec18 - System call performance_files/cs161.css">
+    <title>Lecture 18 – CS 161 2018</title>
+  <style type="text/css" id="add5942f-a7a7-4395-89fd-ec3cdef207bc">.ab85ef3e-943a-4267-b712-897c5cc07e58 { position: relative !important; border-radius: 0.2em !important; padding: 0px !important; margin: 0px !important; }
+
+.daa97331-db68-48b3-a9bc-2671cfb5de5c .ssh-close { position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; z-index: 999; border: none; background: url("data:image/png;base64,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") no-repeat border-box; animation-duration: 275ms; animation-timing-function: ease-out; box-shadow: none; animation-name: a521fa39-3e5f-4bf2-a5b4-e06b419a03a5; }
+
+.daa97331-db68-48b3-a9bc-2671cfb5de5c .ssh-close:hover, .daa97331-db68-48b3-a9bc-2671cfb5de5c .ssh-close:focus { background-image: url("data:image/png;base64,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"); }
+
+@media print {
+  .daa97331-db68-48b3-a9bc-2671cfb5de5c { box-shadow: unset !important; -webkit-print-color-adjust: exact !important; }
+}
+
+@keyframes a521fa39-3e5f-4bf2-a5b4-e06b419a03a5 { 
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes c04dff34-0c16-474d-aec3-15dd8f4f7d63 { 
+  100% { opacity: 0; transform: scale(0.3); }
+}
+
+.daa97331-db68-48b3-a9bc-2671cfb5de5c { background-color: rgba(238, 238, 238, 0.8); color: rgb(170, 170, 170); font: inherit; box-shadow: rgb(238, 238, 238) 0px 0px 0.35em; text-shadow: none !important; }
+
+.default-red-aa94e3d5-ab2f-4205-b74e-18ce31c7c0ce { box-shadow: rgb(255, 128, 128) 0px 0px 0.35em; background-color: rgba(255, 128, 128, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-orange-da01945e-1964-4d27-8a6c-3331e1fe7f14 { box-shadow: rgb(255, 210, 170) 0px 0px 0.35em; background-color: rgba(255, 210, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-yellow-aaddcf5c-0e41-4f83-8a64-58c91f7c6250 { box-shadow: rgb(255, 255, 170) 0px 0px 0.35em; background-color: rgba(255, 255, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-green-c4d41e0a-e40f-4c3f-91ad-2d66481614c2 { box-shadow: rgb(170, 255, 170) 0px 0px 0.35em; background-color: rgba(170, 255, 170, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-cyan-f88e8827-e652-4d79-a9d9-f6c8b8ec9e2b { box-shadow: rgb(170, 255, 255) 0px 0px 0.35em; background-color: rgba(170, 255, 255, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-purple-c472dcdb-f2b8-41ab-bb1e-2fb293df172a { box-shadow: rgb(255, 170, 255) 0px 0px 0.35em; background-color: rgba(255, 170, 255, 0.8) !important; color: rgb(0, 0, 0) !important; }
+
+.default-grey-da7cb902-89c6-46fe-b0e7-d3b35aaf237a { box-shadow: rgb(119, 119, 119) 0px 0px 0.35em; background-color: rgba(119, 119, 119, 0.8) !important; color: rgb(255, 255, 255) !important; }</style></head>
+  <body data-gr-c-s-loaded="true">
+
+<nav class="navbar navbar-expand-lg navbar-light">
+  <a class="navbar-brand" href="https://read.seas.harvard.edu/cs161-18/">CS 161 2018</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/#" id="nav-dropdown-doc" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Documentation
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-doc">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/cplusplus/">C++</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/lists/">Lists</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/memory-layout/">Memory layout</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/contexts/">Contexts</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/memory-iterators/">Memory iterators</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/spinlocks/">Spinlocks</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/synchronization-invariants/">Synchronization invariants</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/doc/chickadeefs/">ChickadeeFS</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item">
+    
+      <a class="nav-link" href="https://read.seas.harvard.edu/cs161-18/schedule/">Schedule</a>
+    
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/#" id="nav-dropdown-psets" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Problem sets
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-psets">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset1/">Problem set 1</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset2/">Problem set 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset3/">Problem set 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset4/">Problem set 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/pset5/">Problem set 5</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/#" id="nav-dropdown-lectures" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Lectures
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-lectures">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture2/">Lecture 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture3/">Lecture 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture4/">Lecture 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture5/">Lecture 5</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture6/">Lecture 6</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture7/">Lecture 7</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture8/">Lecture 8</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture9/">Lecture 9</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture10/">Lecture 10</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture11/">Lecture 11</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture12/">Lecture 12</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture14/">Lecture 14</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture15/">Lecture 15</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture16/">Lecture 16</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture17/">Lecture 17</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/">Lecture 18</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture19/">Lecture 19</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture20/">Lecture 20</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture21/">Lecture 21</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture22/">Lecture 22</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture23/">Lecture 23</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture24/">Lecture 24</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture25/">Lecture 25</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/lectures/papers/">Papers</a>
+    
+    </div>
+  </li>
+
+      
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/#" id="nav-dropdown-sections" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Sections
+    </a>
+    <div class="dropdown-menu" aria-labelledby="nav-dropdown-sections">
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section1/">Section 1</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section2/">Section 2</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section3/">Section 3</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section4/">Section 4</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section5/">Section 5</a>
+    
+      <a class="dropdown-item" href="https://read.seas.harvard.edu/cs161-18/sections/section6/">Section 6</a>
+    
+    </div>
+  </li>
+
+    </ul>
+  </div>
+</nav>
+
+
+<div class="container">
+    <h1><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/">Lecture 18: System call costs</a></h1>
+    <div class="post">
+        <h2 id="system-call-costs-experiment">System call costs experiment</h2>
+
+<p>The following program is a simple system call benchmarker. It calls zero or
+more system calls 1 million times in a tight loop; which system call(s)
+depends on the option argument. Paste the code into <code>syscall.cc</code> (or <a href="https://read.seas.harvard.edu/cs161-18/code/syscall.cc">download it</a>), then compile
+with <code>c++ -O2 syscall.cc -o syscall</code> (or <code>c++ -std=gnu++11 -O2 syscall.cc -o syscall</code>) and run with (for example) <code>./syscall -0</code> or <code>./syscall -o</code>.</p>
+<div class="highlight"><pre style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#007020">#include</span> <span style="color:#007020">&lt;unistd.h&gt;</span><span style="color:#007020">
+</span><span style="color:#007020">#include</span> <span style="color:#007020">&lt;time.h&gt;</span><span style="color:#007020">
+</span><span style="color:#007020">#include</span> <span style="color:#007020">&lt;stdio.h&gt;</span><span style="color:#007020">
+</span><span style="color:#007020">#include</span> <span style="color:#007020">&lt;inttypes.h&gt;</span><span style="color:#007020">
+</span><span style="color:#007020">#include</span> <span style="color:#007020">&lt;fcntl.h&gt;</span><span style="color:#007020">
+</span><span style="color:#007020">#include</span> <span style="color:#007020">&lt;stdlib.h&gt;</span><span style="color:#007020">
+</span><span style="color:#007020"></span>
+<span style="color:#007020;font-weight:bold">static</span> <span style="color:#902000">void</span><span style="color:#666">*</span> initial_brk;
+
+<span style="color:#902000">unsigned</span> <span style="color:#06287e">f_return0</span>() {
+    <span style="color:#007020;font-weight:bold">return</span> <span style="color:#40a070">0</span>;
+}
+
+<span style="color:#902000">unsigned</span> <span style="color:#06287e">f_getpid</span>() {
+    <span style="color:#007020;font-weight:bold">return</span> getpid();
+}
+
+<span style="color:#902000">unsigned</span> <span style="color:#06287e">f_getppid</span>() {
+    <span style="color:#007020;font-weight:bold">return</span> getppid();
+}
+
+<span style="color:#902000">unsigned</span> <span style="color:#06287e">f_time</span>() {
+    <span style="color:#007020;font-weight:bold">return</span> time(<span style="color:#007020;font-weight:bold">nullptr</span>);
+}
+
+<span style="color:#902000">unsigned</span> <span style="color:#06287e">f_clock_gettime</span>() {
+    timespec ts;
+    clock_gettime(CLOCK_REALTIME, <span style="color:#666">&amp;</span>ts);
+    <span style="color:#007020;font-weight:bold">return</span> ts.tv_nsec;
+}
+
+<span style="color:#902000">unsigned</span> <span style="color:#06287e">f_clock_gettime_coarse</span>() {
+    timespec ts;
+    clock_gettime(CLOCK_REALTIME_COARSE, <span style="color:#666">&amp;</span>ts);
+    <span style="color:#007020;font-weight:bold">return</span> ts.tv_nsec;
+}
+
+<span style="color:#902000">unsigned</span> <span style="color:#06287e">f_sbrk</span>() {
+    <span style="color:#007020;font-weight:bold">return</span> <span style="color:#007020;font-weight:bold">reinterpret_cast</span><span style="color:#666">&lt;</span>uintptr_t<span style="color:#666">&gt;</span>(sbrk(<span style="color:#40a070">0</span>));
+}
+
+<span style="color:#902000">unsigned</span> <span style="color:#06287e">f_brk</span>() {
+    <span style="color:#007020;font-weight:bold">return</span> brk(initial_brk);
+}
+
+<span style="color:#902000">unsigned</span> <span style="color:#06287e">f_open_close</span>() {
+    <span style="color:#902000">int</span> fd <span style="color:#666">=</span> open(<span style="color:#4070a0">"/dev/null"</span>, O_RDONLY);
+    close(fd);
+    <span style="color:#007020;font-weight:bold">return</span> fd;
+}
+
+<span style="color:#902000">unsigned</span> <span style="color:#06287e">f_close</span>() {
+    <span style="color:#007020;font-weight:bold">return</span> close(<span style="color:#40a070">0</span>);
+}
+
+<span style="color:#902000">void</span> <span style="color:#06287e">usage</span>() {
+    fprintf(stderr, <span style="color:#4070a0">"Usage: ./syscall [-0pPtcCsbox]</span><span style="color:#4070a0;font-weight:bold">\n</span><span style="color:#4070a0">"</span>);
+    exit(<span style="color:#40a070">1</span>);
+}
+
+<span style="color:#902000">int</span> <span style="color:#06287e">main</span>(<span style="color:#902000">int</span> argc, <span style="color:#902000">char</span><span style="color:#666">**</span> argv) {
+    <span style="color:#902000">unsigned</span> (<span style="color:#666">*</span><span style="color:#007020;font-weight:bold">volatile</span> f)(<span style="color:#902000">void</span>) <span style="color:#666">=</span> f_getpid;
+    initial_brk <span style="color:#666">=</span> sbrk(<span style="color:#40a070">0</span>);
+
+    <span style="color:#902000">int</span> opt;
+    <span style="color:#007020;font-weight:bold">while</span> ((opt <span style="color:#666">=</span> getopt(argc, argv, <span style="color:#4070a0">"0pPtcCsbox"</span>)) <span style="color:#666">!=</span> <span style="color:#666">-</span><span style="color:#40a070">1</span>) {
+        <span style="color:#007020;font-weight:bold">switch</span> (opt) {
+        <span style="color:#007020;font-weight:bold">case</span> <span style="color:#4070a0">'0'</span><span style="color:#666">:</span>
+            f <span style="color:#666">=</span> f_return0;
+            <span style="color:#007020;font-weight:bold">break</span>;
+        <span style="color:#007020;font-weight:bold">case</span> <span style="color:#4070a0">'p'</span><span style="color:#666">:</span>
+            f <span style="color:#666">=</span> f_getpid;
+            <span style="color:#007020;font-weight:bold">break</span>;
+        <span style="color:#007020;font-weight:bold">case</span> <span style="color:#4070a0">'P'</span><span style="color:#666">:</span>
+            f <span style="color:#666">=</span> f_getppid;
+            <span style="color:#007020;font-weight:bold">break</span>;
+        <span style="color:#007020;font-weight:bold">case</span> <span style="color:#4070a0">'t'</span><span style="color:#666">:</span>
+            f <span style="color:#666">=</span> f_time;
+            <span style="color:#007020;font-weight:bold">break</span>;
+        <span style="color:#007020;font-weight:bold">case</span> <span style="color:#4070a0">'c'</span><span style="color:#666">:</span>
+            f <span style="color:#666">=</span> f_clock_gettime;
+            <span style="color:#007020;font-weight:bold">break</span>;
+        <span style="color:#007020;font-weight:bold">case</span> <span style="color:#4070a0">'C'</span><span style="color:#666">:</span>
+            f <span style="color:#666">=</span> f_clock_gettime_coarse;
+            <span style="color:#007020;font-weight:bold">break</span>;
+        <span style="color:#007020;font-weight:bold">case</span> <span style="color:#4070a0">'s'</span><span style="color:#666">:</span>
+            f <span style="color:#666">=</span> f_sbrk;
+            <span style="color:#007020;font-weight:bold">break</span>;
+        <span style="color:#007020;font-weight:bold">case</span> <span style="color:#4070a0">'b'</span><span style="color:#666">:</span>
+            f <span style="color:#666">=</span> f_brk;
+            <span style="color:#007020;font-weight:bold">break</span>;
+        <span style="color:#007020;font-weight:bold">case</span> <span style="color:#4070a0">'o'</span><span style="color:#666">:</span>
+            f <span style="color:#666">=</span> f_open_close;
+            <span style="color:#007020;font-weight:bold">break</span>;
+        <span style="color:#007020;font-weight:bold">case</span> <span style="color:#4070a0">'x'</span><span style="color:#666">:</span>
+            f <span style="color:#666">=</span> f_close;
+            <span style="color:#007020;font-weight:bold">break</span>;
+        <span style="color:#007020;font-weight:bold">default</span><span style="color:#666">:</span>
+            usage();
+        }
+    }
+
+    <span style="color:#007020;font-weight:bold">if</span> (optind <span style="color:#666">!=</span> argc) {
+        usage();
+    }
+
+    timespec ts0;
+    clock_gettime(CLOCK_REALTIME, <span style="color:#666">&amp;</span>ts0);
+    <span style="color:#902000">unsigned</span> <span style="color:#902000">long</span> n <span style="color:#666">=</span> <span style="color:#40a070">0</span>;
+
+    <span style="color:#007020;font-weight:bold">for</span> (<span style="color:#902000">unsigned</span> i <span style="color:#666">=</span> <span style="color:#40a070">0</span>; i <span style="color:#666">!=</span> <span style="color:#40a070">1000000</span>; <span style="color:#666">++</span>i) {
+        n <span style="color:#666">+=</span> f();
+    }
+
+    timespec ts1;
+    clock_gettime(CLOCK_REALTIME, <span style="color:#666">&amp;</span>ts1);
+
+    <span style="color:#902000">double</span> t0 <span style="color:#666">=</span> ts0.tv_sec <span style="color:#666">+</span> ts0.tv_nsec <span style="color:#666">/</span> <span style="color:#40a070">1e9</span>;
+    <span style="color:#902000">double</span> t1 <span style="color:#666">=</span> ts1.tv_sec <span style="color:#666">+</span> ts1.tv_nsec <span style="color:#666">/</span> <span style="color:#40a070">1e9</span>;
+    printf(<span style="color:#4070a0">"result: %lu in %.06fs</span><span style="color:#4070a0;font-weight:bold">\n</span><span style="color:#4070a0">"</span>, n, t1 <span style="color:#666">-</span> t0);
+}
+</code></pre></div>
+<p>Run this program with the different arguments.</p>
+
+<ol>
+<li>Which system calls are most expensive and which least expensive? Do system
+call costs divide into classes?</li>
+<li>Try to explain why some system calls are so much more expensive than
+others. For instance, use programs like <code>gdb</code> and/or <code>strace</code> and/or <code>/usr/bin/time -v</code> and/or <code>perf</code> to
+trace the operation of the program.</li>
+</ol>
+
+<div class="has-solution"><blockquote class="solution-collapsed js-solution show"><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/" class="js-solution show">Show solution</a></blockquote><blockquote class="hidden solution">
+<p>Here’s one set of observations:</p>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>System call</th>
+<th>Time</th>
+<th align="right">Slowdown</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>-0</code></td>
+<td>None</td>
+<td>0.001770s</td>
+<td align="right">1x</td>
+</tr>
+
+<tr>
+<td><code>-t</code></td>
+<td><code>time</code></td>
+<td>0.003583s</td>
+<td align="right">2.02x</td>
+</tr>
+
+<tr>
+<td><code>-s</code></td>
+<td><code>sbrk</code></td>
+<td>0.004928s</td>
+<td align="right">2.78x</td>
+</tr>
+
+<tr>
+<td><code>-C</code></td>
+<td><code>clock_gettime(CLOCK_REALTIME_COARSE)</code></td>
+<td>0.007307s</td>
+<td align="right">4.13x</td>
+</tr>
+
+<tr>
+<td><code>-c</code></td>
+<td><code>clock_gettime(CLOCK_REALTIME)</code></td>
+<td>0.028216s</td>
+<td align="right">15.9x</td>
+</tr>
+
+<tr>
+<td><code>-P</code></td>
+<td><code>getppid</code></td>
+<td>0.234567s</td>
+<td align="right">133x</td>
+</tr>
+
+<tr>
+<td><code>-p</code></td>
+<td><code>getpid</code></td>
+<td>0.234863s</td>
+<td align="right">133x</td>
+</tr>
+
+<tr>
+<td><code>-b</code></td>
+<td><code>brk</code></td>
+<td>0.238244s</td>
+<td align="right">135x</td>
+</tr>
+
+<tr>
+<td><code>-x</code></td>
+<td><code>close</code></td>
+<td>0.240716s</td>
+<td align="right">136x</td>
+</tr>
+
+<tr>
+<td><code>-o</code></td>
+<td><code>open</code> + <code>close</code></td>
+<td>1.335160s</td>
+<td align="right">754x</td>
+</tr>
+</tbody>
+</table>
+
+<p>We see roughly three performance classes. Fastest are <code>time</code>, <code>sbrk</code>, and
+<code>clock_gettime</code>, which aren’t much slower than a null function call.
+Next fastest are <code>getppid</code>, <code>getpid</code>, <code>brk</code>, and <code>close</code>. Then, in its own
+class, <code>open</code> + <code>close</code>, which is more than 2x slower than <code>close</code> alone.</p>
+
+<p>What’s going on? First, let’s take a look at <code>strace</code> output, to check that
+system calls are actually being made. We see some surprises:</p>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>System call</th>
+<th align="right"># <code>strace</code> lines</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>-0</code></td>
+<td>None</td>
+<td align="right">30</td>
+</tr>
+
+<tr>
+<td><code>-t</code></td>
+<td><code>time</code></td>
+<td align="right">30</td>
+</tr>
+
+<tr>
+<td><code>-s</code></td>
+<td><code>sbrk</code></td>
+<td align="right">30</td>
+</tr>
+
+<tr>
+<td><code>-C</code></td>
+<td><code>clock_gettime(CLOCK_REALTIME_COARSE)</code></td>
+<td align="right">30</td>
+</tr>
+
+<tr>
+<td><code>-c</code></td>
+<td><code>clock_gettime(CLOCK_REALTIME)</code></td>
+<td align="right">30</td>
+</tr>
+
+<tr>
+<td><code>-P</code></td>
+<td><code>getppid</code></td>
+<td align="right">1000030</td>
+</tr>
+
+<tr>
+<td><code>-p</code></td>
+<td><code>getpid</code></td>
+<td align="right">1000030</td>
+</tr>
+
+<tr>
+<td><code>-b</code></td>
+<td><code>brk</code></td>
+<td align="right">1000030</td>
+</tr>
+
+<tr>
+<td><code>-x</code></td>
+<td><code>close</code></td>
+<td align="right">1000030</td>
+</tr>
+
+<tr>
+<td><code>-o</code></td>
+<td><code>open</code> + <code>close</code></td>
+<td align="right">2000030</td>
+</tr>
+</tbody>
+</table>
+
+<p>It looks like the first class of system calls…<em>aren’t system calls at all!</em>
+The C library has somehow cached the results of the system calls, or used
+another mechanism to avoid system calls altogether.</p>
+
+<p>We can figure this out by looking at the C library source code or by stepping
+through the code with GDB or a disassembler.</p>
+
+<ol>
+<li><p>The <code>sbrk</code> “system call” is actually a wrapper function around a more
+fundamental system call, <code>brk</code>. And that wrapper has a special case for
+when the argument is 0: it just returns a cached value! <a href="https://sourceware.org/git/?p=glibc.git;a=blob;f=misc/sbrk.c;h=e0747ace8dabe5b23c7c184a928a260ae98f8d42;hb=HEAD">Code</a></p></li>
+
+<li><p>The <code>time</code> and <code>clock_gettime</code> system calls are implemented on Linux by a
+special shared-memory mechanism called <a href="http://man7.org/linux/man-pages/man7/vdso.7.html">vdso</a>. This is a special shared library <em>created by the kernel</em> and linked
+in to every process automatically. The shared-library page is updated by the kernel
+with the current time, so processes can read the current time without doing
+a system call!</p>
+
+<p><a href="https://github.com/torvalds/linux/blob/dd53a4214d4ff450b66ca7d2e51d9369e3266ebf/arch/x86/entry/vdso/vclock_gettime.c">Here’s the code for the x86-64 versions
+of the VDSO time functions.</a>
+This code also explains the (slight) performance differences between the variants.
+<code>time</code> is the cheapest because it does the least work (it just reads an int).
+<code>clock_gettime</code> is more expensive because it loops to ensure that it reads
+a consistent second/nanosecond pair. The <code>REALTIME</code> version is more expensive than
+the <code>REALTIME_COARSE</code> version because the <code>REALTIME</code> version additionally uses
+expensive instructions, such as <code>rdtsc</code> (Read TimeStamp Counter), to get a precise
+nanosecond count.</p>
+
+<p>How important is this optimization? Many programs, particularly server programs,
+frequently check the current time (to, for example, time out dead connections).
+People notice when <code>clock_gettime</code> gets slow, which is
+possible in virtualized environments such as Nick’s laptop. See <a href="https://blog.packagecloud.io/eng/2017/03/08/system-calls-are-much-slower-on-ec2/">“Two frequently used system calls are ~77% slower on AWS EC2”!</a></p></li>
+</ol>
+
+<p>Pretty cool what you can do when you can control the kernel.</p>
+
+<p>Some students also saw <code>getpid</code> and/or <code>getppid</code> running quickly. These students were
+observing a PID caching optimization that the GNU C library eventually rejected as
+too error-prone and complex! <a href="http://man7.org/linux/man-pages/man2/getpid.2.html">Read about this history on the <code>getpid</code> manual page.</a></p>
+
+<p>Why might <code>open</code> + <code>close</code> be so much slower than <code>close</code> alone? Because <code>close</code> alone
+<em>does not modify kernel state</em> after the first call. The first call to <code>close</code> closes
+the standard input; the other 999,999 calls simply return an error. <code>open</code>, on the other
+hand, must search the file descriptor table for an empty slot, look up a pathname, allocate
+memory for a file structure, modify the file descriptor table, etc.—expensive stuff.</p>
+<p><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/" class="js-solution hide">Hide solution</a></p></blockquote></div>
+
+<h2 id="the-c10k-problem">The C10K problem</h2>
+
+<p>Much OS research in the late 1990s and early 2000s was concerned with
+addressing performance problems with a specific set of system calls, namely
+<em>network connection</em> system calls. Wide-area network connections have high
+latency, so a server (such as a web or FTP server) that services wide-area
+clients will often be <em>waiting</em> for those clients. A single server in the late
+1990s could theoretically service the active workload provided by 10,000
+simultaneous network clients, but in practice many servers broke down well
+before that level, because certain critical system calls had design flaws
+that prevented them from scaling. This “10,000 connection” problem became
+known as the <a href="https://en.wikipedia.org/wiki/C10k_problem">“C10K problem.”</a></p>
+
+<p>This paper traced the C10K problem to two specific kernel functions, <code>select</code>
+(a system call) and <code>ufalloc</code> (a kernel function for allocating the
+numerically smallest unused file descriptor, invoked by <code>open</code>, <code>socket</code>,
+<code>accept</code>, etc.):</p>
+
+<blockquote>
+<p>“Scalable Kernel Performance for Internet Servers Under Realistic Loads.” Gaurav Banga and Jeffrey C. Mogul. In <em>Proc. USENIX ATC 1998</em>. <a href="https://www.usenix.org/conference/1998-usenix-annual-technical-conference/scalable-kernel-performance-internet-servers">Link</a></p>
+</blockquote>
+
+<p>Read the manual page for <code>select</code> and/or <code>poll</code> and try to figure out, <em>from
+these system calls’ specifications,</em> why they perform badly on servers with
+10,000 or more open, but mostly idle, connections. Develop your own hypothesis
+and then check it out by talking with other groups or reading the paper. Then
+sketch a solution for this problem: system calls that serve the same need as
+<code>select</code>, but that could scale to large numbers of idle connections.</p>
+
+<blockquote>
+<p>“A Scalable and Explicit Event Delivery Mechanism for UNIX.” Gaurav Banga, Jeffrey C. Mogul, and Peter Druschel, In <em>Proc. USENIX ATC 1999</em>. <a href="https://www.usenix.org/legacy/event/usenix99/full_papers/banga/banga.pdf">Link</a></p>
+</blockquote>
+
+<div class="has-solution"><blockquote class="solution-collapsed js-solution show"><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/" class="js-solution show">Show solution</a></blockquote><blockquote class="hidden solution">
+<p>Consider a server with <em>N</em> mostly-idle connections. This server is
+interested in events (such as data arrivals) on <em>N</em> file descriptors, but
+since these FDs are mostly idle, only a couple of them (say, <em>O</em>(1))
+actually have events available at any given moment. How would <code>select</code> or
+<code>poll</code> handle this situation? Well, the server would typically run like
+this:</p>
+
+<ol>
+<li>The server process processes all the events that it knows about.</li>
+<li>The server process prepares to block until there is more work to do.
+It calls <code>select</code> (or <code>poll</code>), passing down the full set of <em>N</em> file
+descriptors to the kernel (which takes <em>O</em>(<em>N</em>) work).</li>
+<li>The kernel does <em>O</em>(<em>N</em>) work to check all <em>N</em> file descriptors for events.</li>
+<li>If no events are available, the kernel does <em>O</em>(<em>N</em>) work to block
+on all <em>N</em> file descriptors (so if an event arrives on any of the file descriptors,
+the process’s kernel task will wake up).</li>
+<li>Eventually, a few events arrive. The kernel reports those events to the server process.</li>
+<li>Goto step 1.</li>
+</ol>
+
+<p>Thus, <strong>it takes <em>O</em>(<em>N</em>) work to process <em>O</em>(1) events!</strong></p>
+
+<p>This problem is baked in to these system calls’ designs. Although <code>poll</code>
+addressed some problems with <code>select</code> (namely, <code>select</code> requires the user
+process to construct new event bitmasks every time, and in some older
+implementations <code>select</code> didn’t handle large file descriptor values), the
+consensus is that <code>poll</code> is worse in most realistic
+scenarios (because <code>poll</code>’s data structures are much larger than
+<code>select</code>’s), and <code>poll</code> doesn’t fix the <em>O</em>(<em>N</em>) problem.</p>
+
+<p>To fix the <em>O</em>(<em>N</em>) problem, we <em>must</em> move state into the kernel, to avoid
+the <em>O</em>(<em>N</em>) state transfer in step 2 above. This is what the
+<a href="https://en.wikipedia.org/wiki/Epoll"><code>epoll</code></a> and
+<a href="https://en.wikipedia.org/wiki/Kqueue"><code>kqueue</code></a> system calls do. Here’s how
+they work:</p>
+
+<ol>
+<li>The server process sets up an “event handle,” a special kind of file
+descriptor that knows how to listen for events on other file descriptors.</li>
+<li>The server process adds the <em>N</em> file descriptors to the handle. This
+takes <em>O</em>(<em>N</em>) work, but needs to be done just once. Then:</li>
+<li>The server process processes all the events it knows about.</li>
+<li>The server process calls <code>epoll</code> or <code>kqueue</code>, passing down <em>just</em> the
+event handle.</li>
+<li>Since the kernel has already set up internal structures corresponding to
+the event handle, it can wait for events with just <em>O</em>(1) work!</li>
+<li>Goto step 3.</li>
+</ol>
+
+<p>As connections come and go, the server process can add and remove event
+triggers to and from the handle.</p>
+
+<p>As you might imagine, event handles are subtle to implement, and no
+mechanism is perfect. It’s fun to read people getting mad online about
+them. Bryan Cantrill, a <a href="https://groups.google.com/forum/#!topic/comp.sys.sun.hardware/wCd7fHnzHjw%5B76-100%5D">not infrequently</a> <a href="https://blog.valerieaurora.org/2016/10/22/why-i-wont-be-attending-systems-we-love/">obnoxious</a> former Sun employee,
+<a href="https://idea.popcount.org/2017-02-20-epoll-is-fundamentally-broken-12/">pooped on <code>epoll</code> for years</a>.
+(Former Sun employees are way too
+attached to Solaris, which was at best fine.)
+My favorite set of complaints about event
+handles comes from Marc Lehmann’s <a href="http://pod.tst.eu/http://cvs.schmorp.de/libev/ev.pod">libev documentation</a>; search for “special problem” or jump to “portability notes.” Some quotes:</p>
+
+<blockquote>
+<p>The epoll mechanism deserves honorable mention as the most misdesigned of
+the more advanced event mechanisms: mere annoyances include silently
+dropping file descriptors, requiring a system call per change per file
+descriptor (and unnecessary guessing of parameters), problems with dup,
+returning before the timeout value, resulting in additional iterations (and
+only giving 5ms accuracy while select on the same platform gives 0.1ms) and
+so on. … Epoll is also notoriously buggy - embedding epoll fds should work,
+but of course doesn't, and epoll just loves to report events for totally
+different file descriptors (even already closed ones, so one cannot even
+remove them from the set) than registered in the set (especially on SMP
+systems). … Epoll is truly the train wreck among event poll mechanisms, a
+frankenpoll, cobbled together in a hurry, no thought to design or
+interaction with others. Oh, the pain, will it ever stop...</p>
+
+<p>Kqueue deserves special mention, as at the time of this writing, it was
+broken on all BSDs except NetBSD (usually it doesn't work reliably with
+anything but sockets and pipes, except on Darwin, where of course it's
+completely useless). Unlike epoll, however, whose brokenness is by design,
+these kqueue bugs can (and eventually will) be fixed….</p>
+
+<p><strong>OS/X AND DARWIN BUGS</strong>: The whole thing is a bug if you ask me -
+basically any system interface you touch is broken, whether it is locales,
+poll, kqueue or even the OpenGL drivers. … The kqueue syscall is broken in
+all known versions….
+Instead of fixing kqueue, Apple replaced their (working) poll
+implementation by something calling kqueue internally around the 10.5.6
+release, so now kqueue and poll are broken. … All that's left is select,
+and of course Apple found a way to fuck this one up as well.</p>
+
+<p>The scalable event interface for Solaris is called "event ports".
+Unfortunately, this mechanism is very buggy in all major releases. If you
+run into high CPU usage, your program freezes or you get a large number of
+spurious wakeups, make sure you have all the relevant and latest kernel
+patches applied. No, I don't know which ones…</p>
+
+<p>As with everything on Solaris, [the Solaris 10 event port mechanism is]
+really slow, but it still scales very well (O(active_fds)). … On the
+positive side, this backend actually performed fully to specification in
+all tests and is fully embeddable, which is a rare feat among the
+OS-specific backends (I vastly prefer correctness over speed hacks). On the
+negative side, the interface is bizarre - so bizarre that even sun itself
+gets it wrong in their code examples … Fortunately libev seems to be able
+to work around these idiocies.</p>
+</blockquote>
+<p><a href="https://read.seas.harvard.edu/cs161-18/lectures/lecture18/" class="js-solution hide">Hide solution</a></p></blockquote></div>
+
+    </div>
+</div>
+
+        <script src="./lec18 - System call performance_files/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="./lec18 - System call performance_files/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="./lec18 - System call performance_files/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+        <script src="./lec18 - System call performance_files/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
+        <script>(function () {
+        $(".math").each(function () {
+            var t = this.innerText,
+                opt = {throwOnError: false, displayMode: t.substr(0, 2) === "\\["};
+            katex.render(t.replace(/(?:^\\\(|^\\\[|\\\)$|\\\]$)/g, ""), this, opt);
+        });
+        function sol_toggle(sol, hide, storage) {
+            sol.childNodes[0].classList.toggle("hidden", !hide);
+            sol.childNodes[0].classList.toggle("shown", hide);
+            sol.childNodes[1].classList.toggle("hidden", hide);
+            sol.childNodes[1].classList.toggle("shown", !hide);
+            if (storage) {
+                var key = location.href + " " + $(".has-solution").index(sol);
+                if (hide)
+                    sessionStorage.removeItem(key);
+                else
+                    sessionStorage.setItem(key, true);
+            }
+        }
+        $(".solution").each(function () {
+            $(this).wrap('<div class="has-solution"></div>');
+            var sol = this.parentElement;
+            $(sol).prepend('<blockquote class="solution-collapsed js-solution show"><a href="" class="js-solution show"></a></blockquote>');
+            $(this).append('<p><a href="" class="js-solution hide"></a></p>');
+            $(sol).find("a.js-solution.show").text(this.getAttribute("data-show-text") || "Show solution");
+            $(sol).find("a.js-solution.hide").text(this.getAttribute("data-hide-text") || "Hide solution");
+            var key = location.href + " " + $(".has-solution").index(sol);
+            if (sessionStorage.getItem(key))
+                sol_toggle(sol, false, false);
+        });
+        $(document).on("click", ".js-solution", function (event) {
+            var sol = $(this).closest(".has-solution")[0];
+            sol_toggle(sol, this.classList.contains("hide"), true);
+            event.preventDefault();
+        });
+        })()</script>
+    
+
+
+</body></html>

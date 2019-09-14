@@ -13,10 +13,44 @@
 3. Processes, fork
 4. I/O, files, sockets, networking
 5. Concurrency: processes and threads
+   - IPC
+   - Client-server
+   - Socket
+   - Context switching
+   - Process lifecycle
+   - Process scheduling
+   - Process queues
+   - Shared vs. per-thread state
+   - Thread API
+   - yield()
 6. Cooperating threads, synchronization
+   - I/O blocking and thread switching
+   - Thread abstraction
+   - Thread lifecycle
+   - Use cases of multi-threading
+   - User-level thread vs. kernel-level thread
+   - Multicore
+   - Hyperthreading
 7. Mutual exclusion, lock implementation
+   - User-kernel mode switching
+   - In-kernel threads
+   - Thread switch
+   - Example: threaded web server
+   - Example: ATM server
+   - Event-driven vs. multi-threading
+   - Too-much-milk problem
 8. Synchronization: lock, semaphores
+   - Locks
+   - Semaphores
+   - Monitors
+   - Send/receive
+   - Disable/enable interrupts
+   - Producer-consumer problem
+   - Atomic instructions
 9. Synchronization: condition variables, readers/writers
+   - Mesa vs. Hoare monitors
+   - Readers/writers problem
+   - CPU scheduling (beginning)
 10. Advanced scheduling
 11. Deadlock, address translation, virtual memory
 12. Address translation (1)
