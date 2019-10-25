@@ -33,15 +33,18 @@
 
 ### References
 
-- UCB  CS-162  2018f: L07, L08, L09
-- Corn CS-441  2018f: L05, L06, L07, L08, L09
-- Harv CS-161  2018s: L19, L20, L21
-- MIT   6.828  2018f: L09, L18
-- Stan CS-140  2018w: L03, L07, L08
-- UCSD CSE-120 2018s: L05, L06, L07, L08
-- UIUC CS-423  2018s: L08, L09, L10
-- WISC CS-537  2018s: L06, L07, L08, L09
-- WU  CSE-451  2018f: L09, L13
+| University   | Year  | Lectures                |
+| ------------ | ----- | ----------------------- |
+| UCB CS-162   | 2018f | L07, L08, L09           |
+| Corn CS-441  | 2018f | L05, L06, L07, L08, L09 |
+| MIT 6.033    | 2019s | L04, L15, L17           |
+| MIT 6.828    | 2018f | L09, L18                |
+| Harv CS-161  | 2018s | L19, L20, L21           |
+| Stan CS-140  | 2018w | L03, L07, L08           |
+| UCSD CSE-120 | 2018s | L05, L06, L07, L08      |
+| UIUC CS-423  | 2018s | L08, L09, L10           |
+| WISC CS-537  | 2018s | L06, L07, L08, L09      |
+| WU  CSE-451  | 2018f | L09, L13                |
 
 ### Big Pictures
 
