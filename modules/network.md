@@ -8,7 +8,7 @@
 
 |                                | Basic                                       | Detailed                              | Advanced                          |
 | ------------------------------ | ------------------------------------------- | ------------------------------------- | --------------------------------- |
-| Network programming            | Socket API (Corn-L09, Harv-L14)             | RPC (Corn-L09)                        | mbuf (Harv-L14)                   |
+| Network programming            | Socket API (Corn-L09, Stan-L14, UCB-05)     | RPC (Corn-L09)                        | mbuf (Stan-L14)                   |
 | Internet                       | History of Internet (MIT6033-L08, Corn-L09) | DNS (Corn-L09)                        |                                   |
 |                                | TCP/IP general (SJTU227-L16)                | CDN (MIT6033-L13)                     |                                   |
 | Link layer/Physical layer      | Manchester coding (SJTU227-L16)             | VCO (SJTU227-L16)                     |                                   |
@@ -36,7 +36,7 @@
 
 | University  | Year  | Lectures                     |
 | ----------- | ----- | ---------------------------- |
-| UCB CS-162  | 2018f | L21, L22                     |
+| UCB CS-162  | 2018f | L05, L21, L22                |
 | Corn CS-441 | 2018f | L09                          |
 | MIT 6.033   | 2019s | L08, L09, L10, L11, L12, L13 |
 | Harv CS-161 | 2018s | L23                          |

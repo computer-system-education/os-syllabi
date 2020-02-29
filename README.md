@@ -31,9 +31,9 @@ Here are some topics of each course:
 | Architecture support for OS                                  |      |      | 1    | 1    | 1    |      | 1    |      | 1    |      |      |      |      | 1    |      |      |      |
 | OS structure                                                 |      |      |      | 1    | 1    |      |      | 1    |      |      | 1    | 1    | 1    | 1    | 1    |      | 1    |
 | System call & intr & excep                                   |      | 1    |      | 1    | 1    |      |      | 1    | 3    |      |      |      |      | 1    | 3    | 1    | 1    |
-| Process & thread                                             | 2    | 3    | 2    | 1    | 1    | 1    | 2    |      |      | 1    | 1    | 2    | 2    | 1    | 2    | 4    | 3    |
+| [Process & thread](https://github.com/computer-system-education/os-syllabi/blob/master/modules/process-thread.md) | 2    | 3    | 2    | 1    | 1    | 1    | 2    |      |      | 1    | 1    | 2    | 2    | 1    | 2    | 4    | 3    |
 | [Synchronization](https://github.com/computer-system-education/os-syllabi/blob/master/modules/synchronization.md) | 4    | 4    | 6    | 4    | 3    | 3    | 3    | 4    | 1    | 4    |      | 5    | 4    | 3    | 4    | 4    | 6    |
-| Scheduling                                                   | 1    | 2    | 1    | 2    | 1    | 1    | 1    | 3    | 1    | 1    | 2    | 1    | 1    | 1    |      | 2    | 2    |
+| [Scheduling](https://github.com/computer-system-education/os-syllabi/blob/master/modules/scheduling.md) | 1    | 2    | 1    | 2    | 1    | 1    | 1    | 3    | 1    | 1    | 2    | 1    | 1    | 1    |      | 2    | 2    |
 | Memory management                                            | 6    | 5    | 5    | 2    | 3    | 3    | 3    | 4    | 3    | 3    | 3    | 4    | 1    | 2    | 1    | 6    | 6    |
 | [File system](https://github.com/computer-system-education/os-syllabi/blob/master/modules/file-system.md) | 2    | 3    | 3    | 8    | 3    | 2    | 2    | 2    | 3    | 4    | 2    | 4    | 7    | 2    | 6    | 2    | 4    |
 | Storage                                                      | 1    | 2    | 1    |      | 3    | 1    | 2    | 3    |      | 1    |      | 2    | 2    | 1    | 1    | 1    | 2    |
